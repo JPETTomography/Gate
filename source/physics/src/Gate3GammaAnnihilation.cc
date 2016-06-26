@@ -92,10 +92,11 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
 
 
-  particle1->SetMomentum( g1 -> Px(), g1 -> Py(), g1 -> Pz() );
-  particle2->SetMomentum( g2 -> Px(), g2 -> Py(), g2 -> Pz() );
-  particle3->SetMomentum( g3 -> Px(), g3 -> Py(), g3 -> Pz() );
-
+  particle1->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
+  particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
+  particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
+  
+  // Momenta changed to MeV (Daria is using keV)
 
 
 
