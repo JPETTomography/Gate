@@ -88,6 +88,7 @@ public:
 
   void GeneratePrimariesForBackToBackSource(G4Event* event);
   void GeneratePrimariesForFastI124Source(G4Event* event);
+  void GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event);
 
   virtual GateSPSPosDistribution* GetPosDist() { return m_posSPS ; }
   virtual GateSPSEneDistribution* GetEneDist() { return m_eneSPS ; }

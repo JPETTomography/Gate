@@ -14,6 +14,7 @@
 #include "G4UnitsTable.hh"
 
 #include "GateBackToBack.hh"
+#include "Gate3GammaAnnihilation.hh"
 #include "GateFastI124.hh"
 #include "GateClock.hh"
 #include "GateMessageManager.hh"
@@ -434,6 +435,24 @@ void GateVSource::GeneratePrimariesForBackToBackSource(G4Event* event) {
 
 
 //-------------------------------------------------------------------------------------------------
+void GateVSource::GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event) {
+  // Gammas Pair with GPS
+  Gate3GammaAnnihilation* _3Gamma = new Gate3GammaAnnihilation( this );
+  _3Gamma->Initialize();
+  _3Gamma->GenerateVertex( event );
+  if( nVerboseLevel > 1 )
+    G4cout << "GetNumberOfPrimaryVertex : "
+           << event->GetNumberOfPrimaryVertex() << Gateendl;
+  if( nVerboseLevel > 1 )
+    G4cout << "GetNumberOfParticle      : "
+           << event->GetPrimaryVertex(0)->GetNumberOfParticle() << Gateendl;
+
+  delete _3Gamma;
+}
+//-------------------------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------------------------
 void GateVSource::GeneratePrimariesForFastI124Source(G4Event* event) {
   // Fast I124 : generates 0 to 3 particles (gammas and e+) according to a simplified decay scheme
   // No atomic deexcitation occurs
@@ -463,6 +482,7 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
   if ( test == 1  )
     {
       if (GetType() == G4String("backtoback"))    { GeneratePrimariesForBackToBackSource(event); }
+      else if (GetType() == G4String("3GammaAnnihilation"))    { GeneratePrimariesFor3GammaAnnihilationSource(event); }
       else if (GetType() == G4String("fastI124")) { GeneratePrimariesForFastI124Source(event); }
       else if ((GetType() == G4String("")) || (GetType() == G4String("gps"))) {
         // decay time for ions inside the timeSlice controlled here and not by RDM
@@ -473,7 +493,7 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
       }
       else {
         GateError("Sorry, I don't know the source type '"<< GetType() << "'. Known source types are"
-                  << "<backtoback> <fastI124> <gps>");
+                  << "<backtoback> <3GammaAnnihilation> <fastI124> <gps>");
       }
       numVertices++;
 
