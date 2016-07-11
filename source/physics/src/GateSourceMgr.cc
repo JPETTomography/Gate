@@ -226,6 +226,12 @@ G4int GateSourceMgr::AddSource( std::vector<G4String> sourceVec )
         source->SetSourceID( m_sourceProgressiveNumber );
         source->SetIfSourceVoxelized(false);  // added by I. Martinez-Rovira (immamartinez@gmail.com)
       }
+      else if (sourceGeomType == "3GammaAnnihilation") {
+        source = new GateVSource( sourceName );
+        source->SetType("3GammaAnnihilation");
+        source->SetSourceID( m_sourceProgressiveNumber );
+        source->SetIfSourceVoxelized(false);  // added by I. Martinez-Rovira (immamartinez@gmail.com)
+      }
       else if (sourceGeomType == "fastI124") {
         source = new GateVSource( sourceName );
         source->SetType("fastI124");

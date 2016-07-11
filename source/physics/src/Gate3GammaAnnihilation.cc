@@ -7,6 +7,9 @@
   ----------------------*/
 
 #include "Gate3GammaAnnihilation.hh"
+#include "TLorentzVector.h"
+#include "TGenPhaseSpace.h"
+#include "TRandom3.h"
 
 // #include "G4PhysicalConstants.hh"
 // #include "GateConstants.hh"
@@ -43,11 +46,55 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   G4PrimaryParticle* particle2 = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 1 );
   G4PrimaryParticle* particle3 = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 2 );
 
-  G4ThreeVector gammaMom = particle1->GetMomentum();
-  particle2->SetMomentum( gammaMom.x(),0, 0 );
-  particle3->SetMomentum( 0, 0, gammaMom.z() );
 
 
+/*===================================================================
+=            Begining of code provided by Daria Kamińska            =
+===================================================================*/
+
+
+  Double_t mass_e = 511.0 ; //keV
+  TRandom3 *  random_generator = new TRandom3();
+
+  // informacje o pozytonium
+  TLorentzVector vec_pozytonium(0.0, 0.0, 0.0, 2.0*mass_e);
+
+  // masy cząstek potomnych =0 -> gammy
+  Double_t mass_secondaries[3] = {0.0, 0.0, 0.0};
+
+  // TGenPhaseSpace - Utility class to generate n-body event
+  TGenPhaseSpace event;
+  event.SetDecay(vec_pozytonium, 3, mass_secondaries);
+
+  // uwzględnienie wag rozpadu
+  Double_t weight;
+  Double_t weight_max= event.GetWtMax()*pow(10,5);
+  Double_t rwt;
+  Double_t M_max = 7.65928*pow(10,-6);
+
+
+    do{
+        weight = event.Generate();
+        weight = weight*pow((mass_e-event.GetDecay(0)->E())/(event.GetDecay(1)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(1)->E())/(event.GetDecay(0)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(2)->E())/(event.GetDecay(0)->E()*event.GetDecay(1)->E()),2);
+        rwt = random_generator->Uniform(M_max*weight_max);
+    }while( rwt > weight );
+
+    // get momenta
+    TLorentzVector * g1 = event.GetDecay(0);
+    TLorentzVector * g2 = event.GetDecay(1);
+    TLorentzVector * g3 = event.GetDecay(2);
+
+
+/*==============================================================
+=            End of code provided by Daria Kamińska            =
+==============================================================*/
+
+
+  particle1->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
+  particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
+  particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
+  
+  // Momenta changed to MeV (Daria is using keV)
 
 
 }
