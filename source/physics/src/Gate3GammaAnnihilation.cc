@@ -54,7 +54,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
 
   Double_t mass_e = 511.0 ; //keV
-  TRandom3 *  random_generator = new TRandom3();
+  TRandom3 random_generator;
 
   // informacje o pozytonium
   TLorentzVector vec_pozytonium(0.0, 0.0, 0.0, 2.0*mass_e);
@@ -76,7 +76,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
     do{
         weight = event.Generate();
         weight = weight*pow((mass_e-event.GetDecay(0)->E())/(event.GetDecay(1)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(1)->E())/(event.GetDecay(0)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(2)->E())/(event.GetDecay(0)->E()*event.GetDecay(1)->E()),2);
-        rwt = random_generator->Uniform(M_max*weight_max);
+        rwt = random_generator.Uniform(M_max*weight_max);
     }while( rwt > weight );
 
     // get momenta
@@ -93,7 +93,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   particle1->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
   particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
   particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
-  
+
   // Momenta changed to MeV (Daria is using keV)
 
 
