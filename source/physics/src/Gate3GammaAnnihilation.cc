@@ -54,7 +54,8 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
 
   Double_t mass_e = 511.0 ; //keV
-  TRandom3 *  random_generator = new TRandom3();
+  // TRandom3 random_generator;
+
 
   // informacje o pozytonium
   TLorentzVector vec_pozytonium(0.0, 0.0, 0.0, 2.0*mass_e);
@@ -62,27 +63,27 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   // masy cząstek potomnych =0 -> gammy
   Double_t mass_secondaries[3] = {0.0, 0.0, 0.0};
 
-  // TGenPhaseSpace - Utility class to generate n-body event
-  TGenPhaseSpace event;
-  event.SetDecay(vec_pozytonium, 3, mass_secondaries);
+  // TGenPhaseSpace - Utility class to generate n-body m_3_body_decay
+  // TGenPhaseSpace m_3_body_decay;
+  m_3_body_decay.SetDecay(vec_pozytonium, 3, mass_secondaries);
 
   // uwzględnienie wag rozpadu
   Double_t weight;
-  Double_t weight_max= event.GetWtMax()*pow(10,5);
+  Double_t weight_max= m_3_body_decay.GetWtMax()*pow(10,5);
   Double_t rwt;
   Double_t M_max = 7.65928*pow(10,-6);
 
 
     do{
-        weight = event.Generate();
-        weight = weight*pow((mass_e-event.GetDecay(0)->E())/(event.GetDecay(1)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(1)->E())/(event.GetDecay(0)->E()*event.GetDecay(2)->E()),2) + pow((mass_e-event.GetDecay(2)->E())/(event.GetDecay(0)->E()*event.GetDecay(1)->E()),2);
-        rwt = random_generator->Uniform(M_max*weight_max);
+        weight = m_3_body_decay.Generate();
+        weight = weight*pow((mass_e-m_3_body_decay.GetDecay(0)->E())/(m_3_body_decay.GetDecay(1)->E()*m_3_body_decay.GetDecay(2)->E()),2) + pow((mass_e-m_3_body_decay.GetDecay(1)->E())/(m_3_body_decay.GetDecay(0)->E()*m_3_body_decay.GetDecay(2)->E()),2) + pow((mass_e-m_3_body_decay.GetDecay(2)->E())/(m_3_body_decay.GetDecay(0)->E()*m_3_body_decay.GetDecay(1)->E()),2);
+        rwt = m_random_gen.Uniform(M_max*weight_max);
     }while( rwt > weight );
 
     // get momenta
-    TLorentzVector * g1 = event.GetDecay(0);
-    TLorentzVector * g2 = event.GetDecay(1);
-    TLorentzVector * g3 = event.GetDecay(2);
+    TLorentzVector * g1 = m_3_body_decay.GetDecay(0);
+    TLorentzVector * g2 = m_3_body_decay.GetDecay(1);
+    TLorentzVector * g3 = m_3_body_decay.GetDecay(2);
 
 
 /*==============================================================
@@ -93,7 +94,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   particle1->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
   particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
   particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
-  
+
   // Momenta changed to MeV (Daria is using keV)
 
 
