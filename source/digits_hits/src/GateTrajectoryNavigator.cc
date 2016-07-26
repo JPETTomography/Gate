@@ -181,17 +181,24 @@ TrackingMode theMode =( (GateSteppingAction *)(GateRunManager::GetRunManager()->
       // considered by GateAnalysis
       G4int i1;
       G4int i2;
+      G4int i3;
+      bool only2gamma = true;
+
       for (G4int j1=0; j1<nPh; j1++) {
 	for (G4int j2=j1+1; j2<nPh; j2++) {
+    for(G4int j3=j2+1; j3<nPh; j3++){
 	  i1 = photonIndices[j1];
 	  i2 = photonIndices[j2];
-	  if ((i1 >= 0) && (i2 >= 0)) {
+    i3 = photonIndices[j3];
+	  if ((i1 >= 0) && (i2 >= 0) && (i3 >= 0)) {
 	    // both gammas were not already taken
 	    G4Trajectory* trj1 = (G4Trajectory*)((*m_trajectoryContainer)[i1]);
 	    G4Trajectory* trj2 = (G4Trajectory*)((*m_trajectoryContainer)[i2]);
+      G4Trajectory* trj3 = (G4Trajectory*)((*m_trajectoryContainer)[i3]);
 
 	    G4ThreeVector vert1 = ((G4TrajectoryPoint*)(trj1->GetPoint(0)))->GetPosition();
 	    G4ThreeVector vert2 = ((G4TrajectoryPoint*)(trj2->GetPoint(0)))->GetPosition();
+      G4ThreeVector vert3 = ((G4TrajectoryPoint*)(trj3->GetPoint(0)))->GetPosition();
 	    // in detector mode the vertex position is stored at the last trajectory point
 	    // not the first one
 	    if (  theMode == kDetector ) // in tracker mode we store the infos about the number of compton and rayleigh
@@ -200,6 +207,8 @@ TrackingMode theMode =( (GateSteppingAction *)(GateRunManager::GetRunManager()->
 	      vert1 = ((G4TrajectoryPoint*)(trj1->GetPoint( n_points - 1 )))->GetPosition();
 	            n_points =trj2->GetPointEntries();
 	      vert2 = ((G4TrajectoryPoint*)(trj2->GetPoint( n_points - 1 )))->GetPosition();
+              n_points =trj3->GetPointEntries();
+        vert3 = ((G4TrajectoryPoint*)(trj3->GetPoint( n_points - 1 )))->GetPosition();
 	     }
 
 	    G4double dist = (vert1-vert2).mag();
@@ -213,13 +222,62 @@ TrackingMode theMode =( (GateSteppingAction *)(GateRunManager::GetRunManager()->
 	      // we add both photons to the vertex
 	      m_photonIDVec.push_back(trj1->GetTrackID());
 	      m_photonIDVec.push_back(trj2->GetTrackID());
+        if ((vert2-vert3).mag()/mm < 1E-7)
+        {
+          m_photonIDVec.push_back(trj3->GetTrackID());
+          photonIndices[j3] = -1;
+          only2gamma = false;
+          // std::cout << "\n\n\n\n\n\n\n\n\n" << photonIndices[j3] << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" << std::endl;
+        }
 	      // we cancel the 2nd photon from the list to avoid double counting later
 	      photonIndices[j2] = -1;
 	    }
 	  }
 	}
+
+        }
+      }
+
+      if(only2gamma){
+      for (G4int j1=0; j1<nPh; j1++) {
+  for (G4int j2=j1+1; j2<nPh; j2++) {
+    i1 = photonIndices[j1];
+    i2 = photonIndices[j2];
+    if ((i1 >= 0) && (i2 >= 0)) {
+      // both gammas were not already taken
+      G4Trajectory* trj1 = (G4Trajectory*)((*m_trajectoryContainer)[i1]);
+      G4Trajectory* trj2 = (G4Trajectory*)((*m_trajectoryContainer)[i2]);
+
+      G4ThreeVector vert1 = ((G4TrajectoryPoint*)(trj1->GetPoint(0)))->GetPosition();
+      G4ThreeVector vert2 = ((G4TrajectoryPoint*)(trj2->GetPoint(0)))->GetPosition();
+      // in detector mode the vertex position is stored at the last trajectory point
+      // not the first one
+      if (  theMode == kDetector ) // in tracker mode we store the infos about the number of compton and rayleigh
+         {
+          G4int n_points =trj1->GetPointEntries();
+        vert1 = ((G4TrajectoryPoint*)(trj1->GetPoint( n_points - 1 )))->GetPosition();
+              n_points =trj2->GetPointEntries();
+        vert2 = ((G4TrajectoryPoint*)(trj2->GetPoint( n_points - 1 )))->GetPosition();
+       }
+
+      G4double dist = (vert1-vert2).mag();
+      if (nVerboseLevel > 2)
+      G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : distance between gammas vertices : dist (mm) " << dist/mm << Gateendl;
+      if (dist/mm < 1E-7) {
+       if (nVerboseLevel > 1) {
+    G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : Found common vertex for the two annihilation gammas :"
+           << " tracks " << trj1->GetTrackID() << " and " << trj2->GetTrackID() << Gateendl;
+       }
+        // we add both photons to the vertex
+        m_photonIDVec.push_back(trj1->GetTrackID());
+        m_photonIDVec.push_back(trj2->GetTrackID());
+        // we cancel the 2nd photon from the list to avoid double counting later
+        photonIndices[j2] = -1;
       }
     }
+  }
+}
+ }   }
   }
 
   /*if ((m_positronTrackID != 0) && ((m_photonIDVec.size() > 2) || (m_photonIDVec.size() == 1))) {
@@ -271,11 +329,12 @@ G4int GateTrajectoryNavigator::FindPhotonID(G4int trackID)
       G4int photon1ID = m_photonIDVec[0];
       // in case there are 2 gammas OK, if not we put 0 (compatible with subsequent analysis)
       G4int photon2ID = (m_photonIDVec.size() >= 2) ? m_photonIDVec[1] : 0;
+      G4int photon3ID = (m_photonIDVec.size() >= 3) ? m_photonIDVec[2] : 0;
       G4int rootID = 0;
 
       // we go up and up, starting from the present trackID, to the parentID, the parentID, ecc until
       // we find that the ID of the track is equal to the ID of: one of the photons, or rootID(==0)
-      while (!((photonID==photon1ID)||(photonID==photon2ID)||(photonID==rootID))) {
+      while (!((photonID==photon1ID)||(photonID==photon2ID)||(photonID==photon3ID)||(photonID==rootID))) {
 	found = false;
 	G4int n_trajectories = m_trajectoryContainer->entries();
 	for (G4int iTrj=0; (iTrj<n_trajectories) && (!found); iTrj++) {
@@ -294,6 +353,8 @@ G4int GateTrajectoryNavigator::FindPhotonID(G4int trackID)
 	photonID = 1;
       } else if (photonID == photon2ID) {
 	photonID = 2;
+      } else if (photonID == photon3ID) {
+  photonID = 3;
       }
 
     }

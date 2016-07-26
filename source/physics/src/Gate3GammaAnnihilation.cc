@@ -42,7 +42,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
 
   m_source->GeneratePrimaryVertex( aEvent );
-  G4PrimaryParticle* particle1 = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 0 );
+  G4PrimaryParticle* particle = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 0 );
   G4PrimaryParticle* particle2 = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 1 );
   G4PrimaryParticle* particle3 = aEvent->GetPrimaryVertex( 0 )->GetPrimary( 2 );
 
@@ -54,7 +54,6 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
 
   Double_t mass_e = 511.0 ; //keV
-  // TRandom3 random_generator;
 
 
   // informacje o pozytonium
@@ -91,7 +90,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 ==============================================================*/
 
 
-  particle1->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
+  particle->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
   particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
   particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
 

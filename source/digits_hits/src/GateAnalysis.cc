@@ -150,20 +150,25 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
           //G4int positronID = 0; // no more needed
           G4int photon1ID  = 0;
           G4int photon2ID  = 0;
+          G4int photon3ID  = 0;
           G4int rootID     = 0;
           G4int primaryID  = 0;
 
           G4int photon1_phantom_compton = 0;
           G4int photon2_phantom_compton = 0;
+          G4int photon3_phantom_compton = 0;
 
           G4int photon1_crystal_compton = 0;
           G4int photon2_crystal_compton = 0;
+          G4int photon3_crystal_compton = 0;
 
           G4int photon1_phantom_Rayleigh = 0;
           G4int photon2_phantom_Rayleigh = 0;
+          G4int photon3_phantom_Rayleigh = 0;
 
           G4int photon1_crystal_Rayleigh = 0;
           G4int photon2_crystal_Rayleigh = 0;
+          G4int photon3_crystal_Rayleigh = 0;
 
           G4int septalNb = 0; // HDS : septal penetration
 
@@ -198,6 +203,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
               photon1ID = photonIDVec[0];
               photon2ID = (photonIDVec.size() >= 2) ? photonIDVec[1] : 0;
+              photon3ID = (photonIDVec.size() >= 3) ? photonIDVec[2] : 0;
             }
 
           if (photon1ID == 0)
@@ -209,6 +215,11 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
             if (nVerboseLevel > 1) G4cout
                                      << "GateAnalysis::RecordEndOfEvent : WARNING : photon2ID == 0\n";
           }
+          if (photon3ID == 0) {
+            if (nVerboseLevel > 1) G4cout
+                                     << "GateAnalysis::RecordEndOfEvent : WARNING : photon3ID == 0\n";
+          }
+
           if (nVerboseLevel > 1) G4cout
                                    << "GateAnalysis::RecordEndOfEvent : photon1ID : " << photon1ID
                                    << "     photon2ID : " << photon2ID << Gateendl;
@@ -222,10 +233,12 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
           G4String theComptonVolumeName("NULL");
           G4String theComptonVolumeName1("NULL");
           G4String theComptonVolumeName2("NULL");
+          G4String theComptonVolumeName3("NULL");
 
           G4String theRayleighVolumeName("NULL");
           G4String theRayleighVolumeName1("NULL");
           G4String theRayleighVolumeName2("NULL");
+          G4String theRayleighVolumeName3("NULL");
 
           for (G4int iPHit=0;iPHit<NpHits;iPHit++)
             {
@@ -259,7 +272,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               // modif. by CJG to separate Compton and Rayleigh photons
               if (processName.find("ompt") != G4String::npos)
                 {
-                  if ((phantomTrackID == photon1ID)||(phantomTrackID == photon2ID))
+                  if ((phantomTrackID == photon1ID)||(phantomTrackID == photon2ID)||(phantomTrackID == photon3ID))
                     {
                       G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
                       G4ThreeVector null(0.,0.,0.);
@@ -284,12 +297,19 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                       if (nVerboseLevel > 0) G4cout
                                                << "GateAnalysis::RecordEndOfEvent : photon2_phantom_compton : " << photon2_phantom_compton << Gateendl;
                     }
+                    if (phantomTrackID == photon3ID)
+                    {
+                      photon3_phantom_compton++;
+                      theComptonVolumeName3 = theComptonVolumeName;
+                      if (nVerboseLevel > 0) G4cout
+                                               << "GateAnalysis::RecordEndOfEvent : photon3_phantom_compton : " << photon3_phantom_compton << Gateendl;
+                    }
                 }
 
               // Counting Rayleigh scatter in phantom
               if (processName.find("Rayleigh") != G4String::npos)
                 {
-                  if ((phantomTrackID == photon1ID)||(phantomTrackID == photon2ID))
+                  if ((phantomTrackID == photon1ID)||(phantomTrackID == photon2ID)||(phantomTrackID == photon3ID))
                     {
                       G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
                       G4ThreeVector null(0.,0.,0.);
@@ -314,6 +334,13 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                       if (nVerboseLevel > 0) G4cout
                                                << "GateAnalysis::RecordEndOfEvent : photon2_phantom_Rayleigh : " << photon2_phantom_Rayleigh << Gateendl;
                     }
+                    if (phantomTrackID == photon3ID)
+                    {
+                      photon3_phantom_Rayleigh++;
+                      theRayleighVolumeName3 = theRayleighVolumeName;
+                      if (nVerboseLevel > 0) G4cout
+                                               << "GateAnalysis::RecordEndOfEvent : photon3_phantom_Rayleigh : " << photon3_phantom_Rayleigh << Gateendl;
+                    }
                 }
             } // end loop NpHits
 
@@ -326,12 +353,16 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               ComptonRayleighData aCRData;
               aCRData.photon1_phantom_Rayleigh = photon1_phantom_Rayleigh;
               aCRData.photon2_phantom_Rayleigh = photon2_phantom_Rayleigh;
+              aCRData.photon3_phantom_Rayleigh = photon3_phantom_Rayleigh;
               aCRData.photon1_phantom_compton  = photon1_phantom_compton;
               aCRData.photon2_phantom_compton  = photon2_phantom_compton;
+              aCRData.photon3_phantom_compton  = photon3_phantom_compton;
               strcpy(aCRData.theComptonVolumeName1 , theComptonVolumeName1.c_str() );
               strcpy(aCRData.theComptonVolumeName2 , theComptonVolumeName2.c_str() );
+              strcpy(aCRData.theComptonVolumeName3 , theComptonVolumeName3.c_str() );
               strcpy(aCRData.theRayleighVolumeName1 , theRayleighVolumeName1.c_str() );
               strcpy(aCRData.theRayleighVolumeName2 , theRayleighVolumeName2.c_str() );
+              strcpy(aCRData.theRayleighVolumeName3 , theRayleighVolumeName3.c_str() );
               gateToRoot->RecordPHData( aCRData );
               // return;
             }
@@ -345,8 +376,10 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
               photon1_phantom_Rayleigh += aCRData.photon1_phantom_Rayleigh;
               photon2_phantom_Rayleigh += aCRData.photon2_phantom_Rayleigh;
+              photon3_phantom_Rayleigh += aCRData.photon3_phantom_Rayleigh;
               photon1_phantom_compton  += aCRData.photon1_phantom_compton;
               photon2_phantom_compton  += aCRData.photon2_phantom_compton;
+              photon3_phantom_compton  += aCRData.photon3_phantom_compton;
               /*
                 if( theComptonVolumeName1 == G4String("NULL") ) {theComptonVolumeName1    = aCRData.theComptonVolumeName1;}
                 if( theComptonVolumeName2 == G4String("NULL") ) {theComptonVolumeName2    = aCRData.theComptonVolumeName2;}
@@ -355,8 +388,10 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               */
               theComptonVolumeName1    = aCRData.theComptonVolumeName1;
               theComptonVolumeName2    = aCRData.theComptonVolumeName2;
+              theComptonVolumeName3    = aCRData.theComptonVolumeName3;
               theRayleighVolumeName1   = aCRData.theRayleighVolumeName1;
               theRayleighVolumeName2   = aCRData.theRayleighVolumeName2;
+              theRayleighVolumeName3   = aCRData.theRayleighVolumeName3;
 
             }
 
@@ -382,6 +417,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
                   if (crystalTrackID == photon1ID) photon1_crystal_compton++;
                   if (crystalTrackID == photon2ID) photon2_crystal_compton++;
+                  if (crystalTrackID == photon3ID) photon3_crystal_compton++;
                 }
 
               // Counting Rayleigh scatter in crystal
@@ -390,6 +426,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
                   if (crystalTrackID == photon1ID) photon1_crystal_Rayleigh++;
                   if (crystalTrackID == photon2ID) photon2_crystal_Rayleigh++;
+                  if (crystalTrackID == photon3ID) photon3_crystal_Rayleigh++;
                 }
 
               G4int PDGEncoding  = (*CHC)[iHit]->GetPDGEncoding();
@@ -439,6 +476,15 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                       theRayleighVolumeName = theRayleighVolumeName2;
                       nCrystalCompton = photon2_crystal_compton;
                       nCrystalRayleigh = photon2_crystal_Rayleigh;
+                    }
+                  else if (photonID == 3)
+                    {
+                      nPhantomCompton = photon3_phantom_compton;
+                      nPhantomRayleigh = photon3_phantom_Rayleigh;
+                      theComptonVolumeName = theComptonVolumeName3;
+                      theRayleighVolumeName = theRayleighVolumeName3;
+                      nCrystalCompton = photon3_crystal_compton;
+                      nCrystalRayleigh = photon3_crystal_Rayleigh;
                     }
 
                   // search the primary that originated the track
