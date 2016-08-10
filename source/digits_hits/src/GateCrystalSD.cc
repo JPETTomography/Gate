@@ -118,13 +118,20 @@ G4bool GateCrystalSD::ProcessHits(G4Step*aStep, G4TouchableHistory*)
   //Modifs Seb 22-06-2011
   //G4ThreeVector position = oldStepPoint->GetPosition();
   G4ThreeVector position = newStepPoint->GetPosition();
-  
+
+
   // Get the hit momentumDirecton
   G4ThreeVector momentumDirection = newStepPoint->GetMomentumDirection();
+  G4ThreeVector initialMomentumDirection = oldStepPoint->GetMomentumDirection();
 
   // Compute the hit local position
   // (It will be in the reference frame of the PreStepPoint volume for a transportation hit)
   G4ThreeVector localPosition = volumeID.MoveToBottomVolumeFrame(position);
+
+
+
+  G4double finalEnergy = newStepPoint->GetTotalEnergy();
+  G4double initialEnergy = oldStepPoint->GetTotalEnergy();
 
 
   // Get the scanner position and rotation angle
@@ -164,15 +171,18 @@ G4bool GateCrystalSD::ProcessHits(G4Step*aStep, G4TouchableHistory*)
   aHit->SetLocalPos( localPosition );
   aHit->SetProcess( processName );
   aHit->SetTrackID( trackID );
- // Seb Modif 5/4/2016 
+ // Seb Modif 5/4/2016
   aHit->SetTrackLength( trackLength );
   aHit->SetTrackLocalTime( trackLocalTime );
   aHit->SetMomentumDir( momentumDirection );
+  aHit->SetInitialMomentumDir( initialMomentumDirection );
   aHit->SetParentID( parentID );
   aHit->SetVolumeID( volumeID );
   aHit->SetScannerPos( scannerPos );
   aHit->SetScannerRotAngle( scannerRotAngle );
   aHit->SetSystemID(system->GetItsNumber());
+  aHit->SetInitialEnergy(initialEnergy);
+  aHit->SetFinalEnergy(finalEnergy);
 
   // Ask the system to compute the output volume ID and store it into the hit
 
