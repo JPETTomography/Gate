@@ -395,6 +395,50 @@ G4int GateTrajectoryNavigator::FindPrimaryID(G4int trackID)
 }
 
 
+G4ThreeVector GateTrajectoryNavigator::FindInitialMomentum(G4int trackID){
+
+  G4ThreeVector InitialMomentum = G4ThreeVector();
+  G4bool found;
+  if (!m_trajectoryContainer) {
+    G4cout << "GateTrajectoryNavigator::FindPrimaryID : ERROR : NULL trajectoryContainer\n";
+  } else {
+
+  G4int n_trajectories = m_trajectoryContainer->entries();
+  found = false;
+  for (G4int iTrj=0; (iTrj<n_trajectories) && (!found); iTrj++) {
+    G4Trajectory* trj = (G4Trajectory*)((*m_trajectoryContainer)[iTrj]);
+    if(trackID == trj->GetTrackID()){
+      InitialMomentum = trj -> GetInitialMomentum();
+      found = true; }
+
+  }
+  }
+
+  return InitialMomentum;
+}
+
+G4double GateTrajectoryNavigator::FindInitialKineticEnergy(G4int trackID){
+
+  G4double InitialEnergy = 0;
+  G4bool found;
+  if (!m_trajectoryContainer) {
+    G4cout << "GateTrajectoryNavigator::FindPrimaryID : ERROR : NULL trajectoryContainer\n";
+  } else {
+
+  G4int n_trajectories = m_trajectoryContainer->entries();
+  found = false;
+  for (G4int iTrj=0; (iTrj<n_trajectories) && (!found); iTrj++) {
+    G4Trajectory* trj = (G4Trajectory*)((*m_trajectoryContainer)[iTrj]);
+    if(trackID == trj->GetTrackID()){
+      InitialEnergy = trj -> GetInitialKineticEnergy();
+      found = true; }
+
+  }
+  }
+
+  return InitialEnergy;
+}
+
 void GateTrajectoryNavigator::SetTrajectoryContainer(G4TrajectoryContainer* trajectoryContainer)
 {
   if (nVerboseLevel > 2)

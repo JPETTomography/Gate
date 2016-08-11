@@ -90,7 +90,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 ==============================================================*/
 
 
-  particle->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
+  particle ->SetMomentum( (g1 -> Px())/1000.0, (g1 -> Py())/1000.0, (g1 -> Pz())/1000.0 );
   particle2->SetMomentum( (g2 -> Px())/1000.0, (g2 -> Py())/1000.0, (g2 -> Pz())/1000.0 );
   particle3->SetMomentum( (g3 -> Px())/1000.0, (g3 -> Py())/1000.0, (g3 -> Pz())/1000.0 );
 

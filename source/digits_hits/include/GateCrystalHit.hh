@@ -88,6 +88,8 @@ private:
   G4int m_systemID;           // system ID in for the multi-system approach
   G4double m_energyInitial;
   G4double m_energyFinal;
+  G4double m_generatedEnergy;
+  G4ThreeVector m_generatedMomentum;
 
   // To use with GateROOTBasicOutput classes
   G4ThreeVector pos;  // position
@@ -127,6 +129,12 @@ private:
 
       inline void  SetInitialMomentumDir(const G4ThreeVector& xyz)     { m_initMomDir = xyz; }
       inline const G4ThreeVector& GetInitialMomentumDir() const             { return m_initMomDir; }
+
+      inline void  SetGeneratedMomentum(const G4ThreeVector& xyz) { m_generatedMomentum = xyz;}
+      inline const G4ThreeVector& GetGeneratedMomentum() const         { return m_generatedMomentum; }
+
+      inline void  SetGeneratedEnergy(const G4double j) { m_generatedEnergy = j;}
+      inline G4double GetGeneratedEnergy()         { return m_generatedEnergy; }
 
       inline void  SetLocalPos(const G4ThreeVector& xyz)     { m_localPos = xyz; }
       inline const G4ThreeVector& GetLocalPos() const             { return m_localPos; }

@@ -116,6 +116,10 @@ void GateRootHitBuffer::Clear()
   initMomDirZ     = 0.;
   energyInitial      = 0.;
   energyFinal     = 0;
+  generatedEnergy = 0;
+  generatedMomentumX = 0;
+  generatedMomentumY = 0;
+  generatedMomentumZ = 0;
 
   strcpy (processName, " ");
   strcpy (comptonVolumeName," ");
@@ -169,6 +173,10 @@ void GateRootHitBuffer::Fill(GateCrystalHit* aHit)
   initMomDirZ         = aHit->GetInitialMomentumDir().z();
   energyInitial       = aHit->GetInitialEnergy();
   energyFinal       = aHit->GetFinalEnergy();
+  generatedEnergy   = aHit->GetGeneratedEnergy();
+  generatedMomentumX = aHit->GetGeneratedMomentum().x();
+  generatedMomentumY = aHit->GetGeneratedMomentum().y();
+  generatedMomentumZ = aHit->GetGeneratedMomentum().z();
 // HDS : septal
 	septalNb = aHit->GetNSeptal();
 
@@ -239,7 +247,9 @@ GateCrystalHit* GateRootHitBuffer::CreateHit()
     aHit->SetScannerRotAngle( 	GetRotationAngle() );
     aHit->SetVolumeID(	      	aVolumeID);
     aHit->SetOutputVolumeID(  	anOutputVolumeID );
-	aHit->SetNSeptal( septalNb );  // HDS : septal penetration
+	  aHit->SetNSeptal( septalNb );  // HDS : septal penetration
+    aHit->SetGeneratedEnergy(0.);
+    aHit->SetGeneratedMomentum( G4ThreeVector(0., 0., 0. )  );
     return aHit;
 }
 
@@ -289,6 +299,10 @@ void GateHitTree::Init(GateRootHitBuffer& buffer)
     Branch("initMomDirX",      &buffer.initMomDirX,"initMomDirX/F");
     Branch("initMomDirY",      &buffer.initMomDirY,"initMomDirY/F");
     Branch("initMomDirZ",      &buffer.initMomDirZ,"initMomDirZ/F");
+    Branch("generatedEnergy",   &buffer.generatedEnergy,"generatedEnergy/F");
+    Branch("generatedMomentumX",&buffer.generatedMomentumX,"generatedMomentumX/F");
+    Branch("generatedMomentumY",&buffer.generatedMomentumY,"generatedMomentumY/F");
+    Branch("generatedMomentumZ",&buffer.generatedMomentumZ,"generatedMomentumZ/F");
     // HDS : record septal penetration
     if (GateRootDefs::GetRecordSeptalFlag())	Branch("septalNb",   &buffer.septalNb,"septalNb/I");
 }
@@ -331,6 +345,13 @@ void GateHitTree::SetBranchAddresses(TTree* hitTree,GateRootHitBuffer& buffer)
   hitTree->SetBranchAddress("comptVolName",&buffer.comptonVolumeName);
   hitTree->SetBranchAddress("RayleighVolName",&buffer.RayleighVolumeName);
   hitTree->SetBranchAddress("volumeID",buffer.volumeID);
+  hitTree->SetBranchAddress("generatedEnergy",&buffer.generatedEnergy);
+  hitTree->SetBranchAddress("initMomDirX",&buffer.initMomDirX);
+  hitTree->SetBranchAddress("initMomDirY",&buffer.initMomDirY);
+  hitTree->SetBranchAddress("initMomDirZ",&buffer.initMomDirZ);
+  hitTree->SetBranchAddress("generatedMomentumX",&buffer.generatedMomentumX);
+  hitTree->SetBranchAddress("generatedMomentumY",&buffer.generatedMomentumY);
+  hitTree->SetBranchAddress("generatedMomentumZ",&buffer.generatedMomentumZ);
 }
 
 

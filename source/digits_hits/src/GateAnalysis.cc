@@ -153,6 +153,8 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
           G4int photon3ID  = 0;
           G4int rootID     = 0;
           G4int primaryID  = 0;
+          G4double iEnergy = 0;
+          G4ThreeVector iMomentum = G4ThreeVector();
 
           G4int photon1_phantom_compton = 0;
           G4int photon2_phantom_compton = 0;
@@ -489,6 +491,8 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
                   // search the primary that originated the track
                   primaryID = m_trajectoryNavigator->FindPrimaryID(trackID);
+                  iEnergy   = m_trajectoryNavigator->FindInitialKineticEnergy(trackID);
+                  iMomentum = m_trajectoryNavigator->FindInitialMomentum(trackID);
 
                   (*CHC)[iHit]->SetSourceID          (sourceID);
                   (*CHC)[iHit]->SetSourcePosition    (sourceVertex);
@@ -503,6 +507,8 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                   (*CHC)[iHit]->SetNCrystalCompton   (nCrystalCompton);
                   (*CHC)[iHit]->SetNCrystalRayleigh   (nCrystalRayleigh);
                   (*CHC)[iHit]->SetNSeptal   (septalNb); // HDS : septal penetration
+                  (*CHC)[iHit]->SetGeneratedEnergy(iEnergy);
+                  (*CHC)[iHit]->SetGeneratedMomentum(iMomentum);
                 }
             }
         } // end if (CHC)

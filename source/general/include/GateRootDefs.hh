@@ -193,6 +193,8 @@ class GateRootHitBuffer
     Int_t    septalNb;							//!< HDS : septal penetration
     Float_t  initMomDirX,initMomDirY,initMomDirZ;
     Float_t  energyInitial,energyFinal;
+    Float_t  generatedEnergy;
+    Float_t  generatedMomentumX,generatedMomentumY,generatedMomentumZ;
     //@}
 
 };
