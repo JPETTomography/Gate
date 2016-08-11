@@ -75,7 +75,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
 
     do{
         weight = m_3_body_decay.Generate();
-        weight = weight*pow((mass_e-m_3_body_decay.GetDecay(0)->E())/(m_3_body_decay.GetDecay(1)->E()*m_3_body_decay.GetDecay(2)->E()),2) + pow((mass_e-m_3_body_decay.GetDecay(1)->E())/(m_3_body_decay.GetDecay(0)->E()*m_3_body_decay.GetDecay(2)->E()),2) + pow((mass_e-m_3_body_decay.GetDecay(2)->E())/(m_3_body_decay.GetDecay(0)->E()*m_3_body_decay.GetDecay(1)->E()),2);
+        weight = weight*calculate_mQED(mass_e,m_3_body_decay.GetDecay(0)->E(),m_3_body_decay.GetDecay(1)->E(),m_3_body_decay.GetDecay(2)->E());
         rwt = m_random_gen.Uniform(M_max*weight_max);
     }while( rwt > weight );
 
