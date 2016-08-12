@@ -71,7 +71,7 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   Double_t weight_max= m_3_body_decay.GetWtMax()*pow(10,5);
   Double_t rwt;
   Double_t M_max = 7.65928*pow(10,-6);
-
+  m_random_gen.SetSeed(0);
 
     do{
         weight = m_3_body_decay.Generate();
