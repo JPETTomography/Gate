@@ -62,8 +62,8 @@ private:
   G4double m_posx;
   G4double m_posy;
   G4double m_posz;
-  G4ThreeVector m_momDir;        // momentum Direction of the current hit
-  G4ThreeVector m_initMomDir;        // momentum Direction of the current hit
+  G4ThreeVector m_momDir;        // momentum Direction of the particle after hit
+  G4ThreeVector m_initMomDir;        // momentum Direction of the particle before hit
   G4ThreeVector m_localPos;   // position of the current hit
   G4String m_process;         // process on the current hit
   G4int m_PDGEncoding;        // G4 PDGEncoding
@@ -86,10 +86,10 @@ private:
   G4double m_scannerRotAngle; // Rotation angle of the scanner
   GateOutputVolumeID m_outputVolumeID;
   G4int m_systemID;           // system ID in for the multi-system approach
-  G4double m_energyInitial;
-  G4double m_energyFinal;
-  G4double m_generatedEnergy;
-  G4ThreeVector m_generatedMomentum;
+  G4double m_energyInitial;   // energy of particle before hit
+  G4double m_energyFinal;     // energy of partice after hit
+  G4double m_generatedEnergy; // generated kinetic energy of the particle (at the begining of track)
+  G4ThreeVector m_generatedMomentum; // generated momentum of the particle (at the begining of track)
 
   // To use with GateROOTBasicOutput classes
   G4ThreeVector pos;  // position

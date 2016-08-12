@@ -26,8 +26,9 @@ public:
   void GenerateVertex( G4Event*);
 
   Double_t calculate_mQED(Double_t mass_e, Double_t w1, Double_t w2, Double_t w3){
-    Double_t mQED = pow((mass_e-w1)/(w2*w3),2) + pow((mass_e-w2)/(w1*w3),2) + pow((mass_e-w3)/(w1*w2),2);
-    return mQED;
+
+    return pow((mass_e-w1)/(w2*w3),2) + pow((mass_e-w2)/(w1*w3),2) + pow((mass_e-w3)/(w1*w2),2);
+
   };
 
 private:
