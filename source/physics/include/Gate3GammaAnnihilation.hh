@@ -25,6 +25,12 @@ public:
   void Initialize();
   void GenerateVertex( G4Event*);
 
+  Double_t calculate_mQED(Double_t mass_e, Double_t w1, Double_t w2, Double_t w3){
+
+    return pow((mass_e-w1)/(w2*w3),2) + pow((mass_e-w2)/(w1*w3),2) + pow((mass_e-w3)/(w1*w2),2);
+
+  };
+
 private:
   GateVSource* m_source;
   TRandom3 m_random_gen;
