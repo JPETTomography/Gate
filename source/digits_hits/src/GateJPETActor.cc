@@ -18,22 +18,22 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 	pMessenger = new GateJPETActorMessenger(this);
 
 	//For default set everything for FALSE
-	 EnableXPosition = false;
-	 EnableYPosition= false;
-	 EnableZPosition= false;
-	 EnableParticleName= false;
-	 EnableTrackID= false;
-	 EnableEventID= false;
-	 EnableParentID= false;
-	 EnableRunID= false;
-	 EnableEkin= false;
-	 EnableInteractionTime= false;
-	 EnableProcessName= false;
-	 EnableEmissionPoint = false;
+	 mEnableXPosition = false;
+	 mEnableYPosition= false;
+	 mEnableZPosition= false;
+	 mEnableParticleName= false;
+	 mEnableTrackID= false;
+	 mEnableEventID= false;
+	 mEnableParentID= false;
+	 mEnableRunID= false;
+	 mEnableKineticEnergy= false;
+	 mEnableInteractionTime= false;
+	 mEnableProcessName= false;
+	 mEnableEmissionPoint = false;
 
 	 mFileType = " ";
 
-	 isFirstStep=true;
+	 mIsFirstStep=true;
 
 	 GateDebugMessageDec("Actor", 4, "GateJPETActor() -- end" << G4endl);
 }
@@ -47,8 +47,6 @@ GateJPETActor::~GateJPETActor()
 
 void GateJPETActor::Construct()
 {
-	G4cout << "Wywolano JpetActor construct" << G4endl;
-	//Calling functions from GateVActor
 	GateVActor::Construct();
 	EnableBeginOfRunAction(false);
 	EnableBeginOfEventAction(false);
@@ -70,100 +68,100 @@ void GateJPETActor::Construct()
 		pFile = new TFile(mSaveFilename, "RECREATE", "ROOT file for phase space", 9);
 		pListeVar = new TTree("JPET", "JPET tree");
 
-		if(EnableXPosition)
-			pListeVar->Branch("ParticleXPosition", &positionX, "ParticleXPosition/D");
-		if(EnableYPosition)
-			pListeVar->Branch("ParticleYPosition", &positionY, "ParticleYPosition/D");
-		if(EnableZPosition)
-			pListeVar->Branch("ParticleZPosition", &positionZ, "ParticleZPosition/D");
-		if(EnableParticleName)
-			pListeVar->Branch("ParticleName", &particleName , "ParticleName/C");
-		if(EnableTrackID)
-			pListeVar->Branch("TrackID", &trackID, "TrackID/I");
-		if(EnableEventID)
-			pListeVar->Branch("EventID", &eventID, "EventID/I");
-		if(EnableParentID)
-			pListeVar->Branch("ParentID", &parentID, "ParentID/I");
-		if(EnableRunID)
-			pListeVar->Branch("RunID", &runID, "RunID/I");
-		if(EnableEkin)
-			pListeVar->Branch("ParticleKineticEnergy", &kinecticEnergy, "ParticleKineticEnergy/D");
-		if(EnableInteractionTime)
-			pListeVar->Branch("InteractionsTime", &interactionTime, "InteractionsTime/D");
-		if(EnableProcessName)
-			pListeVar->Branch("ProcessName", &processName , "ProcessName/C");
-		if(EnableEmissionPoint){
-			pListeVar->Branch("EmissionPointX", &emissionPositionX, "EmissionPointX/D");
-			pListeVar->Branch("EmissionPointY", &emissionPositionY, "EmissionPointY/D");
-			pListeVar->Branch("EmissionPointZ", &emissionPositionZ, "EmissionPointZ/D");
+		if(mEnableXPosition)
+			pListeVar->Branch("ParticleXPosition", &mPositionX, "ParticleXPosition/D");
+		if(mEnableYPosition)
+			pListeVar->Branch("ParticleYPosition", &mPositionY, "ParticleYPosition/D");
+		if(mEnableZPosition)
+			pListeVar->Branch("ParticleZPosition", &mPositionZ, "ParticleZPosition/D");
+		if(mEnableParticleName)
+			pListeVar->Branch("ParticleName", &mParticleName , "ParticleName/C");
+		if(mEnableTrackID)
+			pListeVar->Branch("TrackID", &mTrackID, "TrackID/I");
+		if(mEnableEventID)
+			pListeVar->Branch("EventID", &mEventID, "EventID/I");
+		if(mEnableParentID)
+			pListeVar->Branch("ParentID", &mParentID, "ParentID/I");
+		if(mEnableRunID)
+			pListeVar->Branch("RunID", &mRunID, "RunID/I");
+		if(mEnableKineticEnergy)
+			pListeVar->Branch("ParticleKineticEnergy", &mKinecticEnergy, "ParticleKineticEnergy/D");
+		if(mEnableInteractionTime)
+			pListeVar->Branch("InteractionsTime", &mInteractionTime, "InteractionsTime/D");
+		if(mEnableProcessName)
+			pListeVar->Branch("ProcessName", &mProcessName , "ProcessName/C");
+		if(mEnableEmissionPoint){
+			pListeVar->Branch("EmissionPointX", &mEmissionPositionX, "EmissionPointX/D");
+			pListeVar->Branch("EmissionPointY", &mEmissionPositionY, "EmissionPointY/D");
+			pListeVar->Branch("EmissionPointZ", &mEmissionPositionZ, "EmissionPointZ/D");
 		}
-		if(EnablePrimaryEnergy)
-			pListeVar->Branch("ParticlePrimaryEnergy", &primaryEnergy, "ParticlePrimaryEnergy/D");
+		if(mEnablePrimaryEnergy)
+			pListeVar->Branch("ParticlePrimaryEnergy", &mPrimaryEnergy, "ParticlePrimaryEnergy/D");
 
 	}
 }
 
 void GateJPETActor::PreUserTrackingAction(const GateVVolume * /*v*/, const G4Track * t)
 {
-	isFirstStep = true;
-	if(EnableEmissionPoint){
-		emissionPositionX = t->GetVertexPosition().x();
-		emissionPositionY = t->GetVertexPosition().y();
-		emissionPositionZ = t->GetVertexPosition().z();
+	mIsFirstStep = true;
+	if(mEnableEmissionPoint){
+		mEmissionPositionX = t->GetVertexPosition().x();
+		mEmissionPositionY = t->GetVertexPosition().y();
+		mEmissionPositionZ = t->GetVertexPosition().z();
 	}
 }
 
 void GateJPETActor::BeginOfEventAction(const G4Event *e)
 {
-	if(EnablePrimaryEnergy)
-		primaryEnergy = e->GetPrimaryVertex()->GetPrimary()->GetKineticEnergy();
+	if(mEnablePrimaryEnergy)
+		mPrimaryEnergy = e->GetPrimaryVertex()->GetPrimary()->GetKineticEnergy();
 }
 
 void GateJPETActor::UserSteppingAction(const GateVVolume*, const G4Step *step)
 {
-	if(ParticleNames.size()==0){
+	if(mParticleNames.size()==0){
 		StandardExtractFunction( step);
 	}else{
-		std::vector<G4String>::iterator found = std::find(ParticleNames.begin(),ParticleNames.end(),step->GetTrack()->GetDefinition()->GetParticleName());
-		if(found != ParticleNames.end()){
+		std::vector<G4String>::iterator found = std::find(mParticleNames.begin(),mParticleNames.end(),step->GetTrack()->GetDefinition()->GetParticleName());
+		if(found != mParticleNames.end()){
 			StandardExtractFunction(step);
 		}
 	}
-	 isFirstStep = false;
+	 mIsFirstStep = false;
 }
 
 void GateJPETActor::StandardExtractFunction(const G4Step *step)
 {
-	if(EnableXPosition || EnableYPosition || EnableZPosition){
+	if(mEnableXPosition || mEnableYPosition || mEnableZPosition){
 		G4ThreeVector localPosition = step->GetPostStepPoint()->GetPosition();
-		if(EnableXPosition)
-			positionX  = localPosition.x();
-		if(EnableYPosition)
-			positionY = localPosition.y();
-		if(EnableZPosition)
-			positionZ = localPosition.z();
+		if(mEnableXPosition)
+			mPositionX  = localPosition.x();
+		if(mEnableYPosition)
+			mPositionY = localPosition.y();
+		if(mEnableZPosition)
+			mPositionZ = localPosition.z();
 	}
 
-	if(EnableParticleName){
+	if(mEnableParticleName){
 		G4String str = step->GetTrack()->GetDefinition()->GetParticleName();
-		strcpy(particleName, str.c_str());
+		strcpy(mParticleName, str.c_str());
 	}
 
-	if(EnableTrackID)
-		trackID = step->GetTrack()->GetTrackID();
-	if(EnableEventID)
-		eventID = GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-	if(EnableRunID)
-		runID = GateRunManager::GetRunManager()->GetCurrentRun()->GetRunID();
-	if(EnableParentID)
-		parentID = step->GetTrack()->GetParentID();
-	if(EnableEkin)
-		kinecticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-	if(EnableInteractionTime)
-		interactionTime = step->GetPostStepPoint()->GetLocalTime();
-	if(EnableProcessName) {
+	if(mEnableTrackID)
+		mTrackID = step->GetTrack()->GetTrackID();
+	if(mEnableEventID)
+		mEventID = GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+	if(mEnableRunID)
+		mRunID = GateRunManager::GetRunManager()->GetCurrentRun()->GetRunID();
+	if(mEnableParentID)
+		mParentID = step->GetTrack()->GetParentID();
+	if(mEnableKineticEnergy)
+		mKinecticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+	if(mEnableInteractionTime)
+		mInteractionTime = step->GetPostStepPoint()->GetLocalTime();
+	if(mEnableProcessName) {
 		G4String str = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-		strcpy(processName, str.c_str());
+		strcpy(mProcessName, str.c_str());
 	}
 
 	pListeVar->Fill();
@@ -187,71 +185,71 @@ void GateJPETActor::ResetData() {
 
 void GateJPETActor::SetXPositionEnabled(bool enableXPosition)
 {
-	EnableXPosition = enableXPosition;
+	mEnableXPosition = enableXPosition;
 }
 
 
 void GateJPETActor::SetYPositionEnabled(bool enableYPosition)
 {
-	EnableYPosition = enableYPosition;
+	mEnableYPosition = enableYPosition;
 }
 
 void GateJPETActor::SetZPositionEnabled(bool enableZPosition)
 {
-	EnableZPosition = enableZPosition;
+	mEnableZPosition = enableZPosition;
 }
 
 void GateJPETActor::SetParticleNameEnabled(bool enableParticleName)
 {
-	EnableParticleName = enableParticleName;
+	mEnableParticleName = enableParticleName;
 }
 
 void GateJPETActor::SetParticleEnabled(G4String particleName)
 {
-	ParticleNames.push_back(particleName);
+	mParticleNames.push_back(particleName);
 }
 
 void GateJPETActor::SetTrackIDEnabled(bool enableTrackID)
 {
-	EnableTrackID = enableTrackID;
+	mEnableTrackID = enableTrackID;
 }
 
 
 void GateJPETActor::SetEventIDEnabled(bool enableEventID)
 {
-	EnableEventID = enableEventID;
+	mEnableEventID = enableEventID;
 }
 
 void GateJPETActor::SetParentIDEnabled(bool enableParentID)
 {
-	EnableParentID = enableParentID;
+	mEnableParentID = enableParentID;
 }
 
 void GateJPETActor::SetRunIDEnabled(bool enableRunID)
 {
-	EnableRunID = enableRunID;
+	mEnableRunID = enableRunID;
 }
 
 void GateJPETActor::SetEkinEnabled(bool enableEkin)
 {
-	EnableEkin = enableEkin;
+	mEnableKineticEnergy = enableEkin;
 }
 
 void GateJPETActor::SetInteractionTimeEnabled(bool enableInteractionTime)
 {
-	EnableInteractionTime = enableInteractionTime;
+	mEnableInteractionTime = enableInteractionTime;
 }
 
 void GateJPETActor::SetProcessNameEnabled(bool enableProcessName)
 {
-	EnableProcessName = enableProcessName;
+	mEnableProcessName = enableProcessName;
 }
 
 void GateJPETActor::SetEmissionPointEnabled(bool enableEmissionPoint)
 {
-	EnableEmissionPoint = enableEmissionPoint;
+	mEnableEmissionPoint = enableEmissionPoint;
 }
 void GateJPETActor::SetPrimaryEnergy(bool enablePrimaryEnergy)
 {
-	EnablePrimaryEnergy = enablePrimaryEnergy;
+	mEnablePrimaryEnergy = enablePrimaryEnergy;
 }
