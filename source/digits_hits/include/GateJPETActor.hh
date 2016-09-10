@@ -17,7 +17,7 @@ struct iaea_header_type;
 struct iaea_record_type;
 
 /**
- * Actor created for JEPT use
+ * Actor created for JPET use
  * @author: Mateusz Bała
  * @email: bala.mateusz@gmail.com
  */
@@ -34,8 +34,13 @@ public:
 	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*);
 	virtual void BeginOfEventAction(const G4Event * e);
 
-	/// Saves the data collected to the file
+	/** Saves the data collected to the file
+	 */
 	virtual void SaveData();
+	/** Overwrite function from GateVActor.
+	 * This function used by GateVActor::BeginOfRunAction. If you want to reset data in file for each new run, call EnableResetDataAtEachRun(true).
+	 * By default this function is not used;
+	 */
 	virtual void ResetData();
 
 	///Setting functions - use it if want activate or deactivate saving some data
@@ -59,7 +64,7 @@ public:
 	void SetZPositionEnabled(bool enableZPosition);
 
 	/**
-	 * Redcord data about particle Name
+	 * Record data about particle Name
 	 * @param: enableParticleName
 	 */
 	void SetParticleNameEnabled(bool enableParticleName);
@@ -121,7 +126,7 @@ public:
 	void SetEmissionPointEnabled(bool enableEmissionPoint);
 
 	/**
-	 * REcord data about primary energy
+	 * Record data about primary energy
 	 * @param: enablePrimaryEnergy - set true if u want have data abut this
 	 */
 	void SetPrimaryEnergy(bool enablePrimaryEnergy);
@@ -131,50 +136,50 @@ protected:
 
 	//Setting values showing which data record and which not - ATTENTION!: In defaul mode all bool setting are FALSE and vector is EMPTY
 	/*Record data about x-position*/
-	bool EnableXPosition;
+	bool mEnableXPosition;
 	/*Record data about y-position*/
-	bool EnableYPosition;
+	bool mEnableYPosition;
 	/*Record data about z-position*/
-	bool EnableZPosition;
+	bool mEnableZPosition;
 	/*Record data about particle name*/
-	bool EnableParticleName;
+	bool mEnableParticleName;
 	/*Record data for particles from THIS list. ATTENTION: If this vector is empty class will be record data for every particles which fullfil conditions*/
-	std::vector<G4String> ParticleNames;
+	std::vector<G4String> mParticleNames;
 	/*Record track ID*/
-	bool EnableTrackID;
+	bool mEnableTrackID;
 	/*Record Event ID*/
-	bool EnableEventID;
+	bool mEnableEventID;
 	/*Record Parent ID*/
-	bool EnableParentID;
+	bool mEnableParentID;
 	/*Record Run ID*/
-	bool EnableRunID;
+	bool mEnableRunID;
 	/*Record Kinetic energy of particle*/
-	bool EnableEkin;
+	bool mEnableKineticEnergy;
 	/*Record interaction time*/
-	bool EnableInteractionTime;
+	bool mEnableInteractionTime;
 	/*Record process name*/
-	bool EnableProcessName;
+	bool mEnableProcessName;
 	/*Record emission point*/
-	bool EnableEmissionPoint;
+	bool mEnableEmissionPoint;
 	/*Record primary energy*/
-	bool EnablePrimaryEnergy;
+	bool mEnablePrimaryEnergy;
 
 	//Values
-	double positionX;
-	double positionY;
-	double positionZ;
-	Char_t particleName[256];
-	int trackID;
-	int eventID;
-	int runID;
-	int parentID;
-	double kinecticEnergy;
-	double interactionTime;
-	Char_t processName[256];
-	double emissionPositionX;
-	double emissionPositionY;
-	double emissionPositionZ;
-	double primaryEnergy;
+	double mPositionX;
+	double mPositionY;
+	double mPositionZ;
+	Char_t mParticleName[256];
+	int mTrackID;
+	int mEventID;
+	int mRunID;
+	int mParentID;
+	double mKinecticEnergy;
+	double mInteractionTime;
+	Char_t mProcessName[256];
+	double mEmissionPositionX;
+	double mEmissionPositionY;
+	double mEmissionPositionZ;
+	double mPrimaryEnergy;
 	//Variables need to save data
 	TString mFileType;
 	TFile * pFile;
@@ -182,7 +187,7 @@ protected:
 	GateJPETActorMessenger * pMessenger;
 
 	//Tracing tools variables
-	bool isFirstStep;
+	bool mIsFirstStep;
 
 	//Special function just for this class
 	/*

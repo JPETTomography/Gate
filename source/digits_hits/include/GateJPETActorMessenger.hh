@@ -12,7 +12,7 @@ class G4UIcmdWithAString;
 class GateJPETActor;
 
 /**
- * Actor messenger created for JEPT use
+ * Actor messenger created for JPET use
  * @author: Mateusz Bała
  * @email: bala.mateusz@gmail.com
  */
