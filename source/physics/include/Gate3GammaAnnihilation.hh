@@ -33,7 +33,6 @@ public:
 
 private:
   GateVSource* m_source;
-  TRandom3 m_random_gen;
   TGenPhaseSpace m_3_body_decay;
 };
 

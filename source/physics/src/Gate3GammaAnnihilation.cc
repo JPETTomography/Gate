@@ -9,7 +9,7 @@
 #include "Gate3GammaAnnihilation.hh"
 #include "TLorentzVector.h"
 #include "TGenPhaseSpace.h"
-#include "TRandom3.h"
+#include "TRandom.h"
 
 // #include "G4PhysicalConstants.hh"
 // #include "GateConstants.hh"
@@ -71,12 +71,11 @@ void Gate3GammaAnnihilation::GenerateVertex( G4Event* aEvent)
   Double_t weight_max= m_3_body_decay.GetWtMax()*pow(10,5);
   Double_t rwt;
   Double_t M_max = 7.65928*pow(10,-6);
-  m_random_gen.SetSeed(0);
 
     do{
         weight = m_3_body_decay.Generate();
         weight = weight*calculate_mQED(mass_e,m_3_body_decay.GetDecay(0)->E(),m_3_body_decay.GetDecay(1)->E(),m_3_body_decay.GetDecay(2)->E());
-        rwt = m_random_gen.Uniform(M_max*weight_max);
+        rwt = gRandom -> Uniform(M_max*weight_max);
     }while( rwt > weight );
 
     // get momenta
