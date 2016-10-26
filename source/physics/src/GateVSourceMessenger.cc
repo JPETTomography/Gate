@@ -19,6 +19,7 @@ See GATE/LICENSE.txt for further details
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
+#include "G4UIcmdWith3Vector.hh"
 //#include "GateUIcmdWithADoubleWithUnitAndInteger.hh"
 
 //For new activity units
@@ -154,6 +155,22 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
 
+  /*
+   *   G4UIcmdWithAString*				   PrimeGammaSourceModelNameCmd;
+  G4UIcmdWithAString*				   SecondaryGammaSourceModelNameCmd;
+   * */
+  cmdName = GetDirectoryName()+"setPrimeGammaSourceModel";
+  PrimeGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
+  PrimeGammaSourceModelNameCmd->SetGuidance("Prime gamma source in NGammaAnihilation process");
+
+  cmdName = GetDirectoryName()+"setSecondaryGammaSourceModel";
+  SecondaryGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
+  SecondaryGammaSourceModelNameCmd->SetGuidance("Secondary gamma source in NGammaAnihilation process");
+
+  cmdName = GetDirectoryName()+"setBoostForGammaSourceModel";
+  LorentzBoostVectorCmdForGammaSourceModel = new G4UIcmdWith3Vector(cmdName,this);
+  LorentzBoostVectorCmdForGammaSourceModel->SetGuidance("Set Lorentz boost for prime gamma source");
+
 }
 //----------------------------------------------------------------------------------------
 
@@ -182,6 +199,9 @@ GateVSourceMessenger::~GateVSourceMessenger()
   delete setEnergyRangecmd;
 //    delete GateSourceDir;
   delete VisualizeCmd;
+  delete PrimeGammaSourceModelNameCmd;
+  delete SecondaryGammaSourceModelNameCmd;
+  delete LorentzBoostVectorCmdForGammaSourceModel;
 }
 //----------------------------------------------------------------------------------------
 
@@ -241,6 +261,16 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
   }
+  else if(command == PrimeGammaSourceModelNameCmd){
+	  m_source->SetPrimeGammaSourceModel(newValue);
+  }else if(command == SecondaryGammaSourceModelNameCmd){
+	  m_source->SetSecondaryGammaSourceModel(newValue);
+  }else if(command == LorentzBoostVectorCmdForGammaSourceModel){
+	  G4ThreeVector vec =   LorentzBoostVectorCmdForGammaSourceModel->GetNew3VectorValue(newValue);
+	  m_source->SetLorentzBoostForGammaAnihilation(vec.x(),vec.y(),vec.z());
+  }
+
+  //G4UIcmdWith3Vector* 				   LorentzBoostVectorCmdForGammaSourceModel
 }
 //----------------------------------------------------------------------------------------
 

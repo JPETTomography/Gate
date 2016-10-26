@@ -28,6 +28,7 @@
 
 #include "G4Colour.hh"
 #include "GateMaps.hh"
+#include "TVector3.h"
 //-------------------------------------------------------------------------------------------------
 class GateVSource : public G4SingleParticleSource
 {
@@ -89,6 +90,7 @@ public:
   void GeneratePrimariesForBackToBackSource(G4Event* event);
   void GeneratePrimariesForFastI124Source(G4Event* event);
   void GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event);
+  void GeneratePrimariesForNGammaAnnihilationSource(G4Event* event);
 
   virtual GateSPSPosDistribution* GetPosDist() { return m_posSPS ; }
   virtual GateSPSEneDistribution* GetEneDist() { return m_eneSPS ; }
@@ -137,6 +139,12 @@ public:
   void Visualize( G4String parms);
 
   void TrigMat();
+
+  void SetPrimeGammaSourceModel(std::string primeSourceModelName) {	mPrimeGammaSourceModelName = primeSourceModelName;}
+  void SetSecondaryGammaSourceModel(std::string secondarySourceModelName) {mSecondaryGammaSourceModelName =  secondarySourceModelName;}
+  void SetLorentzBoostForGammaAnihilation(double x, double y, double z);
+
+
 
 private:
   typedef GateMap<G4String,G4Colour> GateColorMap ;
@@ -212,6 +220,10 @@ protected:
     G4bool fAbortNow; // detector mode
   G4ThreeVector fPosition;// for detector mode because G4Trajectory does not allow to set first trajectory point position !!!
   G4ParticleDefinition* m_pd;
+  //Przechowuje informacje o tym z jakich źródel ma być brany modell gamma
+  std::string mPrimeGammaSourceModelName;
+  std::string mSecondaryGammaSourceModelName;
+  TVector3 mLorentzBoostVector;
 
 };
 
