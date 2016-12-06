@@ -475,7 +475,7 @@ void GateVSource::GeneratePrimariesForNGammaAnnihilationSource(G4Event* event)
 	}
 
 	if(primeGammaSource)
-		primeGammaSource->SetBoost(mLorentzBoostVector);
+		primeGammaSource->SetPositronMomentum(mLorentzBoostVector);
 
 	GateNGammaAnnihilation* gNGA = new GateNGammaAnnihilation(this,primeGammaSource,secondGammaSource);
 	gNGA->Initialize();

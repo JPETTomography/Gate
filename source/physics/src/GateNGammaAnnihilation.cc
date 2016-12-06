@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2016 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateNGammaAnnihilation.cc
+ */
+
 #include "GateNGammaAnnihilation.hh"
 #include "TLorentzVector.h"
 #include <vector>
@@ -16,7 +31,7 @@ GateNGammaAnnihilation::~GateNGammaAnnihilation()
 void GateNGammaAnnihilation::Initialize()
 {
 	ptrSource->SetParticleTime(ptrSource->GetTime());
-	//Ustalamy na podstawie otrzymanyź źródeł gamm ile będzie łącznie wygenerowanych gamm - potem będziemy je modyfikować zgodnie z oczekiwaniami klas pochodnych GateGammaSourceModel
+	//We set on the basis of the gamma source how much will have been total generated gamma photons number - then we will have modified them (gamma photons) based on expectations from  GateGammaSourceModel's derived classes
 	int partcilesNumber=0;
 	if(ptrPositroniumDecaySource)
 		partcilesNumber += ptrPositroniumDecaySource->GetParticlesNumber();

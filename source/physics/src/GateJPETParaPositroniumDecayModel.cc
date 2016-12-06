@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2016 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETParaPositroniumDecayModel.cc
+ */
+
 #include "GateJPETParaPositroniumDecayModel.hh"
 #include "TLorentzVector.h"
 #include "G4Electron.hh"
@@ -26,7 +41,7 @@ void GateJPETParaPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 
 	for(int i=0; i<GateGammaSourceModel::mParticlesNumber; ++i){
 		TLorentzVector partDir = *m_2_body_decay.GetDecay(i);
-		partDir.Boost(GateGammaSourceModel::mBoostVector);
+		partDir.Boost(GateGammaSourceModel::PositronMomentum);
 		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
 	}
 

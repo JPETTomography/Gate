@@ -1,8 +1,23 @@
+/**
+ *  @copyright Copyright 2016 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETOrtoPositroniumDecayModel.cc
+ */
+
 #include "GateJPETOrtoPositroniumDecayModel.hh"
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
 #include "G4Electron.hh"
-GateJPETOrtoPositroniumDecayModel::GateJPETOrtoPositroniumDecayModel() //: mParticlesNumber(3)
+GateJPETOrtoPositroniumDecayModel::GateJPETOrtoPositroniumDecayModel()
 {
 	GateGammaSourceModel::mParticlesNumber = 3;
 }
@@ -27,12 +42,10 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 	Double_t mass_secondaries[3] = {0.0, 0.0, 0.0};
 
 	// TGenPhaseSpace - Utility class to generate n-body m_3_body_decay
-	// TGenPhaseSpace m_3_body_decay;
-	///ta klasa korzysta z energii wyrażonych w GeV wię trzeba dokładnie się przyjrzec czy w jednostkach się gdzieś nie walnięto
 	TGenPhaseSpace m_3_body_decay;
 	m_3_body_decay.SetDecay(vec_pozytonium, 3, mass_secondaries);
 
-	// uwzględnienie wag rozpadu
+	// Include dacay's weights
 	Double_t weight;
 	Double_t weight_max= m_3_body_decay.GetWtMax()*pow(10,5);
 	Double_t rwt;
@@ -47,7 +60,7 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 
 	for(int i=0; i<mParticlesNumber; ++i){
 		TLorentzVector partDir = *m_3_body_decay.GetDecay(i);
-		partDir.Boost(GateGammaSourceModel::mBoostVector);
+		partDir.Boost(GateGammaSourceModel::PositronMomentum);
 		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
 	}
 }
