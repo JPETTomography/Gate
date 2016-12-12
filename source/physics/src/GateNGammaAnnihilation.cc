@@ -42,7 +42,9 @@ void GateNGammaAnnihilation::Initialize()
 
 void GateNGammaAnnihilation::GenerateVertex(G4Event* event)
 {
+	G4cout<<"genracja vertexu"<< Gateendl;
 	ptrSource->GeneratePrimaryVertex( event );
+
 	int firstSourceParticlesNumber=0;
 	int secondSourceParticlesNumber=0;
 
@@ -50,17 +52,18 @@ void GateNGammaAnnihilation::GenerateVertex(G4Event* event)
 		firstSourceParticlesNumber=ptrPositroniumDecaySource->GetParticlesNumber();
 		if(firstSourceParticlesNumber>0){
 			std::vector<G4PrimaryParticle*> particlesFromPositroniumDecay;
+			particlesFromPositroniumDecay.resize(firstSourceParticlesNumber);
 			for(int i=0; i<firstSourceParticlesNumber; ++i){
 				particlesFromPositroniumDecay[i] = event->GetPrimaryVertex( 0 )->GetPrimary(i);
 			}
 			ptrPositroniumDecaySource->GetGammaParticles(particlesFromPositroniumDecay);
 		}
 	}
-
 	if(ptrSecondaryGammaSource){
 		secondSourceParticlesNumber=ptrSecondaryGammaSource->GetParticlesNumber();
 		if(secondSourceParticlesNumber>0){
 			std::vector<G4PrimaryParticle*> particlesFromSecondaryGammaSource;
+			particlesFromSecondaryGammaSource.resize(secondSourceParticlesNumber);
 			for(int i=0; i<secondSourceParticlesNumber; ++i){
 				particlesFromSecondaryGammaSource[i] = event->GetPrimaryVertex( 0 )->GetPrimary(firstSourceParticlesNumber+i);
 			}

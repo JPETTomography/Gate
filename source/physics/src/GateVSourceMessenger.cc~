@@ -155,6 +155,10 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
 
+  /*
+   *   G4UIcmdWithAString*				   PrimeGammaSourceModelNameCmd;
+  G4UIcmdWithAString*				   SecondaryGammaSourceModelNameCmd;
+   * */
   cmdName = GetDirectoryName()+"setPrimeGammaSourceModel";
   PrimeGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
   PrimeGammaSourceModelNameCmd->SetGuidance("Prime gamma source in NGammaAnihilation process");
