@@ -25,6 +25,7 @@ class G4UIcmdWithABool;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWith3Vector;
 //class GateUIcmdWithADoubleWithUnitAndInteger;
 
 #include "GateUIcmdWithAVector.hh"
@@ -63,6 +64,10 @@ protected:
   G4UIcmdWithADoubleAndUnit*           setEnergyRangecmd;
   G4UIcmdWithAString*                  VisualizeCmd;
   G4UIcommand*                         useDefaultHalfLifeCmd;
+  G4UIcmdWithAString*				   PrimeGammaSourceModelNameCmd;
+  G4UIcmdWithAString*				   SecondaryGammaSourceModelNameCmd;
+  G4UIcmdWith3Vector* 				   LorentzBoostVectorCmdForGammaSourceModel;
+
 };
 
 #endif

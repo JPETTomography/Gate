@@ -30,6 +30,10 @@
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
 #include "G4VisAttributes.hh"
+#include "GateNGammaAnnihilation.hh"
+#include "GateGammaSourceModel.hh"
+#include "GateJPETParaPositroniumDecayModel.hh"
+#include "GateJPETOrtoPositroniumDecayModel.hh"
 // Setup a static color table for source visualization
 
 //-------------------------------------------------------------------------------------------------
@@ -99,6 +103,7 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
   m_SPSMessenger    = new GateSingleParticleSourceMessenger( this );
 
   SetNumberOfParticles(1); // important !
+  mLorentzBoostVector = TVector3(0,0,0);
 
 }
 //-------------------------------------------------------------------------------------------------
@@ -452,6 +457,46 @@ void GateVSource::GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event) {
 //-------------------------------------------------------------------------------------------------
 
 
+void GateVSource::SetLorentzBoostForGammaAnihilation(double x, double y, double z)
+{
+	mLorentzBoostVector = TVector3(x,y,z);
+}
+
+
+void GateVSource::GeneratePrimariesForNGammaAnnihilationSource(G4Event* event)
+{
+	GateGammaSourceModel* primeGammaSource =0;
+	GateGammaSourceModel* secondGammaSource =0;
+
+	if(mPrimeGammaSourceModelName=="oPsJPET"){
+		primeGammaSource = new GateJPETOrtoPositroniumDecayModel();
+	}else if(mPrimeGammaSourceModelName=="pPsJPET"){
+		primeGammaSource = new GateJPETParaPositroniumDecayModel();
+	}
+
+	if(primeGammaSource)
+		primeGammaSource->SetPositronMomentum(mLorentzBoostVector);
+
+	GateNGammaAnnihilation* gNGA = new GateNGammaAnnihilation(this,primeGammaSource,secondGammaSource);
+	gNGA->Initialize();
+	gNGA->GenerateVertex( event );
+	if( nVerboseLevel > 1 )
+	    G4cout << "GetNumberOfPrimaryVertex : "
+	           << event->GetNumberOfPrimaryVertex() << Gateendl;
+	  if( nVerboseLevel > 1 )
+	    G4cout << "GetNumberOfParticle      : "
+	           << event->GetPrimaryVertex(0)->GetNumberOfParticle() << Gateendl;
+
+	  if(primeGammaSource)
+		  delete primeGammaSource;
+	  if(secondGammaSource)
+		  delete secondGammaSource;
+
+	  delete gNGA;
+
+}
+
+
 //-------------------------------------------------------------------------------------------------
 void GateVSource::GeneratePrimariesForFastI124Source(G4Event* event) {
   // Fast I124 : generates 0 to 3 particles (gammas and e+) according to a simplified decay scheme
@@ -484,6 +529,7 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
       if (GetType() == G4String("backtoback"))    { GeneratePrimariesForBackToBackSource(event); }
       else if (GetType() == G4String("3GammaAnnihilation"))    { GeneratePrimariesFor3GammaAnnihilationSource(event); }
       else if (GetType() == G4String("fastI124")) { GeneratePrimariesForFastI124Source(event); }
+      else if (GetType() == G4String("NGammaAnnihilation")){GeneratePrimariesForNGammaAnnihilationSource(event);}
       else if ((GetType() == G4String("")) || (GetType() == G4String("gps"))) {
         // decay time for ions inside the timeSlice controlled here and not by RDM
         // NB: temporary: secondary ions of the decay chain not properly treated
@@ -493,7 +539,7 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
       }
       else {
         GateError("Sorry, I don't know the source type '"<< GetType() << "'. Known source types are"
-                  << "<backtoback> <3GammaAnnihilation> <fastI124> <gps>");
+                  << "<backtoback> <3GammaAnnihilation> <NGammaAnnihilation> <fastI124> <gps>");
       }
       numVertices++;
 
@@ -732,6 +778,7 @@ void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
           G4double pz = pmom * particle_momentum_direction.z();
 
           G4PrimaryParticle* particle = new G4PrimaryParticle(GetParticleDefinition(), px, py, pz);
+          particle->SetKineticEnergy(particle_energy);
           particle->SetMass( mass );
           particle->SetCharge( GetParticleDefinition()->GetPDGCharge() );
           particle->SetPolarization( GetParticlePolarization().x(),
