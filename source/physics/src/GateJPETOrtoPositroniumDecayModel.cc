@@ -17,9 +17,12 @@
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
 #include "G4Electron.hh"
+GateJPETOrtoPositroniumDecayModel* GateJPETOrtoPositroniumDecayModel::ptrJPETOrtoPositroniumDecayModel = 0;
 GateJPETOrtoPositroniumDecayModel::GateJPETOrtoPositroniumDecayModel()
 {
+	G4cout <<"GateJPETOrtoPositroniumDecayModel initialization.\n";
 	GateGammaSourceModel::mParticlesNumber = 3;
+	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
 GateJPETOrtoPositroniumDecayModel::~GateJPETOrtoPositroniumDecayModel()
@@ -33,6 +36,8 @@ Double_t GateJPETOrtoPositroniumDecayModel::calculate_mQED(Double_t mass_e, Doub
 
 void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryParticle*>& particles)
 {
+	G4cout <<"Rozmiar particles = "<<particles.size()<<"\n";
+
 	Double_t mass_e = G4Electron::Definition()->GetPDGMass()*1000;//keV
 
 	// positronium
@@ -61,6 +66,21 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 	for(int i=0; i<mParticlesNumber; ++i){
 		TLorentzVector partDir = *m_3_body_decay.GetDecay(i);
 		partDir.Boost(GateGammaSourceModel::PositronMomentum);
+		G4cout <<"OrtoPos partDir: "<< partDir.Px()<< " " << partDir.Py()<< " "<<partDir.Pz()<<"\n";
 		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
+		G4cout <<"OrtoPos - poszlo ustawienie\n";
 	}
+}
+
+G4String GateJPETOrtoPositroniumDecayModel::GetModelName()
+{
+	return "oPsJPET";
+}
+
+GateJPETOrtoPositroniumDecayModel* GateJPETOrtoPositroniumDecayModel::GetInstance()
+{
+	if(!ptrJPETOrtoPositroniumDecayModel){
+		ptrJPETOrtoPositroniumDecayModel = new GateJPETOrtoPositroniumDecayModel();
+	}
+	return ptrJPETOrtoPositroniumDecayModel;
 }

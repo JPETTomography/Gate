@@ -90,7 +90,6 @@ public:
   void GeneratePrimariesForBackToBackSource(G4Event* event);
   void GeneratePrimariesForFastI124Source(G4Event* event);
   void GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event);
-  void GeneratePrimariesForNGammaAnnihilationSource(G4Event* event);
 
   virtual GateSPSPosDistribution* GetPosDist() { return m_posSPS ; }
   virtual GateSPSEneDistribution* GetEneDist() { return m_eneSPS ; }
@@ -139,12 +138,6 @@ public:
   void Visualize( G4String parms);
 
   void TrigMat();
-
-  void SetPrimeGammaSourceModel(std::string primeSourceModelName) {	mPrimeGammaSourceModelName = primeSourceModelName;}
-  void SetSecondaryGammaSourceModel(std::string secondarySourceModelName) {mSecondaryGammaSourceModelName =  secondarySourceModelName;}
-  void SetLorentzBoostForGammaAnihilation(double x, double y, double z);
-
-
 
 private:
   typedef GateMap<G4String,G4Colour> GateColorMap ;
@@ -220,12 +213,6 @@ protected:
     G4bool fAbortNow; // detector mode
   G4ThreeVector fPosition;// for detector mode because G4Trajectory does not allow to set first trajectory point position !!!
   G4ParticleDefinition* m_pd;
-  //Contain information from which model we get prime gamma source 
-  std::string mPrimeGammaSourceModelName;
-  //Contain information from which model we get secondary gamma source 
-  std::string mSecondaryGammaSourceModelName;
-  //Boost reprented by positron momentum - for JEPT class model use
-  TVector3 mLorentzBoostVector;
 
 };
 

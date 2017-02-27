@@ -18,6 +18,7 @@
 
 #include "GateGammaSourceModel.hh"
 #include "TGenPhaseSpace.h"
+#include "GateJPETSourceManager.hh"
 
 /**Author: Mateusz Bała
  * Email: bala.mateusz@gmail.com
@@ -26,9 +27,26 @@
 class GateJPETParaPositroniumDecayModel : public GateGammaSourceModel
 {
 	public:
-		GateJPETParaPositroniumDecayModel();
+		/** Destructor
+		 * */
 		virtual~GateJPETParaPositroniumDecayModel();
+		/** Each particle is filled with data about momentum.
+		 * @param: particles - list with initialized particles - without momentum information
+		 * */
 		virtual void GetGammaParticles(std::vector<G4PrimaryParticle*>& particles);
+		/** Return model name.
+		 * @return: model name - it's always simple string
+		 * */
+		virtual G4String GetModelName();
+		/** If class object is not initialized this function do this and return pointer.
+		 * @return: class object pointer
+		 * */
+		static GateJPETParaPositroniumDecayModel *GetInstance();
+	private:
+		/** Constructor
+		 * */
+		GateJPETParaPositroniumDecayModel();
+		static GateJPETParaPositroniumDecayModel* ptrJPETParaPositroniumDecayModel;
 };
 
 #endif

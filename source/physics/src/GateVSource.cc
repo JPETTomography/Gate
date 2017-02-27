@@ -103,7 +103,6 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
   m_SPSMessenger    = new GateSingleParticleSourceMessenger( this );
 
   SetNumberOfParticles(1); // important !
-  mLorentzBoostVector = TVector3(0,0,0);
 
 }
 //-------------------------------------------------------------------------------------------------
@@ -208,71 +207,24 @@ void GateVSource::SetTimeActivityFilename(G4String filename) {
   }
   m_activity = mTimeList[0];
 }
-//----------------------------------------------------------------------------------------
 
 
-//----------------------------------------------------------------------------------------
-//void GateVSource::AddTimeSlicesFromFile(G4String /*filename //WARNING: parameter not used */) {
-/* //ReadTimeDoubleValue(filename, "Activity", mTimeList, mActivityList);
-
-//mTimePerSlice;
-//mNumberOfParticlesPerSlice;
-
-}*/
-//----------------------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------------------
-/*void GateVSource::AddTimeSlices(double time, int nParticles) {
-//ReadTimeDoubleValue(filename, "Activity", mTimeList, mActivityList);
-
-mTimePerSlice.push_back( time);
-mNumberOfParticlesPerSlice.push_back( nParticles);
-
-}*/
-//----------------------------------------------------------------------------------------
-
-
-//-------------------------------------------------------------------------------------------------
 G4String GateVSource::GetRelativePlacementVolume() {
   return mRelativePlacementVolumeName;
 }
-//-------------------------------------------------------------------------------------------------
 
 
-//-------------------------------------------------------------------------------------------------
 void GateVSource::SetRelativePlacementVolume(G4String volname) {
   mRelativePlacementVolumeName = volname;
   // Search for volume
-  mVolume =   GateObjectStore::GetInstance()->FindVolumeCreator(volname);
-//mVolume->Describe();
+  mVolume =   GateObjectStore::GetInstance()->FindVolumeCreator(volname);;
 }
-//-------------------------------------------------------------------------------------------------
 
-
-//-------------------------------------------------------------------------------------------------
-//G4double GateVSource::GetNextTimeInSuccessiveSourceMode(G4double /*timeStart*/,
-/*                                                        G4int mNbOfParticleInTheCurrentRun) {
-                                                          if (mNbOfParticleInTheCurrentRun == 0) {
-                                                          return (1.0/m_activity)/2.0;
-                                                          }
-                                                          return (1.0/m_activity);
-                                                          }*/
-//-------------------------------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------------------------------
 G4double GateVSource::GetNextTime( G4double timeStart )
 {
-
-/* GetVolumeID ??? */
-
-
-
   // returns the proposed time for the next event of this source, sampled from the
   // source time distribution
   G4double aTime = DBL_MAX;
-
-//if(m_activity==0 && m_timeInterval!=0.)  SetActivity();
 
   if( m_activity > 0. )
     {
@@ -333,9 +285,6 @@ G4double GateVSource::GetNextTime( G4double timeStart )
       }
       else {
         GateError("I should not be here. ");
-        // DD(activityNow);
-        //         DD(m_activity);
-        //         DD(timeStart/s);
         aTime = 1./activityNow;
       }
     }
@@ -343,12 +292,6 @@ G4double GateVSource::GetNextTime( G4double timeStart )
   if( nVerboseLevel > 0 )
     G4cout << "GateVSource::GetNextTime : next time (s) " << aTime/s << Gateendl;
 
-
-//Dump(0);
-/*G4cout<< "    CentreCoords       (mm)  : "
-             << m_posSPS->GetCentreCoords().x()/mm << " "
-             << m_posSPS->GetCentreCoords().y()/mm << " "
-             << m_posSPS->GetCentreCoords().z()/mm << Gateendl;*/
   return aTime;
 }
 //-------------------------------------------------------------------------------------------------
@@ -456,47 +399,6 @@ void GateVSource::GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event) {
 }
 //-------------------------------------------------------------------------------------------------
 
-
-void GateVSource::SetLorentzBoostForGammaAnihilation(double x, double y, double z)
-{
-	mLorentzBoostVector = TVector3(x,y,z);
-}
-
-
-void GateVSource::GeneratePrimariesForNGammaAnnihilationSource(G4Event* event)
-{
-	GateGammaSourceModel* primeGammaSource =0;
-	GateGammaSourceModel* secondGammaSource =0;
-
-	if(mPrimeGammaSourceModelName=="oPsJPET"){
-		primeGammaSource = new GateJPETOrtoPositroniumDecayModel();
-	}else if(mPrimeGammaSourceModelName=="pPsJPET"){
-		primeGammaSource = new GateJPETParaPositroniumDecayModel();
-	}
-
-	if(primeGammaSource)
-		primeGammaSource->SetPositronMomentum(mLorentzBoostVector);
-
-	GateNGammaAnnihilation* gNGA = new GateNGammaAnnihilation(this,primeGammaSource,secondGammaSource);
-	gNGA->Initialize();
-	gNGA->GenerateVertex( event );
-	if( nVerboseLevel > 1 )
-	    G4cout << "GetNumberOfPrimaryVertex : "
-	           << event->GetNumberOfPrimaryVertex() << Gateendl;
-	  if( nVerboseLevel > 1 )
-	    G4cout << "GetNumberOfParticle      : "
-	           << event->GetPrimaryVertex(0)->GetNumberOfParticle() << Gateendl;
-
-	  if(primeGammaSource)
-		  delete primeGammaSource;
-	  if(secondGammaSource)
-		  delete secondGammaSource;
-
-	  delete gNGA;
-
-}
-
-
 //-------------------------------------------------------------------------------------------------
 void GateVSource::GeneratePrimariesForFastI124Source(G4Event* event) {
   // Fast I124 : generates 0 to 3 particles (gammas and e+) according to a simplified decay scheme
@@ -515,7 +417,9 @@ void GateVSource::GeneratePrimariesForFastI124Source(G4Event* event) {
 //-------------------------------------------------------------------------------------------------
 G4int GateVSource::GeneratePrimaries( G4Event* event )
 {
-  if (event) GateMessage("Beam", 2, "Generating particle " << event->GetEventID() << Gateendl);
+	G4cout <<":::::CALL : GateVSource::GeneratePrimaries\n";
+
+if (event) GateMessage("Beam", 2, "Generating particle " << event->GetEventID() << Gateendl);
 
   G4int numVertices = 0;
 
@@ -529,7 +433,6 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
       if (GetType() == G4String("backtoback"))    { GeneratePrimariesForBackToBackSource(event); }
       else if (GetType() == G4String("3GammaAnnihilation"))    { GeneratePrimariesFor3GammaAnnihilationSource(event); }
       else if (GetType() == G4String("fastI124")) { GeneratePrimariesForFastI124Source(event); }
-      else if (GetType() == G4String("NGammaAnnihilation")){GeneratePrimariesForNGammaAnnihilationSource(event);}
       else if ((GetType() == G4String("")) || (GetType() == G4String("gps"))) {
         // decay time for ions inside the timeSlice controlled here and not by RDM
         // NB: temporary: secondary ions of the decay chain not properly treated
@@ -557,12 +460,6 @@ G4int GateVSource::GeneratePrimaries( G4Event* event )
         }
       }
 
-      //if (event) {
-      //  printf("time %e ns\n", GetTime());
-      //}
-
-
-      //G4cout<<"Generate primaries\n";
       return numVertices;
     }// standard or tracker mode PY Descourt 08/09/2008
 
@@ -746,7 +643,15 @@ void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
     {
       G4ThreeVector particle_position;
       if(mIsUserFluenceActive) { particle_position = UserFluencePosGenerateOne(); }
-      else { particle_position = m_posSPS->GenerateOne(); }
+      else {
+
+
+    	  particle_position = m_posSPS->GenerateOne();
+    	  G4cout <<"::::CALL : m_posSPS->GenerateOne()\n";
+    	  G4cout <<"m_posSPS->GetPosDisType() : "<<m_posSPS->GetPosDisType()<<"\n";
+    	  G4cout <<"PARTICLE POSITION: "<<particle_position.x()<<" "<<particle_position.y()<<" "<<particle_position.z()<<"\n";
+      }
+
 
       // Set placement relative to attached volume
       ChangeParticlePositionRelativeToAttachedVolume(particle_position);
@@ -842,6 +747,8 @@ G4String nameMaterial = material->GetName();*/
 
 //-------------------------------------------------------------------------------------------------
 void GateVSource::ChangeParticlePositionRelativeToAttachedVolume(G4ThreeVector & position) {
+
+	G4cout <<"::::CALL :ChangeParticlePositionRelativeToAttachedVolume ::: mRelativePlacementVolumeName ="<<mRelativePlacementVolumeName<<"\n";
   // Do nothing if attached to world
   if (mRelativePlacementVolumeName == "world") return;
 
