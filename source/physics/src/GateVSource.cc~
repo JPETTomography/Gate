@@ -633,6 +633,7 @@ void GateVSource::Update(double t)
 void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
 {
   if( GetParticleDefinition() == NULL ){
+	  G4cout << "[WARRNING: Brak definicji czastki\n";
 	  return;
   }
   if( GetPosDist()->GetPosDisType() == "UserFluenceImage" ) InitializeUserFluence();
