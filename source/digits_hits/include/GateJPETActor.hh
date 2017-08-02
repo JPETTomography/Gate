@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETActor.hh
+ */
+
 #include "GateConfiguration.h"
 
 #ifndef GATEJPETACTOR_HH
@@ -12,6 +27,8 @@
 
 #include "GateVActor.hh"
 #include "GateJPETActorMessenger.hh"
+
+#include<fstream>
 
 struct iaea_header_type;
 struct iaea_record_type;
@@ -131,6 +148,12 @@ public:
 	 */
 	void SetPrimaryEnergy(bool enablePrimaryEnergy);
 
+	/**
+	 * Use ASCI file to save partcile data about name and positions
+	 * @param: fileName - ASCI file name 
+	 */
+	void SetASCIFileName(std::string fileName);
+
 protected:
 	GateJPETActor(G4String name, G4int depth=0);
 
@@ -185,6 +208,9 @@ protected:
 	TFile * pFile;
 	TTree * pListeVar;
 	GateJPETActorMessenger * pMessenger;
+	//Zapis danych do pliku ASCII
+	std::fstream mASCIFile;
+	std::string mASCIFileName;
 
 	//Tracing tools variables
 	bool mIsFirstStep;

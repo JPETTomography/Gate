@@ -155,6 +155,10 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
 
+  /*
+   *   G4UIcmdWithAString*				   PrimeGammaSourceModelNameCmd;
+  G4UIcmdWithAString*				   SecondaryGammaSourceModelNameCmd;
+   * */
   cmdName = GetDirectoryName()+"setPrimeGammaSourceModel";
   PrimeGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
   PrimeGammaSourceModelNameCmd->SetGuidance("Prime gamma source in NGammaAnihilation process");
@@ -257,16 +261,6 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
   }
-  else if(command == PrimeGammaSourceModelNameCmd){
-	  m_source->SetPrimeGammaSourceModel(newValue);
-  }else if(command == SecondaryGammaSourceModelNameCmd){
-	  m_source->SetSecondaryGammaSourceModel(newValue);
-  }else if(command == LorentzBoostVectorCmdForGammaSourceModel){
-	  G4ThreeVector vec =   LorentzBoostVectorCmdForGammaSourceModel->GetNew3VectorValue(newValue);
-	  m_source->SetLorentzBoostForGammaAnihilation(vec.x(),vec.y(),vec.z());
-  }
-
-  //G4UIcmdWith3Vector* 				   LorentzBoostVectorCmdForGammaSourceModel
 }
 //----------------------------------------------------------------------------------------
 

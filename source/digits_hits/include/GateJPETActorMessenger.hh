@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETActorMessenger.hh
+ */
+
 #include "GateConfiguration.h"
 #ifdef G4ANALYSIS_USE_ROOT
 #ifndef GATEJPETACTORMESSENGER_HH
@@ -41,6 +56,7 @@ protected:
 	G4UIcmdWithABool* pEnableProcessNameCmd;
 	G4UIcmdWithABool* pEnableEmissionPointCmd;
 	G4UIcmdWithABool* pEnablePrimaryEnergyCmd;
+	G4UIcmdWithAString* pEnableASCIFileNameCmd;
 };
 #endif //GATEJPETACTORMESSANGER_HH/
 #endif //G4ANALYSIS_USE_ROOT

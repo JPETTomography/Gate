@@ -17,9 +17,12 @@
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
 #include "G4Electron.hh"
+GateJPETOrtoPositroniumDecayModel* GateJPETOrtoPositroniumDecayModel::ptrJPETOrtoPositroniumDecayModel = 0;
 GateJPETOrtoPositroniumDecayModel::GateJPETOrtoPositroniumDecayModel()
 {
+	G4cout <<"GateJPETOrtoPositroniumDecayModel initialization.\n";
 	GateGammaSourceModel::mParticlesNumber = 3;
+	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
 GateJPETOrtoPositroniumDecayModel::~GateJPETOrtoPositroniumDecayModel()
@@ -63,4 +66,17 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 		partDir.Boost(GateGammaSourceModel::PositronMomentum);
 		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
 	}
+}
+
+G4String GateJPETOrtoPositroniumDecayModel::GetModelName()
+{
+	return "oPsJPET";
+}
+
+GateJPETOrtoPositroniumDecayModel* GateJPETOrtoPositroniumDecayModel::GetInstance()
+{
+	if(!ptrJPETOrtoPositroniumDecayModel){
+		ptrJPETOrtoPositroniumDecayModel = new GateJPETOrtoPositroniumDecayModel();
+	}
+	return ptrJPETOrtoPositroniumDecayModel;
 }
