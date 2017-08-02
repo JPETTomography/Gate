@@ -36,8 +36,6 @@ Double_t GateJPETOrtoPositroniumDecayModel::calculate_mQED(Double_t mass_e, Doub
 
 void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryParticle*>& particles)
 {
-	G4cout <<"Rozmiar particles = "<<particles.size()<<"\n";
-
 	Double_t mass_e = G4Electron::Definition()->GetPDGMass()*1000;//keV
 
 	// positronium
@@ -66,9 +64,7 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 	for(int i=0; i<mParticlesNumber; ++i){
 		TLorentzVector partDir = *m_3_body_decay.GetDecay(i);
 		partDir.Boost(GateGammaSourceModel::PositronMomentum);
-		G4cout <<"OrtoPos partDir: "<< partDir.Px()<< " " << partDir.Py()<< " "<<partDir.Pz()<<"\n";
 		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
-		G4cout <<"OrtoPos - poszlo ustawienie\n";
 	}
 }
 

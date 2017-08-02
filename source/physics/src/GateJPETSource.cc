@@ -17,6 +17,7 @@
 #include "G4Event.hh"
 #include "GateJPETSourceManager.hh"
 #include "G4PrimaryParticle.hh"
+#include "GateBackToBack.hh"
 
 GateJPETSource::GateJPETSource(G4String name) : GateVSource(name), ptrGammaSourceModel(0)
 {
@@ -30,19 +31,18 @@ GateJPETSource::~GateJPETSource()
 G4int GateJPETSource::GeneratePrimaries(G4Event* event)
 {
 	if (ptrGammaSourceModel) {
-		SetParticleTime( GetTime() );
+		GateVSource::SetParticleTime( GetTime() );
 		//Then we set number of particles which will be generated
-		SetNumberOfParticles( ptrGammaSourceModel->GetParticlesNumber() );
+		GateVSource::SetNumberOfParticles( ptrGammaSourceModel->GetParticlesNumber() );
 		//First we attach our event volume
-		GeneratePrimaryVertex( event );
+		GateVSource::GeneratePrimaryVertex( event );
+
 		std::vector<G4PrimaryParticle*> particles;
 		particles.resize(ptrGammaSourceModel->GetParticlesNumber());
 		for(int particleIndex=0; particleIndex<ptrGammaSourceModel->GetParticlesNumber(); ++particleIndex){
 			particles[particleIndex] = event->GetPrimaryVertex(0)->GetPrimary( particleIndex );
-			//particles[particleIndex]->SetMass(0.0);
 		}
 		// And finally we generate particles
-		G4cout <<"Ilosc czasteczek : "<<particles.size()<<"\n";
 		ptrGammaSourceModel->GetGammaParticles( particles );
 
 	} else {
@@ -65,5 +65,8 @@ G4int GateJPETSource::GeneratePrimaries(G4Event* event)
 bool GateJPETSource::InitModel()
 {
 	ptrGammaSourceModel = GateJPETSourceManager::GetInstance()->GetGammaSourceModelByName(GetType());
+	if(ptrGammaSourceModel)
+		ptrGammaSourceModel->SetPolarization(GateVSource::GetPolarization());
 	return ptrGammaSourceModel == 0 ? false : true;
 }
+

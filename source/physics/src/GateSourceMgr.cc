@@ -545,8 +545,6 @@ G4int GateSourceMgr::PrepareNextRun( const G4Run* r)
 G4int GateSourceMgr::PrepareNextEvent( G4Event* event )
 {
 
-	G4cout <<"::::CALL : GateSourceMgr::PrepareNextEvent\n";
-
   GateSteppingAction* myAction = (GateSteppingAction *) ( GateRunManager::GetRunManager()->GetUserSteppingAction() );
   TrackingMode theMode =myAction->GetMode();
   m_currentSources.clear();

@@ -102,6 +102,10 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
   m_sourceMessenger = new GateVSourceMessenger( this );
   m_SPSMessenger    = new GateSingleParticleSourceMessenger( this );
 
+  mPolarization.setX(0);
+  mPolarization.setY(0);
+  mPolarization.setZ(0);
+
   SetNumberOfParticles(1); // important !
 
 }
@@ -417,7 +421,6 @@ void GateVSource::GeneratePrimariesForFastI124Source(G4Event* event) {
 //-------------------------------------------------------------------------------------------------
 G4int GateVSource::GeneratePrimaries( G4Event* event )
 {
-	G4cout <<":::::CALL : GateVSource::GeneratePrimaries\n";
 
 if (event) GateMessage("Beam", 2, "Generating particle " << event->GetEventID() << Gateendl);
 
@@ -629,7 +632,10 @@ void GateVSource::Update(double t)
 //-------------------------------------------------------------------------------------------------
 void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
 {
-  if( GetParticleDefinition() == NULL ) return;
+  if( GetParticleDefinition() == NULL ){
+	  G4cout << "[WARRNING: Brak definicji czastki\n";
+	  return;
+  }
   if( GetPosDist()->GetPosDisType() == "UserFluenceImage" ) InitializeUserFluence();
   if( mUserFocalShapeInitialisation ) InitializeUserFocalShape();
 
@@ -647,9 +653,9 @@ void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
 
 
     	  particle_position = m_posSPS->GenerateOne();
-    	  G4cout <<"::::CALL : m_posSPS->GenerateOne()\n";
-    	  G4cout <<"m_posSPS->GetPosDisType() : "<<m_posSPS->GetPosDisType()<<"\n";
-    	  G4cout <<"PARTICLE POSITION: "<<particle_position.x()<<" "<<particle_position.y()<<" "<<particle_position.z()<<"\n";
+    	  //G4cout <<"::::CALL : m_posSPS->GenerateOne()\n";
+    	 // G4cout <<"m_posSPS->GetPosDisType() : "<<m_posSPS->GetPosDisType()<<"\n";
+    	  //G4cout <<"PARTICLE POSITION: "<<particle_position.x()<<" "<<particle_position.y()<<" "<<particle_position.z()<<"\n";
       }
 
 
@@ -748,7 +754,6 @@ G4String nameMaterial = material->GetName();*/
 //-------------------------------------------------------------------------------------------------
 void GateVSource::ChangeParticlePositionRelativeToAttachedVolume(G4ThreeVector & position) {
 
-	G4cout <<"::::CALL :ChangeParticlePositionRelativeToAttachedVolume ::: mRelativePlacementVolumeName ="<<mRelativePlacementVolumeName<<"\n";
   // Do nothing if attached to world
   if (mRelativePlacementVolumeName == "world") return;
 
