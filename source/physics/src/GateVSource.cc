@@ -102,10 +102,6 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
   m_sourceMessenger = new GateVSourceMessenger( this );
   m_SPSMessenger    = new GateSingleParticleSourceMessenger( this );
 
-  mPolarization.setX(0);
-  mPolarization.setY(0);
-  mPolarization.setZ(0);
-
   SetNumberOfParticles(1); // important !
 
 }
@@ -633,6 +629,7 @@ void GateVSource::Update(double t)
 void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
 {
   if( GetParticleDefinition() == NULL ){
+	  G4cout << "[WARRNING: Brak definicji czastki\n";
 	  return;
   }
   if( GetPosDist()->GetPosDisType() == "UserFluenceImage" ) InitializeUserFluence();
@@ -647,10 +644,14 @@ void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
   if (  theMode == kBoth || theMode == kTracker )
     {
       G4ThreeVector particle_position;
-      if(mIsUserFluenceActive) { 
-		particle_position = UserFluencePosGenerateOne(); 
-      } else {
-		particle_position = m_posSPS->GenerateOne();
+      if(mIsUserFluenceActive) { particle_position = UserFluencePosGenerateOne(); }
+      else {
+
+
+    	  particle_position = m_posSPS->GenerateOne();
+    	  //G4cout <<"::::CALL : m_posSPS->GenerateOne()\n";
+    	 // G4cout <<"m_posSPS->GetPosDisType() : "<<m_posSPS->GetPosDisType()<<"\n";
+    	  //G4cout <<"PARTICLE POSITION: "<<particle_position.x()<<" "<<particle_position.y()<<" "<<particle_position.z()<<"\n";
       }
 
 

@@ -52,8 +52,11 @@ class GateGammaSourceModel
 		 * */
 		virtual G4String GetModelName()=0;
 
+		virtual void SetPolarization(G4ThreeVector  pol);
+
 		int mParticlesNumber;
 		TVector3 PositronMomentum;
+		G4ThreeVector mPolarization;
 };
 
 #endif

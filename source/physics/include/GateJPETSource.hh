@@ -47,12 +47,14 @@ public:
 	 * */
 	virtual G4int GeneratePrimaries(G4Event* event);
 
+
 private:
 	/** This function depends on user setting choose one correct model for simulation and associate with it pointer.
 	 * */
 	bool InitModel();
 	// This is pointer which will be associated with your model
 	GateGammaSourceModel* ptrGammaSourceModel;
+
 };
 
 
