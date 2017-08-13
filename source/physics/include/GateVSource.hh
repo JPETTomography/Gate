@@ -139,6 +139,9 @@ public:
 
   void TrigMat();
 
+  void SetPolarization(G4ThreeVector polarization) {m_polarization = polarization;}
+  G4ThreeVector GetPolarization() { return m_polarization;}
+
 private:
   typedef GateMap<G4String,G4Colour> GateColorMap ;
   typedef GateColorMap::MapPair GateColorPair ;
@@ -213,6 +216,8 @@ protected:
     G4bool fAbortNow; // detector mode
   G4ThreeVector fPosition;// for detector mode because G4Trajectory does not allow to set first trajectory point position !!!
   G4ParticleDefinition* m_pd;
+
+  G4ThreeVector m_polarization;
 
 };
 
