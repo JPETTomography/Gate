@@ -139,8 +139,25 @@ public:
 
   void TrigMat();
 
-  void SetPolarization(G4ThreeVector polarization) {m_polarization = polarization;}
-  G4ThreeVector GetPolarization() { return m_polarization;}
+  /** Function set linear polarization angle for particle
+   * @param: angle - angle value
+   * @param: is_degree - if angle is in degree set it as true, or if it is in radians set false
+   * */
+  void SetLinearPolarizationAngle(double angle, bool is_degree) {mLinearPolarizationAngle = is_degree ? (M_PI/180.0)*angle : angle;}
+
+  /** Function return linear polarization angle in radians
+   * */
+  double GetLinearPolarizationAngle() { return mLinearPolarizationAngle;}
+
+  /** Function set generation of unpolarized particles (what mean that particle has zero polarization vector {0,0,0})
+   * @param: use_unpolarized - set true if you need unpolarized particles
+   * */
+  void SetUnpolarizedParticlesGenerating(bool use_unpolarized){mUseUnpolarizedParticles = use_unpolarized;}
+
+  /** Function inform if unpolarized generation is in use
+   * @return: true - if is in use, false - otherwise
+   * */
+  bool GetUnpolarizedParticlesGenerating(){return mUseUnpolarizedParticles;}
 
 private:
   typedef GateMap<G4String,G4Colour> GateColorMap ;
@@ -217,7 +234,8 @@ protected:
   G4ThreeVector fPosition;// for detector mode because G4Trajectory does not allow to set first trajectory point position !!!
   G4ParticleDefinition* m_pd;
 
-  G4ThreeVector m_polarization;
+  double mLinearPolarizationAngle;
+  bool mUseUnpolarizedParticles;
 
 };
 

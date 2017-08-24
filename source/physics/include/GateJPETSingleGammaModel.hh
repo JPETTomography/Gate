@@ -10,27 +10,26 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *
- *  @fileGateJPETOrtoPositroniumDecayModel.hh
+ *  @file GateJPETSingleGammaModel.hh
  */
 
-#ifndef GATEJPETORTOPOSITRONIUMDECAYMODEL_HH
-#define GATEJPETORTOPOSITRONIUMDECAYMODEL_HH
+#ifndef GATEJPETSINGLEGAMMAMODEL_HH
+#define GATEJPETSINGLEGAMMAMODEL_HH
 
 #include "GateGammaSourceModel.hh"
-#include "TRandom3.h"
+#include "TGenPhaseSpace.h"
 #include "GateJPETSourceManager.hh"
 
 /**Author: Mateusz Bała
  * Email: bala.mateusz@gmail.com
- * Theorem author: Daria Kamińska
- * About class: Provide generation of 3 gamma from orto Positronium decay
- * */
-class GateJPETOrtoPositroniumDecayModel : public GateGammaSourceModel
+ * About class: generate one gamma. This function is useful when you need test behave of something for just one gamma
+ */
+class GateJPETSingleGammaModel : public GateGammaSourceModel
 {
 	public:
 		/** Destructor
 		 * */
-		virtual ~GateJPETOrtoPositroniumDecayModel();
+		virtual~GateJPETSingleGammaModel();
 		/** Each particle is filled with data about momentum.
 		 * @param: particles - list with initialized particles - without momentum information
 		 * */
@@ -42,14 +41,13 @@ class GateJPETOrtoPositroniumDecayModel : public GateGammaSourceModel
 		/** If class object is not initialized this function do this and return pointer.
 		 * @return: class object pointer
 		 * */
-		static GateJPETOrtoPositroniumDecayModel* GetInstance();
-	private:
-		Double_t calculate_mQED(Double_t mass_e, Double_t w1, Double_t w2, Double_t w3);
-		TRandom3 m_random_gen;
+		static GateJPETSingleGammaModel *GetInstance();
 	private:
 		/** Constructor
 		 * */
-		GateJPETOrtoPositroniumDecayModel();
-		static GateJPETOrtoPositroniumDecayModel* ptrJPETOrtoPositroniumDecayModel;
+		GateJPETSingleGammaModel();
+		static GateJPETSingleGammaModel* ptrJPETSingleGammaModel;
 };
+
 #endif
+

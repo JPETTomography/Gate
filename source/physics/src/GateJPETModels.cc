@@ -19,6 +19,7 @@
  * */
 #include "GateJPETParaPositroniumDecayModel.hh" //Generate 2 gamma from PPs decay
 #include "GateJPETOrtoPositroniumDecayModel.hh" //Generate 3 gamma from OPs decay
+#include "GateJPETSingleGammaModel.hh" //Generate 1 gamma
 
 GateJPETModels::GateJPETModels()
 {
@@ -37,5 +38,8 @@ void GateJPETModels::InitModels()
 
 	//Generate 3 gamma from OPs decay
 	GateJPETOrtoPositroniumDecayModel::GetInstance();
+
+	//Generate single gamma - useful for tests
+	GateJPETSingleGammaModel::GetInstance();
 }
 

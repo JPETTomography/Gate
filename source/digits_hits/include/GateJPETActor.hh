@@ -208,7 +208,7 @@ protected:
 	TFile * pFile;
 	TTree * pListeVar;
 	GateJPETActorMessenger * pMessenger;
-	//Zapis danych do pliku ASCII
+	//Saving data to ASCII files
 	std::fstream mASCIFile;
 	std::string mASCIFileName;
 

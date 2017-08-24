@@ -104,6 +104,9 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
 
   SetNumberOfParticles(1); // important !
 
+  mLinearPolarizationAngle = 0;
+  mUseUnpolarizedParticles = false;
+
 }
 //-------------------------------------------------------------------------------------------------
 
@@ -441,7 +444,7 @@ if (event) GateMessage("Beam", 2, "Generating particle " << event->GetEventID() 
       }
       else {
         GateError("Sorry, I don't know the source type '"<< GetType() << "'. Known source types are"
-                  << "<backtoback> <3GammaAnnihilation> <NGammaAnnihilation> <fastI124> <gps>");
+                  << "<backtoback> <3GammaAnnihilation><fastI124> <gps>");
       }
       numVertices++;
 

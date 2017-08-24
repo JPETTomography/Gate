@@ -155,14 +155,13 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
 
-  cmdName = GetDirectoryName()+"setPolarization";
-  PolarizationCmd = new G4UIcmdWith3Vector(cmdName,this);
-  PolarizationCmd->SetGuidance("Set polarization");
-
-
-  cmdName = GetDirectoryName()+"setLP";
+  cmdName = GetDirectoryName()+"setLinearPolarizationAngle";
   LinearPolarizationCmd = new G4UIcmdWithADoubleAndUnit(cmdName,this);
   LinearPolarizationCmd->SetGuidance("Set linear polarization by given angle");
+
+  cmdName = GetDirectoryName()+"setUseUnpolarizedParticles";
+  UseUnpolarizedParticlesCmd = new G4UIcmdWithABool(cmdName,this);
+  UseUnpolarizedParticlesCmd->SetGuidance("Set unpolarized particles generation");
 }
 //----------------------------------------------------------------------------------------
 
@@ -191,8 +190,8 @@ GateVSourceMessenger::~GateVSourceMessenger()
   delete setEnergyRangecmd;
 //    delete GateSourceDir;
   delete VisualizeCmd;
-  delete PolarizationCmd;
   delete LinearPolarizationCmd;
+  delete UseUnpolarizedParticlesCmd;
 }
 //----------------------------------------------------------------------------------------
 
@@ -248,22 +247,17 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
       m_source->GetEneDist()->SetMinEnergy(setMinEnergycmd->GetNewDoubleValue(newValue));
   } else if( command == VisualizeCmd ) {
     m_source->Visualize(newValue);
-  }
-  else if( command == setEnergyRangecmd ) {
+  } else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
-  }
-  else if( command == PolarizationCmd) {
-	  G4ThreeVector p = PolarizationCmd->GetNew3VectorValue(newValue);
-	  m_source->SetPolarization(p);
-  }
-  else if( command == LinearPolarizationCmd) {
-	  double a = LinearPolarizationCmd->GetNewDoubleValue(newValue);
-	  double phi = (a/180.0)*M_PI;
-	  double x =0, y=0,z=0;
-	  x = cos(2*phi);
-	  y = sin(2*phi);
-	  G4ThreeVector p(x,y,z);
-	  m_source->SetPolarization(p);
+  } else if( command == LinearPolarizationCmd) {
+	  G4double vl;
+	  char unts[30];
+	  std::istringstream is(newValue);
+	  is >> vl >> unts;
+	  G4String unt = unts;
+	  m_source->SetLinearPolarizationAngle(vl,unt == "deg");
+  } else if( command == UseUnpolarizedParticlesCmd) {
+	  m_source->SetUnpolarizedParticlesGenerating(UseUnpolarizedParticlesCmd->GetNewBoolValue(newValue));
   }
 }
 //----------------------------------------------------------------------------------------

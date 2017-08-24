@@ -51,6 +51,9 @@ protected:
 	G4UIcmdWithADoubleAndUnit* pEnablePhiEpsilon;
 	G4UIcmdWithADoubleAndUnit* pEnableThetaEpsilon;
 	G4UIcmdWithABool* pEnableCalcAllPhiAsNoNegative;
+	G4UIcmdWithABool* pEnableHistograms;
+	G4UIcmdWithABool* pEnableTests;
+	G4UIcmdWithADoubleAndUnit* pEnableAnglePrecisionInHistograms;
 };
 #endif //GATEJPETACTORGAMMAPOLARIZATIONMESSENGER_HH
 #endif //G4ANALYSIS_USE_ROOT

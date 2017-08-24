@@ -141,7 +141,7 @@ void GateJPETActorMessenger::BuildCommands(G4String base)
 	pEnableASCIFileNameCmd =  new G4UIcmdWithAString(bb,this);
 	guidance = "Save data about particle name and positions.";
 	pEnableASCIFileNameCmd->SetGuidance(guidance);
-	pEnableASCIFileNameCmd->SetParameterName("ASCI file name",false);
+	pEnableASCIFileNameCmd->SetParameterName("ASCI file name",false); //setLP
 }
 
 void GateJPETActorMessenger::SetNewValue(G4UIcommand* command, G4String param)

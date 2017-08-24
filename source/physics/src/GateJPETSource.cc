@@ -65,8 +65,10 @@ G4int GateJPETSource::GeneratePrimaries(G4Event* event)
 bool GateJPETSource::InitModel()
 {
 	ptrGammaSourceModel = GateJPETSourceManager::GetInstance()->GetGammaSourceModelByName(GetType());
-	if(ptrGammaSourceModel)
-		ptrGammaSourceModel->SetPolarization(GateVSource::GetPolarization());
+	if(ptrGammaSourceModel){
+		ptrGammaSourceModel->SetLinearPolarizationAngle(GateVSource::GetLinearPolarizationAngle(), false);
+		ptrGammaSourceModel->SetUnpolarizedGammaGeneration(GateVSource::GetUnpolarizedParticlesGenerating());
+	}
 	return ptrGammaSourceModel == 0 ? false : true;
 }
 

@@ -38,6 +38,9 @@ GateJPETGammaPolarizationActorMessenger::~GateJPETGammaPolarizationActorMessenge
 	delete pEnablePhiEpsilon;
 	delete pEnableThetaEpsilon;
 	delete pEnableCalcAllPhiAsNoNegative;
+	delete pEnableHistograms;
+	delete pEnableTests;
+	delete pEnableAnglePrecisionInHistograms;
 }
 
 void GateJPETGammaPolarizationActorMessenger::BuildCommands(G4String base)
@@ -77,6 +80,15 @@ void GateJPETGammaPolarizationActorMessenger::BuildCommands(G4String base)
 
 	bb = base+"/enableAllPhiAsNoNegative";
 	pEnableCalcAllPhiAsNoNegative = new G4UIcmdWithABool(bb,this);
+
+	bb = base+"/enableHistograms";
+	pEnableHistograms  = new G4UIcmdWithABool(bb,this);
+
+	bb = base+"/enableTests";
+	pEnableTests  = new G4UIcmdWithABool(bb,this);
+
+	bb = base+"/enableAnglePrecisionInHistograms";
+	pEnableAnglePrecisionInHistograms  = new G4UIcmdWithADoubleAndUnit(bb,this);
 }
 
 void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
@@ -106,6 +118,15 @@ void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, 
 
 	if(command == pEnableCalcAllPhiAsNoNegative)
 		pActor->SetAllPhiAsNoNegative(pEnableCalcAllPhiAsNoNegative->GetNewBoolValue(param));
+
+	if(command == pEnableHistograms)
+		pActor->SetHistogramsEnable(pEnableHistograms->GetNewBoolValue(param));
+
+	if(command == pEnableTests)
+		pActor->SetTestsBranchEnable(pEnableTests->GetNewBoolValue(param));
+
+	if(command == pEnableAnglePrecisionInHistograms)
+		pActor->SetAnglePrecisionPerBinInHistograms(pEnableAnglePrecisionInHistograms->GetNewDoubleValue(param));
 
 	GateActorMessenger::SetNewValue(command ,param);
 }
