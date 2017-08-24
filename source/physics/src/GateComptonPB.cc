@@ -85,7 +85,7 @@ void GateComptonPB::AddUserModel(GateListOfHadronicModels * model){
   else if(model->GetModelName() == "LivermoreModel")
   {
     G4LivermoreComptonModel* theLivermoreComptonModel = new G4LivermoreComptonModel();
-    #if (G4VERSION_MAJOR > 9) || ((G4VERSION_MAJOR ==9 && G4VERSION_MINOR > 5))  
+    #if (G4VERSION_MAJOR > 9) || ((G4VERSION_MAJOR ==9 && G4VERSION_MINOR > 5)) 
        dynamic_cast<G4VEmProcess*>(pProcess)->SetEmModel(theLivermoreComptonModel); 
     #else
        dynamic_cast<G4VEmProcess*>(pProcess)->SetModel(theLivermoreComptonModel); 
