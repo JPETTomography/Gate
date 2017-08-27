@@ -54,6 +54,8 @@ protected:
 	G4UIcmdWithABool* pEnableHistograms;
 	G4UIcmdWithABool* pEnableTests;
 	G4UIcmdWithADoubleAndUnit* pEnableAnglePrecisionInHistograms;
+	G4UIcmdWithABool* pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent;
+	G4UIcmdWithAnInteger*  pEnableDesiredNumberOfParticlesScatteredPerEvent;
 };
 #endif //GATEJPETACTORGAMMAPOLARIZATIONMESSENGER_HH
 #endif //G4ANALYSIS_USE_ROOT

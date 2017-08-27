@@ -41,6 +41,8 @@ GateJPETGammaPolarizationActorMessenger::~GateJPETGammaPolarizationActorMessenge
 	delete pEnableHistograms;
 	delete pEnableTests;
 	delete pEnableAnglePrecisionInHistograms;
+	delete pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent;
+	delete pEnableDesiredNumberOfParticlesScatteredPerEvent;
 }
 
 void GateJPETGammaPolarizationActorMessenger::BuildCommands(G4String base)
@@ -89,6 +91,12 @@ void GateJPETGammaPolarizationActorMessenger::BuildCommands(G4String base)
 
 	bb = base+"/enableAnglePrecisionInHistograms";
 	pEnableAnglePrecisionInHistograms  = new G4UIcmdWithADoubleAndUnit(bb,this);
+
+	bb = base+"/enableSaveOnlyDesiredNumberOfParticles";
+	pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent = new G4UIcmdWithABool(bb, this);
+
+	bb = base+"/enableDesiredNumberOfParticles";
+	pEnableDesiredNumberOfParticlesScatteredPerEvent = new G4UIcmdWithAnInteger(bb, this);
 }
 
 void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
@@ -127,6 +135,12 @@ void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, 
 
 	if(command == pEnableAnglePrecisionInHistograms)
 		pActor->SetAnglePrecisionPerBinInHistograms(pEnableAnglePrecisionInHistograms->GetNewDoubleValue(param));
+
+	if(command == pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent)
+		pActor->SetSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEventEnable(pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent->GetNewBoolValue(param));
+
+	if(command == pEnableDesiredNumberOfParticlesScatteredPerEvent)
+		pActor->SetDesiredNumberOfParticlesScatteredPerEvent(pEnableDesiredNumberOfParticlesScatteredPerEvent->GetNewIntValue(param));
 
 	GateActorMessenger::SetNewValue(command ,param);
 }

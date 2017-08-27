@@ -27,6 +27,7 @@
 #include<fstream>
 #include "TH2.h"
 #include "TH1.h"
+#include<map>
 
 #include "GateVActor.hh"
 #include "GateJPETGammaPolarizationActorMessenger.hh"
@@ -42,14 +43,40 @@ struct iaea_record_type;
  */
 class GateJPETGammaPolarizationActor : public GateVActor
 {
-public:
+public: //Functions, structures and enums
 	/** Simple structure which represent branch with test for polarization.
 	 * */
 	struct PolarizationControlTests{
 		//Angle on linear polarization on plane orthogonal to gamma direction
-		double ScatteredGammaPolarizationAngle;
+		G4double ScatteredGammaPolarizationAngle;
 		//Angular difference between polarization received from simulation and as a cross product of prime and scattered gamma (JPET idea)
-		double AngularDiffreneceBetweenRealAndReconstructedPrimeGammaPolarization;
+		G4double AngularDiffreneceBetweenRealAndReconstructedPrimeGammaPolarization;
+	};
+
+	/** This structure contain all information about track before and after scattering.
+	 * The purpose of this is to provide simple way to save data only when is needed to files
+	 * */
+	struct EventTrackPartner{
+		G4bool ComptonHappened;
+
+		//Information about particle before Compton's scattering
+		G4ThreeVector PrimeGammaPolarization;
+		G4ThreeVector PrimeGammaDirection;
+		G4double PrimeTotalEnergy;
+		G4double PrimePolarizationAngle;
+
+		//Information about particle when was emitted from source
+		G4ThreeVector PrimeEmissionPoint;
+		G4double PrimeEmisionPhi;
+		G4double PrimeEmisionTheta;
+		G4double PrimeEmissionKineticEnergy;
+
+		//Information about particle after Compton's scattering
+		G4double ComptonPhi;
+		G4double ComptonTheta;
+		G4ThreeVector ComptonInteractionPoint;
+		G4double ComptonTotatEnergy;
+		PolarizationControlTests Tests;
 	};
 
 	enum PhiThetaValueMode{
@@ -90,110 +117,184 @@ public:
 	 * @param: value - value to set - depends on what is mode you have to input other value (for more look to function body)
 	 * @param: mode - mode inform how to interpret value
 	*/
-	void SetPhiFlagParameter(double value, GateJPETGammaPolarizationActor::PhiThetaValueMode mode);
+	void SetPhiFlagParameter(G4double value, GateJPETGammaPolarizationActor::PhiThetaValueMode mode);
 
 	/** Set filtration range for theta
 	 * @param: value - value to set - depends on what is mode you have to input other value (for more look to function body)
 	 * @param: mode - mode inform how to interpret value
 	*/
-	void SetThetaFlagParameter(double value, GateJPETGammaPolarizationActor::PhiThetaValueMode mode);
+	void SetThetaFlagParameter(G4double value, GateJPETGammaPolarizationActor::PhiThetaValueMode mode);
 
 	/** Set filtration range for phi
 	 * @param: setAsPlus - if is necessary to save phi angle as only positive value this flag must be set as true
 	*/
-	void SetAllPhiAsNoNegative(bool setAsPlus);
+	void SetAllPhiAsNoNegative(G4bool setAsPlus);
 
-	/** Set generation of histrogram as (dis)enable.
+	/** Set generation of histogram as (dis)enable.
 	 * By default generation is enable;
 	 * @param: enable - set false to disable histograms generations
 	*/
-	void SetHistogramsEnable(bool enable);
+	void SetHistogramsEnable(G4bool enable);
 
 	/** Set generation of tests branch (for polarization) as (dis)enable.
 	 * By default generation is enable;
 	 * @param: enable - set false to disable tests branch generations
 	*/
-	void SetTestsBranchEnable(bool enable);
+	void SetTestsBranchEnable(G4bool enable);
 
-	/** Set angle precision per bin in histograms - this mean that each bin has width equale angle_precison
+	/** Set angle precision per bin in histograms - this mean that each bin has width equal angle_precison
 	 * By default precision is 2 degree.
 	 * @param: angle_precision - bin width (in degrees)
 	 * @exceptions: If value is to huge, what mean angle_precision >= 180.0 deg then this value is ignored.
 	*/
-	void SetAnglePrecisionPerBinInHistograms(double angle_precision);
+	void SetAnglePrecisionPerBinInHistograms(G4double angle_precision);
 
-protected:
-	/** Constructor
-	*/
-	GateJPETGammaPolarizationActor(G4String name, G4int depth=0);
+	/** Set (dis)enable saving data ony for desired number of particles per event which scattered.
+	 * The purpose of this to reduce number of data generated during simulation.
+	 * @param: enable - set true to use this, false - otherwise
+	 * */
+	void SetSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEventEnable(G4bool enable);
 
+	/** Set desired number of particles scattered per event.
+	 * @param: particles_number - if number of scattered per event is equal particles_number then data will be saved
+	 * */
+	void SetDesiredNumberOfParticlesScatteredPerEvent(G4int particles_number);
+
+private: //Functions
 	/** Function generate perpendicular vector to vector 'a'
 	 * @param: a - vector for which we create perpendicular one
 	 * @return: perpendicular vector to 'a'
 	*/
 	G4ThreeVector SetPerpendicularVector(G4ThreeVector& a);
-	
-	//Saving
+
+	/* Special function just for this class.
+	* Extract values setted by Set functions.
+	* */
+	void StandardExtractFunction(const G4Step *step);
+
+	/** Function generate dsigma/dOmega as function of theta.
+	 * For this this function generate histogram which is histogram dsigma/dOgema divided by sin(theta) histogram.
+	 * */
+	void GenerateRealCrossSectionOfTheta();
+
+	/** Function normalize major of histograms
+	 * */
+	void NormalizeHistograms();
+
+	/** Function save numerical data to ASCII file
+	 * */
+	void SaveToFile(G4int eventID, G4int trackID, G4double phi, G4double theta, G4double polarization, G4ThreeVector interactionPoint, G4double totalEnergy, G4ThreeVector emisionPoint, G4double primeEnergy, G4double emisionPhi, G4double emisionTheta);
+
+	/** Function calculate phi and theta for scattered gamma.
+	 * @param: k0 - prime gamma momentum direction
+	 * @param: k - scattered gamma momentum direction
+	 * @param: e0 - prime gamma polarization
+	 * @param: theta - angle between k0 and k
+	 * @param: phi - angle between e0 and k projection on plane created by e0 and e0xk0
+	 * */
+	void GetThetaAndPhi(const G4ThreeVector k0, const G4ThreeVector k, const G4ThreeVector e0, G4double& theta, G4double& phi);
+
+	/** Function calculate angle of linear polarization
+	 * @param: k0 - prime gamma momentum direction
+	 * @param: e0 - prime gamma polarization
+	 * @param: e - scattered gamma polarization
+	 * @return: linear polarization angle (in degree)
+	 * */
+	G4double GetPolaizationAngle(const G4ThreeVector k, const G4ThreeVector e0, const G4ThreeVector e);
+
+	/** Function calculate difference between real and reconstructed prime polarization vectors
+	 * @param: k0 - prime gamma momentum direction
+	 * @param: k - scattered gamma momentum direction
+	 * @param: e0 - prime gamma polarization
+	 * */
+	G4double GetAngleDifference(const G4ThreeVector k, const G4ThreeVector k0, const G4ThreeVector e0);
+
+	/** Function save data to histograms, tree and ASCII file
+	 * @param: eventID - current event ID
+	 * @param: trackID - track ID connected with data from ETP
+	 * @param: ptrETP - pointer to ETP structure
+	 * */
+	void FillWithData(const G4int eventID, const G4int trackID, const EventTrackPartner* ptrETP);
+
+	/** Function create new element of mEventTracks basing on step data.
+	 * @param: step - current step
+	 * */
+	void AddETP(const G4Step *step);
+
+	/** Before start simulation Actor display information about parameters
+	 * */
+	void DisplaySummarizeBeforeRun();
+
+protected: //Functions
+	/** Constructor
+	 * */
+	GateJPETGammaPolarizationActor(G4String name, G4int depth=0);
+
+private: //Variables - please group them by type and aim of use
+
+	//Saving to ASCII files
+
 	G4String mLogFileName;
 	G4String mDiagnosticFileName;
-	bool mIsLogFileLoaded;
-	bool mIsDiagnosticFileLoaded;
+
+	G4bool mIsLogFileLoaded;
+	G4bool mIsDiagnosticFileLoaded;
 
 	std::fstream mLOG;
 	std::fstream mDGN;
 
-	//Saving variables
-	double mAnglePrimeAndScatteredGammaPolarizationVectors; //deg
-	double mAnglePrimeAndScatteredGammaMomentumVectors; //deg
-	double mAnglePrimeAndScatteredGammaPolarizationVectorsAfterUzRotate; //deg
-	double mAnglePerpendicularAndScatteredGammaPolarizationVectorsAfterUzRotate; //deg
+	//Saving to root file
 
-	double mPhi, mTheta;
-
-	bool mUsePhiFilter, mUseThetaFilter;
-	double mPhiFilterLimes, mPhiFilterEpsilon, mThetaFilterLimes, mThetaFilterEpsilon;
-
-	bool mAllPhiCalcNoNegative;
-
-	PolarizationControlTests mTests;
-
-	//Variables need to save data
 	TFile * pFile;
 	TTree * pListeVar;
-	TH2F *hpxpy;
+
+	//Messenger
+
 	GateJPETGammaPolarizationActorMessenger * pMessenger;
 
-	//Histograms saved to file
+	//Histograms
+
 	//Histogram of dsigma/dphi (phi) == dsigma/dOmega (phi)
 	TH1F* pCrossSectionOfPhi;
 	//Histogram of dsigma/dtheta (theta)
 	TH1F* pCrossSectionOfTheta;
 	//Histogram of dsigma/dOmega (theta) - this histogram is calculated at the end of actor work
 	TH1F* pRealCrossSectionOfTheta;
+	//Histogram show how many particles scattered per event
+	TH1F* pAllParticlesReacted;
 
-	//Histogram params
-	double mAngularAccuracy;
+	//Variables connected with saving to root file
 
-	//Save controls flags
+	G4double mPhi;
+	G4double mTheta;
+	G4double mPrimeEnergy;
 
-	bool mSaveHistograms;
-	bool mSaveTests;
+	PolarizationControlTests mTests;
 
-	//Tracing tools variables
-	bool mIsFirstStep;
+	//Flags
 
-	/* Special function just for this class.
-	 * Extract values setted by Set functions.
-	 * */
-	void StandardExtractFunction(const G4Step *step);
-	void GenerateRealCrossSectionOfTheta();
-	void NormalizeHistograms();
+	G4bool mUsePhiFilter;
+	G4bool mUseThetaFilter;
+	G4bool mSaveHistograms;
+	G4bool mSaveTests;
+	G4bool mAllPhiCalcNoNegative;
+	G4bool mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent;
 
-	//Tool's flags
-	int mEventID;
-	bool mComptonHappened;
-	G4ThreeVector mPrimeGammaPolarization;
-	G4ThreeVector mPrimeGammaDirection;
+	G4double mPhiFilterLimes;
+	G4double mPhiFilterEpsilon;
+	G4double mThetaFilterLimes;
+	G4double mThetaFilterEpsilon;
+	G4double mAngularAccuracy;
+
+	G4int mDesiredNumberOfParticlesScatteredPerEvent;
+
+	//Normal variables
+
+	G4int mEventID;
+	G4int mScatteredParticlesPerEvent;
+
+	std::map<G4int, EventTrackPartner> mEventTracks;
+
 };
 
 MAKE_AUTO_CREATOR_ACTOR(JPETGammaPolarizationActor,GateJPETGammaPolarizationActor)

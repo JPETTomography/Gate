@@ -30,6 +30,7 @@
 #include "Randomize.hh"
 #include "TH2.h"
 #include "TF1.h"
+#include<string>
 
 
 GateJPETGammaPolarizationActor::GateJPETGammaPolarizationActor(G4String name, G4int depth) : GateVActor(name, depth)
@@ -39,11 +40,7 @@ GateJPETGammaPolarizationActor::GateJPETGammaPolarizationActor(G4String name, G4
 	mDiagnosticFileName = "";
 	mIsLogFileLoaded = false;
 	mIsDiagnosticFileLoaded = false;
-	mIsFirstStep=true;
 	mEventID = -1;
-	mComptonHappened = false;
-	mAnglePrimeAndScatteredGammaPolarizationVectors = 0;
-	mAnglePrimeAndScatteredGammaMomentumVectors = 0;
 	pFile = 0;
 	pListeVar = 0;
 	mPhi=0;
@@ -57,6 +54,9 @@ GateJPETGammaPolarizationActor::GateJPETGammaPolarizationActor(G4String name, G4
 	mAngularAccuracy = 2;
 	mSaveHistograms = true;
 	mSaveTests = true;
+	mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent = false;
+	mDesiredNumberOfParticlesScatteredPerEvent = 0;
+	mScatteredParticlesPerEvent = 0;
 }
 
 GateJPETGammaPolarizationActor::~GateJPETGammaPolarizationActor()
@@ -71,6 +71,7 @@ GateJPETGammaPolarizationActor::~GateJPETGammaPolarizationActor()
 		delete pCrossSectionOfPhi;
 		delete pCrossSectionOfTheta;
 		delete pRealCrossSectionOfTheta;
+		delete pAllParticlesReacted;
 	}
 	delete pFile;
 	delete pListeVar;
@@ -100,7 +101,7 @@ void GateJPETGammaPolarizationActor::Construct()
 
 		//Hstogram of phi cross-section
 
-		if(mAllPhiCalcNoNegative)
+		if(!mAllPhiCalcNoNegative)
 			control_bins_number = 360.0/mAngularAccuracy;
 		else
 			control_bins_number = 180.0/mAngularAccuracy;
@@ -124,19 +125,24 @@ void GateJPETGammaPolarizationActor::Construct()
 
 		pRealCrossSectionOfTheta->GetXaxis()->SetTitle("#theta [deg]");
 		pRealCrossSectionOfTheta->GetYaxis()->SetTitle("d#sigma/d#Omega [a.u.]");
+
+		pAllParticlesReacted = new TH1F("prcs", "", mDesiredNumberOfParticlesScatteredPerEvent+2,  0, mDesiredNumberOfParticlesScatteredPerEvent+1);
+		pAllParticlesReacted->GetXaxis()->SetTitle("Particles number reactions");
+		pAllParticlesReacted->GetYaxis()->SetTitle("Events number");
 	}
 
 	pListeVar = new TTree("JPETGammaPolarizationAnalysis", "JPET Gamma polarization analysis tree");
 	pListeVar->Branch("Phi",&mPhi, "rad/D");
 	pListeVar->Branch("Theta", &mTheta, "rad/D");
+	pListeVar->Branch("PrimeEnergy", &mPrimeEnergy, "MeV/D");
 	if(mSaveTests)
 		pListeVar->Branch("Tests",&mTests, "SGPA:GA");
 
+	DisplaySummarizeBeforeRun();
 }
 
 void GateJPETGammaPolarizationActor::PreUserTrackingAction(const GateVVolume* /*v*/, const G4Track* /*t*/)
 {
-	mIsFirstStep = true;
 }
 
 void GateJPETGammaPolarizationActor::BeginOfEventAction(const G4Event* /*e*/)
@@ -229,113 +235,70 @@ void GateJPETGammaPolarizationActor::SetThetaFlagParameter(double value, GateJPE
 
 void GateJPETGammaPolarizationActor::StandardExtractFunction(const G4Step *step)
 {
+	bool skip_this_step = false;
+	G4int track_id = step->GetTrack()->GetTrackID();
+
 	if(mEventID != GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID())
 	{
+		if(mSaveHistograms && mEventID >= 0)
+		{
+			if(mScatteredParticlesPerEvent < pAllParticlesReacted->GetXaxis()->GetXmax())
+				pAllParticlesReacted->Fill(mScatteredParticlesPerEvent,1);
+		}
+
+		mScatteredParticlesPerEvent = 0;
 		mEventID = GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-		mComptonHappened = false;
-		mPrimeGammaPolarization = step->GetPreStepPoint()->GetPolarization().unit();
-		mPrimeGammaDirection = step->GetPreStepPoint()->GetMomentumDirection().unit();
-	}
-	else if(mComptonHappened)
-	{
-		return;
-	}
-
-	//So it is first function call or next but Compton's scatter didn't happen in post step
-	if(!(step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()=="Compton"))
-			return;
-
-	//We caught first Compton's scatter
-	mComptonHappened = true;
-
-	/** This is most important part of actor.
-	 *  This is based on article "New Monte Carlo method for Compton and Rayleigh scattering by polarized gamma rays ,G.O. Depaola" and structure of function G4LivermorePolarizedComptonModel::SystemOfRefChange.
-	 *  k0 - prime gamma momentum direction vector
-	 *  k  - gamma momentum direction vector after scatter
-	 *  k_xy - projection of k vector on x-y plane
-	 *  e0 - prime gamma polarization vector
-	 *  We calculate phi and theta in local Cartesian system defined as:
-	 *  AxisX = e0
-	 *  AxisY = AxisZ x AxisX = k0 x e0, where "x" is cross product
-	 *  AxisZ = k0
-	 *  and in this assumptions :
-	 *  theta is angle between k0 and k vectors
-	 *  phi is angle between e0 and k_xy vectors
-	 *
-	 *  As you can see polarization of prime gamma play only role of coordinate system and has not influence on scattered gamma.
-	 * */
-
-	G4ThreeVector k0,k,k_xy,e0,e;
-	double phi =0, theta =0;
-	k0 = mPrimeGammaDirection;
-	e0 = mPrimeGammaPolarization;
-	k = step->GetPostStepPoint()->GetMomentumDirection().unit();
-	e = step->GetPostStepPoint()->GetPolarization().unit();
-	theta =  k0.angle(k);
-
-	if(e0.mag() == 0)
-	{
-		//In case when prime gamma is unpolarized we can't say anything about prime polarization
-		//But we know that in this case K-N cross-section for phi must be uniform - that why we generate here random phi
-		phi = 2*M_PI*G4UniformRand()-M_PI;
+		mEventTracks.clear();
+		AddETP(step);
 	}
 	else
 	{
-		k_xy = k*sin(theta);
-		phi = e0.angle(k_xy);
+		 std::map<G4int, EventTrackPartner>::iterator found_track =  mEventTracks.find(track_id);
+		 if(found_track != mEventTracks.end())
+		 {
+			 if(found_track->second.ComptonHappened)
+				 skip_this_step = true;
+		 }
+		 else
+		 {
+			 AddETP(step);
+		 }
 	}
 
-	theta *= 180.0/M_PI;
-	phi *= 180.0/M_PI;
+	if(skip_this_step)
+		return;
 
-	if(mAllPhiCalcNoNegative && phi < 0)
-		phi = phi + 180;
+	//So it is first function call or next but Compton's scatter didn't happen in post step
+	if(!(step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()=="Compton"))
+		return;
 
-	if(mUsePhiFilter)
+	//We caught first Compton's scatter
+	mEventTracks[track_id].ComptonHappened = true;
+	++mScatteredParticlesPerEvent;
+
+	G4ThreeVector k0,k,e0,e;"katy.dat"
+	k0 = mEventTracks[track_id].PrimeGammaDirection;
+	e0 = mEventTracks[track_id].PrimeGammaPolarization;
+	k = step->GetPostStepPoint()->GetMomentumDirection().unit();
+	e = step->GetPostStepPoint()->GetPolarization().unit();
+
+	GetThetaAndPhi(k0, k, e0, mEventTracks[track_id].ComptonTheta, mEventTracks[track_id].ComptonPhi);
+	mEventTracks[track_id].ComptonInteractionPoint = step->GetPostStepPoint()->GetPosition();
+	mEventTracks[track_id].ComptonTotatEnergy = step->GetPostStepPoint()->GetTotalEnergy();
+	mEventTracks[track_id].Tests.ScatteredGammaPolarizationAngle = GetPolaizationAngle(k,e0,e);
+	mEventTracks[track_id].Tests.AngularDiffreneceBetweenRealAndReconstructedPrimeGammaPolarization = GetAngleDifference(k,k0,e0);
+
+	if(mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent)
 	{
-		if((mPhiFilterLimes - phi)*(mPhiFilterLimes - phi) > mPhiFilterEpsilon*mPhiFilterEpsilon)
-			return;
+		if(mScatteredParticlesPerEvent == mDesiredNumberOfParticlesScatteredPerEvent)
+			for( std::map<G4int, EventTrackPartner>::iterator it = mEventTracks.begin(); it != mEventTracks.end(); ++it)
+				if(it->second.ComptonHappened)
+					FillWithData(mEventID, it->first, &it->second);
 	}
-
-	if(mUseThetaFilter)
+	else
 	{
-		if((mThetaFilterLimes - theta)*(mThetaFilterLimes - theta) > mThetaFilterEpsilon*mThetaFilterEpsilon)
-			return;
+		FillWithData(mEventID,track_id,&mEventTracks[track_id]);
 	}
-
-	mPhi = phi;
-	mTheta = theta;
-
-	//If prime gamma is unpolarized below section has no sense
-	if(mSaveTests && e0.mag() != 0){
-		/** mScatteredGammaPolarizationAngle inform what was a new polarization after Compton's scatter.
-		 * */
-		double dzeta = e0.angle(k);
-		double huge_theta = e0.angle(e);
-		double sin_dzeta,cos_huge_theta;
-		sin_dzeta = sin(dzeta);
-		cos_huge_theta = cos(huge_theta);
-		double val = std::abs(sin_dzeta) <= pow(10,-6) ? 0.0 : cos_huge_theta/sin_dzeta;
-		val = abs(val) == 1 ? 1.0 : val;
-		double polarization_angle = std::abs(sin_dzeta) <= pow(10,-6) ? 0.0 : std::acos(val);
-		polarization_angle *= 180.0/M_PI;
-		mTests.ScatteredGammaPolarizationAngle = polarization_angle;
-
-		/** mAngularDiffreneceBetweenRealAndReconstructedPrimeGammaPolarization inform about difference between real linear polarization angle (from simulation)
-		 * and polarization reconstructed as cross product of prime and scattered gamma momentum direction.
-		 * */
-		double angular_diffrence_between_real_and_reconstructed_polarization = e0.angle(k0.cross(k).unit());
-		angular_diffrence_between_real_and_reconstructed_polarization *= 180.0/M_PI;
-		mTests.AngularDiffreneceBetweenRealAndReconstructedPrimeGammaPolarization = angular_diffrence_between_real_and_reconstructed_polarization;
-	}
-
-	if(mSaveHistograms)
-	{
-		pCrossSectionOfPhi->Fill(mPhi,1);
-		pCrossSectionOfTheta->Fill(mTheta,1);
-		pRealCrossSectionOfTheta->Fill(mTheta,1);
-	}
-	pListeVar->Fill();
 }
 
 void GateJPETGammaPolarizationActor::SetAllPhiAsNoNegative(bool setAsPlus)
@@ -417,4 +380,169 @@ void GateJPETGammaPolarizationActor::SetAnglePrecisionPerBinInHistograms(double 
 		return;
 	}
 	mAngularAccuracy = angle_precision;
+}
+
+void GateJPETGammaPolarizationActor::SaveToFile(G4int eventID, G4int trackID, G4double phi, G4double theta, G4double polarization, G4ThreeVector interactionPoint, G4double totalEnergy, G4ThreeVector emisionPoint, G4double primeEnergy, G4double emisionPhi, G4double emisionTheta)
+{
+	mDGN<<eventID<<" "<<trackID<<" "<<phi<<" "<<theta<<" "<<polarization<<" "<<interactionPoint.x()<<" "<<interactionPoint.y()<<" "<<interactionPoint.z()<<" "<<totalEnergy<<" "<<emisionPoint.x()<<" "<<emisionPoint.y()<<" "<<emisionPoint.z()<<" "<<primeEnergy<<" "<<emisionPhi<<" "<<emisionTheta<<std::endl;
+}
+
+void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector k0, const G4ThreeVector k, const G4ThreeVector e0, G4double& theta, G4double& phi)
+{
+	/** This is most important part of actor.
+ 	 *  This is based on article "New Monte Carlo method for Compton and Rayleigh scattering by polarized gamma rays ,G.O. Depaola" and structure of function G4LivermorePolarizedComptonModel::SystemOfRefChange.
+	*  k0 - prime gamma momentum direction vector
+	*  k  - gamma momentum direction vector after scatter
+	*  k_xy - projection of k vector on x-y plane
+	*  e0 - prime gamma polarization vector
+	*  We calculate phi and theta in local Cartesian system defined as:
+	*  AxisX = e0
+	*  AxisY = AxisZ x AxisX = k0 x e0, where "x" is cross product
+	*  AxisZ = k0
+	*  and in this assumptions :
+	*  theta is angle between k0 and k vectors
+	*  phi is angle between e0 and k_xy vectors
+	*
+	*  As you can see polarization of prime gamma play only role of coordinate system and has not influence on scattered gamma.
+	* */
+	theta =  k0.angle(k);
+
+	if(e0.mag() == 0)
+	{
+		//In case when prime gamma is unpolarized we can't say anything about prime polarization
+		//But we know that in this case K-N cross-section for phi must be uniform - that why we generate here random phi
+		phi = M_PI*(2.0*G4UniformRand()-1.0);
+	}
+	else
+	{
+		G4ThreeVector k_xy = k*sin(theta);
+		phi = e0.angle(k_xy);
+	}
+
+	//Convert from radian to degree
+	theta *= 180.0/M_PI;
+	phi *= 180.0/M_PI;
+
+	if(mAllPhiCalcNoNegative && phi < 0)
+		phi += + 180.0;
+}
+
+G4double GateJPETGammaPolarizationActor::GetPolaizationAngle(const G4ThreeVector k, const G4ThreeVector e0, const G4ThreeVector e)
+{
+	G4double polarization_angle = 0;
+	if(mSaveTests && e0.mag() != 0){
+		/** mScatteredGammaPolarizationAngle inform what was a new polarization after Compton's scatter.
+		* */
+		G4double dzeta = e0.angle(k);
+		G4double huge_theta = e0.angle(e);
+		G4double sin_dzeta,cos_huge_theta;
+		sin_dzeta = sin(dzeta);
+		cos_huge_theta = cos(huge_theta);
+		G4double val = std::abs(sin_dzeta) <= pow(10,-6) ? 0.0 : cos_huge_theta/sin_dzeta;
+		val = abs(val) == 1 ? 1.0 : val;
+		polarization_angle = std::abs(sin_dzeta) <= pow(10,-6) ? 0.0 : std::acos(val);
+		polarization_angle *= 180.0/M_PI;
+	}
+
+	return polarization_angle;
+}
+
+G4double GateJPETGammaPolarizationActor::GetAngleDifference(const G4ThreeVector k, const G4ThreeVector k0, const G4ThreeVector e0)
+{
+	/** angular_diffrence_between_real_and_reconstructed_polarization inform about difference between real linear polarization angle (from simulation)
+	* and polarization reconstructed as cross product of prime and scattered gamma momentum direction.
+	* */
+	G4double angular_diffrence_between_real_and_reconstructed_polarization = 0;
+	if(mSaveTests && e0.mag() != 0)
+	{
+		angular_diffrence_between_real_and_reconstructed_polarization = e0.angle(k0.cross(k).unit());
+		angular_diffrence_between_real_and_reconstructed_polarization *= 180.0/M_PI;
+	}
+	return angular_diffrence_between_real_and_reconstructed_polarization;
+}
+
+void GateJPETGammaPolarizationActor::AddETP(const G4Step *step)
+{
+	EventTrackPartner etp;
+	etp.ComptonHappened = false;
+	etp.PrimeGammaPolarization = step->GetPreStepPoint()->GetPolarization().unit();
+	etp.PrimeGammaDirection = step->GetPreStepPoint()->GetMomentumDirection().unit();
+	etp.PrimeTotalEnergy = step->GetPreStepPoint()->GetTotalEnergy();
+	etp.PrimeEmissionKineticEnergy = step->GetTrack()->GetVertexKineticEnergy();
+	etp.PrimePolarizationAngle = 0;
+
+	if(etp.PrimeGammaPolarization.mag() > 0)
+	{
+		etp.PrimePolarizationAngle = std::acos(etp.PrimeGammaPolarization.dot(SetPerpendicularVector(etp.PrimeGammaDirection).unit()));
+		etp.PrimePolarizationAngle *= 180.0/M_PI;
+	}
+
+	etp.PrimePolarizationAngle = 0;
+	etp.PrimeEmissionPoint = step->GetTrack()->GetVertexPosition();
+	etp.PrimeEmisionPhi = step->GetTrack()->GetVertexMomentumDirection().phi();
+	etp.PrimeEmisionTheta = step->GetTrack()->GetVertexMomentumDirection().theta();
+	mEventTracks[step->GetTrack()->GetTrackID()] = etp;
+}
+
+void  GateJPETGammaPolarizationActor::FillWithData(const G4int eventID, const G4int trackID, const EventTrackPartner* ptrETP)
+{
+	if(mUsePhiFilter)
+		if((mPhiFilterLimes - ptrETP->ComptonPhi)*(mPhiFilterLimes - ptrETP->ComptonPhi) > mPhiFilterEpsilon*mPhiFilterEpsilon)
+			return;
+
+	if(mUseThetaFilter)
+		if((mThetaFilterLimes - ptrETP->ComptonTheta)*(mThetaFilterLimes - ptrETP->ComptonTheta) > mThetaFilterEpsilon*mThetaFilterEpsilon)
+			return;
+
+	mPhi = ptrETP->ComptonPhi;
+	mTheta  = ptrETP->ComptonTheta;
+	mPrimeEnergy = ptrETP->PrimeEmissionKineticEnergy;
+
+	if(mSaveHistograms)
+	{
+		pCrossSectionOfPhi->Fill(mPhi,1);
+		pCrossSectionOfTheta->Fill(mTheta,1);
+		pRealCrossSectionOfTheta->Fill(mTheta,1);
+	}
+
+	if(mSaveTests)
+		mTests = ptrETP->Tests;
+
+	pListeVar->Fill();
+
+	if(mIsDiagnosticFileLoaded)
+		SaveToFile(eventID, trackID, mPhi, mTheta, ptrETP->PrimePolarizationAngle, ptrETP->ComptonInteractionPoint, ptrETP->ComptonTotatEnergy, ptrETP->PrimeEmissionPoint, ptrETP->PrimeTotalEnergy, ptrETP->PrimeEmisionPhi,ptrETP->PrimeEmisionTheta);
+
+}
+
+void GateJPETGammaPolarizationActor::SetSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEventEnable(G4bool enable)
+{
+	mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent = enable;
+}
+
+void GateJPETGammaPolarizationActor::SetDesiredNumberOfParticlesScatteredPerEvent(G4int particles_number)
+{
+	if( particles_number <= 0)
+	{
+		G4cerr<<"[WARNING] Desired number of particles scattered per event must be positive integer."<<G4endl;
+		G4cerr<<"JPETGammaPolarizationActor will set default value equale "<<mDesiredNumberOfParticlesScatteredPerEvent<<G4endl;
+		return;
+	}
+	mDesiredNumberOfParticlesScatteredPerEvent = particles_number;
+}
+
+void GateJPETGammaPolarizationActor::DisplaySummarizeBeforeRun()
+{
+	G4cout<<"*************************************************"<<G4endl;
+	G4cout<<"JPETGammaPolarizationActor for volume \""<<GetVolumeName()<<"\" summarize: "<<G4endl;
+	G4cout<<"Log file : "<<(mIsLogFileLoaded ? "ON" : "OFF")<<" "<<(mIsLogFileLoaded ? ". File name : "+mLogFileName : "")<<G4endl;
+	G4cout<<"Diagnostic file : "<<(mIsDiagnosticFileLoaded ? "ON" : "OFF")<<" "<<(mIsDiagnosticFileLoaded ? ". File name : "+mDiagnosticFileName : "")<<G4endl;
+	G4cout<<"PhiFilter : "<<(mUsePhiFilter ? "ON" : "OFF")<<" "<<(mUsePhiFilter ? ". Limes : "+std::to_string(mPhiFilterLimes) + " deg. Epsilon : "+std::to_string(mPhiFilterEpsilon)+" deg." : "")<<G4endl;
+	G4cout<<"ThetaFilter : "<<(mUseThetaFilter ? "ON" : "OFF")<<" "<<(mUseThetaFilter ? ". Limes : "+std::to_string(mThetaFilterLimes) + " deg. Epsilon : "+std::to_string(mThetaFilterEpsilon)+" deg." : "")<<G4endl;
+	G4cout<<"Angular Accuracy : "<<mAngularAccuracy<<" deg per bin"<<G4endl;
+	G4cout<<"Saving histograms : "<<(mSaveHistograms ? "ON" : "OFF")<<G4endl;
+	G4cout<<"Saving tests : "<<(mSaveTests ? "ON" : "OFF")<<G4endl;
+	G4cout<<"Saving for desired number of particles per event : "<<(mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent ? "ON" : "OFF")<<G4endl;
+	G4cout<<"Desired number of particles per event : "<<mDesiredNumberOfParticlesScatteredPerEvent<<G4endl;
+	G4cout<<"*************************************************"<<G4endl;
 }
