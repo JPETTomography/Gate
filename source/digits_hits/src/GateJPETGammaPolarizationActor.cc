@@ -276,7 +276,7 @@ void GateJPETGammaPolarizationActor::StandardExtractFunction(const G4Step *step)
 	mEventTracks[track_id].ComptonHappened = true;
 	++mScatteredParticlesPerEvent;
 
-	G4ThreeVector k0,k,e0,e;"katy.dat"
+	G4ThreeVector k0,k,e0,e;
 	k0 = mEventTracks[track_id].PrimeGammaDirection;
 	e0 = mEventTracks[track_id].PrimeGammaPolarization;
 	k = step->GetPostStepPoint()->GetMomentumDirection().unit();
