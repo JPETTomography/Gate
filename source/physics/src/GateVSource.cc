@@ -632,7 +632,7 @@ void GateVSource::Update(double t)
 void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
 {
   if( GetParticleDefinition() == NULL ){
-	  G4cout << "[WARRNING: Brak definicji czastki\n";
+	  G4cout << "[WARRNING]: No particle definition"<<G4endl;
 	  return;
   }
   if( GetPosDist()->GetPosDisType() == "UserFluenceImage" ) InitializeUserFluence();
@@ -648,14 +648,7 @@ void GateVSource::GeneratePrimaryVertex( G4Event* aEvent )
     {
       G4ThreeVector particle_position;
       if(mIsUserFluenceActive) { particle_position = UserFluencePosGenerateOne(); }
-      else {
-
-
-    	  particle_position = m_posSPS->GenerateOne();
-    	  //G4cout <<"::::CALL : m_posSPS->GenerateOne()\n";
-    	 // G4cout <<"m_posSPS->GetPosDisType() : "<<m_posSPS->GetPosDisType()<<"\n";
-    	  //G4cout <<"PARTICLE POSITION: "<<particle_position.x()<<" "<<particle_position.y()<<" "<<particle_position.z()<<"\n";
-      }
+      else {particle_position = m_posSPS->GenerateOne();}
 
 
       // Set placement relative to attached volume
