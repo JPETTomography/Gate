@@ -415,8 +415,15 @@ void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector k0, cons
 	}
 	else
 	{
-		G4ThreeVector k_xy = k*sin(theta);
-		phi = e0.angle(k_xy);
+		G4ThreeVector versorY = k0.cross(e0).unit();
+		G4ThreeVector versorX = e0;
+
+		G4double k_x = k.dot(versorX);
+		G4double k_y = k.dot(versorY);
+
+		phi = std::acos(k_x);
+		if(k_y < 0)
+			phi *= -1.0;
 	}
 
 	//Convert from radian to degree
@@ -539,6 +546,7 @@ void GateJPETGammaPolarizationActor::DisplaySummarizeBeforeRun()
 	G4cout<<"Diagnostic file : "<<(mIsDiagnosticFileLoaded ? "ON" : "OFF")<<" "<<(mIsDiagnosticFileLoaded ? ". File name : "+mDiagnosticFileName : "")<<G4endl;
 	G4cout<<"PhiFilter : "<<(mUsePhiFilter ? "ON" : "OFF")<<" "<<(mUsePhiFilter ? ". Limes : "+std::to_string(mPhiFilterLimes) + " deg. Epsilon : "+std::to_string(mPhiFilterEpsilon)+" deg." : "")<<G4endl;
 	G4cout<<"ThetaFilter : "<<(mUseThetaFilter ? "ON" : "OFF")<<" "<<(mUseThetaFilter ? ". Limes : "+std::to_string(mThetaFilterLimes) + " deg. Epsilon : "+std::to_string(mThetaFilterEpsilon)+" deg." : "")<<G4endl;
+	G4cout<<"All phi positive : "<<(mAllPhiCalcNoNegative ? "ON" : "OFF")<<G4endl;
 	G4cout<<"Angular Accuracy : "<<mAngularAccuracy<<" deg per bin"<<G4endl;
 	G4cout<<"Saving histograms : "<<(mSaveHistograms ? "ON" : "OFF")<<G4endl;
 	G4cout<<"Saving tests : "<<(mSaveTests ? "ON" : "OFF")<<G4endl;

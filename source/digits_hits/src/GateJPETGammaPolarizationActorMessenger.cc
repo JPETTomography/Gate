@@ -113,16 +113,16 @@ void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, 
 		pActor->SetThetaFlagParameter(pEnableUseThetaFlag->GetNewBoolValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Flag);
 
 	if(command == pEnablePhiLimes)
-		pActor->SetPhiFlagParameter(pEnablePhiLimes->GetNewDoubleValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Limes);
+		pActor->SetPhiFlagParameter(pEnablePhiLimes->GetNewDoubleRawValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Limes);
 
 	if(command == pEnableThetaLimes)
-		pActor->SetThetaFlagParameter(pEnableThetaLimes->GetNewDoubleValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Limes);
+		pActor->SetThetaFlagParameter(pEnableThetaLimes->GetNewDoubleRawValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Limes);
 
 	if(command == pEnablePhiEpsilon)
-		pActor->SetPhiFlagParameter(pEnablePhiEpsilon->GetNewDoubleValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Epsilon);
+		pActor->SetPhiFlagParameter(pEnablePhiEpsilon->GetNewDoubleRawValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Epsilon);
 
 	if(command == pEnableThetaEpsilon)
-		pActor->SetThetaFlagParameter(pEnableThetaEpsilon->GetNewDoubleValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Epsilon);
+		pActor->SetThetaFlagParameter(pEnableThetaEpsilon->GetNewDoubleRawValue(param), GateJPETGammaPolarizationActor::PhiThetaValueMode::Epsilon);
 
 	if(command == pEnableCalcAllPhiAsNoNegative)
 		pActor->SetAllPhiAsNoNegative(pEnableCalcAllPhiAsNoNegative->GetNewBoolValue(param));
@@ -134,7 +134,7 @@ void GateJPETGammaPolarizationActorMessenger::SetNewValue(G4UIcommand* command, 
 		pActor->SetTestsBranchEnable(pEnableTests->GetNewBoolValue(param));
 
 	if(command == pEnableAnglePrecisionInHistograms)
-		pActor->SetAnglePrecisionPerBinInHistograms(pEnableAnglePrecisionInHistograms->GetNewDoubleValue(param));
+		pActor->SetAnglePrecisionPerBinInHistograms(pEnableAnglePrecisionInHistograms->GetNewDoubleRawValue(param));
 
 	if(command == pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent)
 		pActor->SetSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEventEnable(pEnableSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent->GetNewBoolValue(param));
