@@ -89,7 +89,6 @@ public:
 
   void GeneratePrimariesForBackToBackSource(G4Event* event);
   void GeneratePrimariesForFastI124Source(G4Event* event);
-  void GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event);
 
   virtual GateSPSPosDistribution* GetPosDist() { return m_posSPS ; }
   virtual GateSPSEneDistribution* GetEneDist() { return m_eneSPS ; }
@@ -140,10 +139,9 @@ public:
   void TrigMat();
 
   /** Function set linear polarization angle for particle
-   * @param: angle - angle value
-   * @param: is_degree - if angle is in degree set it as true, or if it is in radians set false
+   * @param: angle - angle value (degree unit)
    * */
-  void SetLinearPolarizationAngle(double angle, bool is_degree) {mLinearPolarizationAngle = is_degree ? (M_PI/180.0)*angle : angle;}
+  void SetLinearPolarizationAngle(double angle){mLinearPolarizationAngle = (M_PI/180.0)*angle;}
 
   /** Function return linear polarization angle in radians
    * */

@@ -35,10 +35,10 @@ class GateJPETActorMessenger : public GateActorMessenger
 {
 public:
 	GateJPETActorMessenger(GateJPETActor* sensor);
-	virtual ~GateJPETActorMessenger();
+	virtual ~GateJPETActorMessenger() override;
 
-	void BuildCommands(G4String base);
-	virtual void SetNewValue(G4UIcommand*, G4String);
+	virtual void BuildCommands(G4String base) override;
+	virtual void SetNewValue(G4UIcommand*, G4String) override;
 protected:
 	GateJPETActor* pActor;
 

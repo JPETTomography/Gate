@@ -38,8 +38,8 @@ class GateJPETGammaPolarizationActorMessenger : public GateActorMessenger
 public:
 	GateJPETGammaPolarizationActorMessenger(GateJPETGammaPolarizationActor* sensor);
 	virtual ~GateJPETGammaPolarizationActorMessenger();
-	void BuildCommands(G4String base);
-	virtual void SetNewValue(G4UIcommand*, G4String);
+	void BuildCommands(G4String base) override;
+	virtual void SetNewValue(G4UIcommand*, G4String) override;
 protected:
 	GateJPETGammaPolarizationActor* pActor;
 	G4UIcmdWithAString* pEnableLogFile;

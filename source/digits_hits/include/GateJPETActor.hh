@@ -45,20 +45,20 @@ public:
 	// This macro initialize the CreatePrototype and CreateInstance
 	FCT_FOR_AUTO_CREATOR_ACTOR(GateJPETActor)
 	// Constructs the sensor
-	virtual void Construct();
+	virtual void Construct() override;
 	// Callbacks
-	virtual void UserSteppingAction(const GateVVolume *, const G4Step*);
-	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*);
-	virtual void BeginOfEventAction(const G4Event * e);
+	virtual void UserSteppingAction(const GateVVolume *, const G4Step*) override;
+	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*) override;
+	virtual void BeginOfEventAction(const G4Event * e) override;
 
 	/** Saves the data collected to the file
 	 */
-	virtual void SaveData();
+	virtual void SaveData() override;
 	/** Overwrite function from GateVActor.
 	 * This function used by GateVActor::BeginOfRunAction. If you want to reset data in file for each new run, call EnableResetDataAtEachRun(true).
 	 * By default this function is not used;
 	 */
-	virtual void ResetData();
+	virtual void ResetData() override;
 
 	///Setting functions - use it if want activate or deactivate saving some data
 
@@ -205,9 +205,9 @@ protected:
 	double mPrimaryEnergy;
 	//Variables need to save data
 	TString mFileType;
-	TFile * pFile;
-	TTree * pListeVar;
-	GateJPETActorMessenger * pMessenger;
+	TFile* pFile;
+	TTree*  pListeVar;
+	GateJPETActorMessenger* pMessenger;
 	//Saving data to ASCII files
 	std::fstream mASCIFile;
 	std::string mASCIFileName;

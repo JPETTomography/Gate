@@ -30,6 +30,8 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 {
 	GateDebugMessageInc("Actor", 4, "GateJPETActor() -- begin" << G4endl);
 	pMessenger = new GateJPETActorMessenger(this);
+	pFile = nullptr;
+	pListeVar = nullptr;
 
 	//For default set everything for FALSE
 	 mEnableXPosition = false;
@@ -54,11 +56,12 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 
 GateJPETActor::~GateJPETActor()
 {
-	GateDebugMessageInc("Actor", 4, "~GateJPETActor() -- begin" << G4endl);
-	delete pMessenger;
 	if(!mASCIFileName.empty())
 		mASCIFile.close();
-	GateDebugMessageDec("Actor", 4, "~GateJPETActor() -- end" << G4endl);
+	delete pFile;
+	delete pListeVar;
+	delete pMessenger;
+
 }
 
 void GateJPETActor::Construct()

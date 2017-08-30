@@ -88,20 +88,18 @@ public: //Functions, structures and enums
 	virtual ~GateJPETGammaPolarizationActor();
 	FCT_FOR_AUTO_CREATOR_ACTOR(GateJPETGammaPolarizationActor)
 	// Constructs the sensor
-	virtual void Construct();
+	virtual void Construct() override;
 	// Callbacks
-	virtual void UserSteppingAction(const GateVVolume *, const G4Step*);
-	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*);
-	virtual void BeginOfEventAction(const G4Event * e);
+	virtual void UserSteppingAction(const GateVVolume *, const G4Step*) override;
 
 	/** Saves the data collected to the file
 	 */
-	virtual void SaveData();
+	virtual void SaveData() override;
 	/** Overwrite function from GateVActor.
 	 * This function used by GateVActor::BeginOfRunAction. If you want to reset data in file for each new run, call EnableResetDataAtEachRun(true).
 	 * By default this function is not used;
 	 */
-	virtual void ResetData();
+	virtual void ResetData() override;
 
 	/**Set log file
 	 * @param: log_file_name - log file name
@@ -165,25 +163,25 @@ private: //Functions
 	 * @param: a - vector for which we create perpendicular one
 	 * @return: perpendicular vector to 'a'
 	*/
-	G4ThreeVector SetPerpendicularVector(G4ThreeVector& a);
+	G4ThreeVector SetPerpendicularVector(const G4ThreeVector& a);
 
 	/* Special function just for this class.
 	* Extract values setted by Set functions.
 	* */
 	void StandardExtractFunction(const G4Step *step);
 
-	/** Function generate dsigma/dOmega as function of theta.
+	/** Function generate dsigma/dOmega (theta) - that is cross-section of theta (angle between prime and scattered gamma).
 	 * For this this function generate histogram which is histogram dsigma/dOgema divided by sin(theta) histogram.
 	 * */
 	void GenerateRealCrossSectionOfTheta();
 
-	/** Function normalize major of histograms
+	/** Function normalize major of histograms - for more look to function body
 	 * */
 	void NormalizeHistograms();
 
 	/** Function save numerical data to ASCII file
 	 * */
-	void SaveToFile(G4int eventID, G4int trackID, G4double phi, G4double theta, G4double polarization, G4ThreeVector interactionPoint, G4double totalEnergy, G4ThreeVector emisionPoint, G4double primeEnergy, G4double emisionPhi, G4double emisionTheta);
+	void SaveToFile(const G4int& eventID, const G4int& trackID, const G4double& phi, const G4double& theta, const G4double& polarization, const G4ThreeVector& interactionPoint, const G4double& totalEnergy, const G4ThreeVector& emisionPoint, const G4double& primeEnergy, const G4double& emisionPhi, const G4double& emisionTheta);
 
 	/** Function calculate phi and theta for scattered gamma.
 	 * @param: k0 - prime gamma momentum direction
@@ -192,7 +190,7 @@ private: //Functions
 	 * @param: theta - angle between k0 and k
 	 * @param: phi - angle between e0 and k projection on plane created by e0 and e0xk0
 	 * */
-	void GetThetaAndPhi(const G4ThreeVector k0, const G4ThreeVector k, const G4ThreeVector e0, G4double& theta, G4double& phi);
+	void GetThetaAndPhi(const G4ThreeVector& k0, const G4ThreeVector& k, const G4ThreeVector& e0, G4double& theta, G4double& phi);
 
 	/** Function calculate angle of linear polarization
 	 * @param: k0 - prime gamma momentum direction
@@ -200,21 +198,21 @@ private: //Functions
 	 * @param: e - scattered gamma polarization
 	 * @return: linear polarization angle (in degree)
 	 * */
-	G4double GetPolaizationAngle(const G4ThreeVector k, const G4ThreeVector e0, const G4ThreeVector e);
+	G4double GetPolaizationAngle(const G4ThreeVector& k, const G4ThreeVector& e0, const G4ThreeVector& e);
 
 	/** Function calculate difference between real and reconstructed prime polarization vectors
 	 * @param: k0 - prime gamma momentum direction
 	 * @param: k - scattered gamma momentum direction
 	 * @param: e0 - prime gamma polarization
 	 * */
-	G4double GetAngleDifference(const G4ThreeVector k, const G4ThreeVector k0, const G4ThreeVector e0);
+	G4double GetAngleDifference(const G4ThreeVector& k, const G4ThreeVector& k0, const G4ThreeVector& e0);
 
 	/** Function save data to histograms, tree and ASCII file
 	 * @param: eventID - current event ID
 	 * @param: trackID - track ID connected with data from ETP
 	 * @param: ptrETP - pointer to ETP structure
 	 * */
-	void FillWithData(const G4int eventID, const G4int trackID, const EventTrackPartner* ptrETP);
+	void FillWithData(const G4int& eventID, const G4int& trackID, const EventTrackPartner* ptrETP);
 
 	/** Function create new element of mEventTracks basing on step data.
 	 * @param: step - current step

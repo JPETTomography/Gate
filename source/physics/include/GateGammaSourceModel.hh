@@ -43,7 +43,7 @@ class GateGammaSourceModel
 		/** Function set positron momentum.
 		 * @param: boost - positron boost
 		 * */
-		void SetPositronMomentum(TVector3 boost);
+		void SetPositronMomentum(const TVector3& boost);
 
 		TVector3 GetPositronMomentum();
 
@@ -56,13 +56,13 @@ class GateGammaSourceModel
 		 * @param: source_vector - vector with respect to which we generate a perpendicular vector
 		 * @return: perpendicular vector to vector 'source_vector'
 		 * */
-		G4ThreeVector SetPerpendicularVector(G4ThreeVector& source_vector);
+		G4ThreeVector SetPerpendicularVector(const G4ThreeVector& source_vector);
 
 		/** Function return polarization vector which is perpendicular to momentum direction.
 		 * @param: momentum_direction - gamma momentum direction with respect to which we generate a linear polarization vector
 		 * @return: linear polarization vector (this include zero vector {0,0,0} if unpolarized gamma generation is set.
 		 * */
-		G4ThreeVector GetPolarization(G4ThreeVector momentum_direction);
+		G4ThreeVector GetPolarization(const G4ThreeVector& momentum_direction);
 
 		/** Function set angle for future linear polarization (in plane orthogonal to to gamma momentum direction)
 		 * @param: angle - angle value

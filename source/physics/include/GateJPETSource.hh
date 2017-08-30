@@ -45,7 +45,7 @@ public:
 	/** If program first do not choose gamma source model this function call InitModel;
 	 * @param: event - event info
 	 * */
-	virtual G4int GeneratePrimaries(G4Event* event);
+	virtual G4int GeneratePrimaries(G4Event* event) override;
 
 
 private:

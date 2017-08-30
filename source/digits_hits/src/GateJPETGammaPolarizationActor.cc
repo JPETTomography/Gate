@@ -36,6 +36,12 @@
 GateJPETGammaPolarizationActor::GateJPETGammaPolarizationActor(G4String name, G4int depth) : GateVActor(name, depth)
 {
 	pMessenger = new GateJPETGammaPolarizationActorMessenger(this);
+	pFile = nullptr;
+	pListeVar = nullptr;
+	pCrossSectionOfPhi = nullptr;
+	pCrossSectionOfTheta = nullptr;
+	pRealCrossSectionOfTheta = nullptr;
+	pAllParticlesReacted = nullptr;
 	mLogFileName = "";
 	mDiagnosticFileName = "";
 	mIsLogFileLoaded = false;
@@ -57,6 +63,8 @@ GateJPETGammaPolarizationActor::GateJPETGammaPolarizationActor(G4String name, G4
 	mSaveOnlyWhenTheDesiredNumberOfParticlesHasScatteredFromEvent = false;
 	mDesiredNumberOfParticlesScatteredPerEvent = 0;
 	mScatteredParticlesPerEvent = 0;
+	mAllPhiCalcNoNegative = false;
+	mPrimeEnergy = 0;
 }
 
 GateJPETGammaPolarizationActor::~GateJPETGammaPolarizationActor()
@@ -141,15 +149,6 @@ void GateJPETGammaPolarizationActor::Construct()
 	DisplaySummarizeBeforeRun();
 }
 
-void GateJPETGammaPolarizationActor::PreUserTrackingAction(const GateVVolume* /*v*/, const G4Track* /*t*/)
-{
-}
-
-void GateJPETGammaPolarizationActor::BeginOfEventAction(const G4Event* /*e*/)
-{
-
-}
-
 void GateJPETGammaPolarizationActor::UserSteppingAction(const GateVVolume*, const G4Step *step)
 {
 	if(step->GetTrack()->GetDefinition()->GetParticleName() == "gamma")
@@ -181,7 +180,6 @@ void GateJPETGammaPolarizationActor::SetDiagnosticFile(G4String diag_file_name)
 		mIsDiagnosticFileLoaded = false;
 	}
 }
-
 
 void GateJPETGammaPolarizationActor::SetPhiFlagParameter(double value, GateJPETGammaPolarizationActor::PhiThetaValueMode mode)
 {
@@ -320,7 +318,7 @@ void GateJPETGammaPolarizationActor::ResetData()
 	pListeVar->Reset();
 }
 
-G4ThreeVector GateJPETGammaPolarizationActor::SetPerpendicularVector(G4ThreeVector& a)
+G4ThreeVector GateJPETGammaPolarizationActor::SetPerpendicularVector(const G4ThreeVector& a)
 {
   G4double dx = a.x();
   G4double dy = a.y();
@@ -382,12 +380,12 @@ void GateJPETGammaPolarizationActor::SetAnglePrecisionPerBinInHistograms(double 
 	mAngularAccuracy = angle_precision;
 }
 
-void GateJPETGammaPolarizationActor::SaveToFile(G4int eventID, G4int trackID, G4double phi, G4double theta, G4double polarization, G4ThreeVector interactionPoint, G4double totalEnergy, G4ThreeVector emisionPoint, G4double primeEnergy, G4double emisionPhi, G4double emisionTheta)
+void GateJPETGammaPolarizationActor::SaveToFile(const G4int& eventID, const G4int& trackID, const G4double& phi, const G4double& theta, const G4double& polarization, const G4ThreeVector& interactionPoint, const G4double& totalEnergy, const G4ThreeVector& emisionPoint, const G4double& primeEnergy, const G4double& emisionPhi, const G4double& emisionTheta)
 {
 	mDGN<<eventID<<" "<<trackID<<" "<<phi<<" "<<theta<<" "<<polarization<<" "<<interactionPoint.x()<<" "<<interactionPoint.y()<<" "<<interactionPoint.z()<<" "<<totalEnergy<<" "<<emisionPoint.x()<<" "<<emisionPoint.y()<<" "<<emisionPoint.z()<<" "<<primeEnergy<<" "<<emisionPhi<<" "<<emisionTheta<<std::endl;
 }
 
-void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector k0, const G4ThreeVector k, const G4ThreeVector e0, G4double& theta, G4double& phi)
+void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector& k0, const G4ThreeVector& k, const G4ThreeVector& e0, G4double& theta, G4double& phi)
 {
 	/** This is most important part of actor.
  	 *  This is based on article "New Monte Carlo method for Compton and Rayleigh scattering by polarized gamma rays ,G.O. Depaola" and structure of function G4LivermorePolarizedComptonModel::SystemOfRefChange.
@@ -434,7 +432,7 @@ void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector k0, cons
 		phi += + 180.0;
 }
 
-G4double GateJPETGammaPolarizationActor::GetPolaizationAngle(const G4ThreeVector k, const G4ThreeVector e0, const G4ThreeVector e)
+G4double GateJPETGammaPolarizationActor::GetPolaizationAngle(const G4ThreeVector& k, const G4ThreeVector& e0, const G4ThreeVector& e)
 {
 	G4double polarization_angle = 0;
 	if(mSaveTests && e0.mag() != 0){
@@ -454,7 +452,7 @@ G4double GateJPETGammaPolarizationActor::GetPolaizationAngle(const G4ThreeVector
 	return polarization_angle;
 }
 
-G4double GateJPETGammaPolarizationActor::GetAngleDifference(const G4ThreeVector k, const G4ThreeVector k0, const G4ThreeVector e0)
+G4double GateJPETGammaPolarizationActor::GetAngleDifference(const G4ThreeVector& k, const G4ThreeVector& k0, const G4ThreeVector& e0)
 {
 	/** angular_diffrence_between_real_and_reconstructed_polarization inform about difference between real linear polarization angle (from simulation)
 	* and polarization reconstructed as cross product of prime and scattered gamma momentum direction.
@@ -491,7 +489,7 @@ void GateJPETGammaPolarizationActor::AddETP(const G4Step *step)
 	mEventTracks[step->GetTrack()->GetTrackID()] = etp;
 }
 
-void  GateJPETGammaPolarizationActor::FillWithData(const G4int eventID, const G4int trackID, const EventTrackPartner* ptrETP)
+void  GateJPETGammaPolarizationActor::FillWithData(const G4int& eventID, const G4int& trackID, const EventTrackPartner* ptrETP)
 {
 	if(mUsePhiFilter)
 		if((mPhiFilterLimes - ptrETP->ComptonPhi)*(mPhiFilterLimes - ptrETP->ComptonPhi) > mPhiFilterEpsilon*mPhiFilterEpsilon)

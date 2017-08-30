@@ -250,12 +250,7 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   } else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
   } else if( command == LinearPolarizationCmd) {
-	  G4double vl;
-	  char unts[30];
-	  std::istringstream is(newValue);
-	  is >> vl >> unts;
-	  G4String unt = unts;
-	  m_source->SetLinearPolarizationAngle(vl,unt == "deg");
+	  m_source->SetLinearPolarizationAngle(LinearPolarizationCmd->GetNewDoubleRawValue(newValue));
   } else if( command == UseUnpolarizedParticlesCmd) {
 	  m_source->SetUnpolarizedParticlesGenerating(UseUnpolarizedParticlesCmd->GetNewBoolValue(newValue));
   }

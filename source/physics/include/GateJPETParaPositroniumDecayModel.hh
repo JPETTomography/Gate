@@ -33,11 +33,11 @@ class GateJPETParaPositroniumDecayModel : public GateGammaSourceModel
 		/** Each particle is filled with data about momentum.
 		 * @param: particles - list with initialized particles - without momentum information
 		 * */
-		virtual void GetGammaParticles(std::vector<G4PrimaryParticle*>& particles);
+		virtual void GetGammaParticles(std::vector<G4PrimaryParticle*>& particles) override;
 		/** Return model name.
 		 * @return: model name - it's always simple string
 		 * */
-		virtual G4String GetModelName();
+		virtual G4String GetModelName() override;
 		/** If class object is not initialized this function do this and return pointer.
 		 * @return: class object pointer
 		 * */

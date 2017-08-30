@@ -48,7 +48,7 @@ void GateJPETSourceManager::AddGammaSourceModel(GateGammaSourceModel* model)
 	}
 }
 
-GateGammaSourceModel* GateJPETSourceManager::GetGammaSourceModelByName(G4String modelName)
+GateGammaSourceModel* GateJPETSourceManager::GetGammaSourceModelByName(const G4String& modelName)
 {
 	std::map<G4String,GateGammaSourceModel* >::iterator found = mGammaSourceModels.find(modelName);
 	if(found != mGammaSourceModels.end()){

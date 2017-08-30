@@ -32,7 +32,7 @@ public:
 
 	void AddGammaSourceModel(GateGammaSourceModel* model);
 
-	GateGammaSourceModel* GetGammaSourceModelByName(G4String modelName);
+	GateGammaSourceModel* GetGammaSourceModelByName(const G4String& modelName);
 
 	G4String GetGammaSourceModelsNames();
 

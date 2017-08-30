@@ -27,13 +27,13 @@ GateGammaSourceModel::~GateGammaSourceModel()
 }
 
 
-void GateGammaSourceModel::SetPositronMomentum(TVector3 boost)
+void GateGammaSourceModel::SetPositronMomentum(const TVector3& boost)
 {
 	mPositronMomentum = boost;
 }
 
 
-G4ThreeVector GateGammaSourceModel::SetPerpendicularVector(G4ThreeVector& source_vector)
+G4ThreeVector GateGammaSourceModel::SetPerpendicularVector(const G4ThreeVector& source_vector)
 {
   G4double dx = source_vector.x();
   G4double dy = source_vector.y();
@@ -47,7 +47,7 @@ G4ThreeVector GateGammaSourceModel::SetPerpendicularVector(G4ThreeVector& source
     return y < z ? G4ThreeVector(dz,0,-dx) : G4ThreeVector(-dy,dx,0);
 }
 
-G4ThreeVector GateGammaSourceModel::GetPolarization(G4ThreeVector momentum_direction)
+G4ThreeVector GateGammaSourceModel::GetPolarization(const G4ThreeVector& momentum_direction)
 {
 	/***
 	 * Gamma polarization and direction are connected, and we can't set any value to polarization.
