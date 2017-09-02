@@ -58,7 +58,12 @@ void GateSecondaryProductionActor::Construct() {
 
    pFrag = new TH1F("fragments","Fragment production",3,0,1);
    pFrag->SetXTitle("Fragment name");
+   #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
    pFrag->SetBit(TH1::kCanRebin);
+   #else
+   pFrag->SetBit(TH1::kXaxis);
+   #endif
+
 
 
    pFrag->Fill("e- Ioni",0.);
