@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETActor.hh
+ */
+
 #include "GateConfiguration.h"
 
 #ifndef GATEJPETACTOR_HH
@@ -12,6 +27,8 @@
 
 #include "GateVActor.hh"
 #include "GateJPETActorMessenger.hh"
+
+#include<fstream>
 
 struct iaea_header_type;
 struct iaea_record_type;
@@ -28,20 +45,20 @@ public:
 	// This macro initialize the CreatePrototype and CreateInstance
 	FCT_FOR_AUTO_CREATOR_ACTOR(GateJPETActor)
 	// Constructs the sensor
-	virtual void Construct();
+	virtual void Construct() override;
 	// Callbacks
-	virtual void UserSteppingAction(const GateVVolume *, const G4Step*);
-	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*);
-	virtual void BeginOfEventAction(const G4Event * e);
+	virtual void UserSteppingAction(const GateVVolume *, const G4Step*) override;
+	virtual void PreUserTrackingAction(const GateVVolume *, const G4Track*) override;
+	virtual void BeginOfEventAction(const G4Event * e) override;
 
 	/** Saves the data collected to the file
 	 */
-	virtual void SaveData();
+	virtual void SaveData() override;
 	/** Overwrite function from GateVActor.
 	 * This function used by GateVActor::BeginOfRunAction. If you want to reset data in file for each new run, call EnableResetDataAtEachRun(true).
 	 * By default this function is not used;
 	 */
-	virtual void ResetData();
+	virtual void ResetData() override;
 
 	///Setting functions - use it if want activate or deactivate saving some data
 
@@ -131,6 +148,12 @@ public:
 	 */
 	void SetPrimaryEnergy(bool enablePrimaryEnergy);
 
+	/**
+	 * Use ASCI file to save partcile data about name and positions
+	 * @param: fileName - ASCI file name 
+	 */
+	void SetASCIFileName(std::string fileName);
+
 protected:
 	GateJPETActor(G4String name, G4int depth=0);
 
@@ -182,9 +205,12 @@ protected:
 	double mPrimaryEnergy;
 	//Variables need to save data
 	TString mFileType;
-	TFile * pFile;
-	TTree * pListeVar;
-	GateJPETActorMessenger * pMessenger;
+	TFile* pFile;
+	TTree*  pListeVar;
+	GateJPETActorMessenger* pMessenger;
+	//Saving data to ASCII files
+	std::fstream mASCIFile;
+	std::string mASCIFileName;
 
 	//Tracing tools variables
 	bool mIsFirstStep;

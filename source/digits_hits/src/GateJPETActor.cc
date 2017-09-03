@@ -1,5 +1,19 @@
+/**
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETActor.cc
+ */
+
 #include "GateJPETActor.hh"
-//#ifdef G4ANALYSIS_USE_ROOT
 #include "G4VProcess.hh"
 #include "GateRunManager.hh"
 #include "G4Run.hh"
@@ -16,6 +30,8 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 {
 	GateDebugMessageInc("Actor", 4, "GateJPETActor() -- begin" << G4endl);
 	pMessenger = new GateJPETActorMessenger(this);
+	pFile = nullptr;
+	pListeVar = nullptr;
 
 	//For default set everything for FALSE
 	 mEnableXPosition = false;
@@ -40,9 +56,12 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 
 GateJPETActor::~GateJPETActor()
 {
-	GateDebugMessageInc("Actor", 4, "~GateJPETActor() -- begin" << G4endl);
+	if(!mASCIFileName.empty())
+		mASCIFile.close();
+	delete pFile;
+	delete pListeVar;
 	delete pMessenger;
-	GateDebugMessageDec("Actor", 4, "~GateJPETActor() -- end" << G4endl);
+
 }
 
 void GateJPETActor::Construct()
@@ -61,6 +80,11 @@ void GateJPETActor::Construct()
 		mFileType = "rootFile";
 	}else{
 		GateError( "Unknow phase space file extension. Knowns extensions are .root"<< G4endl);
+	}
+
+	//Here is extra for ASCI data
+	if(!mASCIFileName.empty()){
+		mASCIFile.open(mASCIFileName.c_str(), std::ios::out);
 	}
 
 	//OK - so what we want to save?
@@ -132,6 +156,13 @@ void GateJPETActor::UserSteppingAction(const GateVVolume*, const G4Step *step)
 
 void GateJPETActor::StandardExtractFunction(const G4Step *step)
 {
+	//First save ASCI data
+	if(!mASCIFileName.empty()){
+		G4ThreeVector localPosition = step->GetPostStepPoint()->GetPosition();
+		mASCIFile<<step->GetTrack()->GetDefinition()->GetParticleName()<<" "<<localPosition.x()<<" "<<localPosition.y()<<" "<<localPosition.z()<<"\n";
+	}
+
+
 	if(mEnableXPosition || mEnableYPosition || mEnableZPosition){
 		G4ThreeVector localPosition = step->GetPostStepPoint()->GetPosition();
 		if(mEnableXPosition)
@@ -252,4 +283,9 @@ void GateJPETActor::SetEmissionPointEnabled(bool enableEmissionPoint)
 void GateJPETActor::SetPrimaryEnergy(bool enablePrimaryEnergy)
 {
 	mEnablePrimaryEnergy = enablePrimaryEnergy;
+}
+
+void GateJPETActor::SetASCIFileName(std::string fileName)
+{
+	mASCIFileName = fileName;
 }

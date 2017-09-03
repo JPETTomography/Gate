@@ -10,11 +10,11 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *
- *  @file GateJPETParaPositroniumDecayModel.hh
+ *  @file GateJPETSingleGammaModel.hh
  */
 
-#ifndef GATEJPETPARAPOSITRONIUMDECAYMODEL_HH
-#define GATEJPETPARAPOSITRONIUMDECAYMODEL_HH
+#ifndef GATEJPETSINGLEGAMMAMODEL_HH
+#define GATEJPETSINGLEGAMMAMODEL_HH
 
 #include "GateGammaSourceModel.hh"
 #include "TGenPhaseSpace.h"
@@ -22,14 +22,14 @@
 
 /**Author: Mateusz Bała
  * Email: bala.mateusz@gmail.com
- * About class: generate two gamma particles from para Positronium decay
+ * About class: generate one gamma. This function is useful when you need test behave of something for just one gamma
  */
-class GateJPETParaPositroniumDecayModel : public GateGammaSourceModel
+class GateJPETSingleGammaModel : public GateGammaSourceModel
 {
 	public:
 		/** Destructor
 		 * */
-		virtual~GateJPETParaPositroniumDecayModel();
+		virtual~GateJPETSingleGammaModel();
 		/** Each particle is filled with data about momentum.
 		 * @param: particles - list with initialized particles - without momentum information
 		 * */
@@ -41,12 +41,13 @@ class GateJPETParaPositroniumDecayModel : public GateGammaSourceModel
 		/** If class object is not initialized this function do this and return pointer.
 		 * @return: class object pointer
 		 * */
-		static GateJPETParaPositroniumDecayModel *GetInstance();
+		static GateJPETSingleGammaModel *GetInstance();
 	private:
 		/** Constructor
 		 * */
-		GateJPETParaPositroniumDecayModel();
-		static GateJPETParaPositroniumDecayModel* ptrJPETParaPositroniumDecayModel;
+		GateJPETSingleGammaModel();
+		static GateJPETSingleGammaModel* ptrJPETSingleGammaModel;
 };
 
 #endif
+

@@ -30,6 +30,7 @@
 #include "GateActions.hh"
 #include "G4RunManager.hh"
 #include "GateSourceOfPromptGamma.hh"
+#include "GateJPETSource.hh"
 
 //----------------------------------------------------------------------------------------
 GateSourceMgr* GateSourceMgr::mInstance = 0;
@@ -236,6 +237,10 @@ G4int GateSourceMgr::AddSource( std::vector<G4String> sourceVec )
         source = new GateVSource( sourceName );
         source->SetType("fastI124");
         source->SetSourceID( m_sourceProgressiveNumber );
+      }
+      else if (sourceGeomType == "JPETSource"){
+    	source = new GateJPETSource( sourceName );
+    	source->SetSourceID( m_sourceProgressiveNumber );
       }
       else if (sourceGeomType == "") {
         source = new GateVSource( sourceName );
@@ -539,8 +544,6 @@ G4int GateSourceMgr::PrepareNextRun( const G4Run* r)
 //----------------------------------------------------------------------------------------
 G4int GateSourceMgr::PrepareNextEvent( G4Event* event )
 {
-  // GateDebugMessage("Acquisition", 0, "PrepareNextEvent "  << event->GetEventID()
-  //                    << " at time " << m_time/s << " sec.\n");
 
   GateSteppingAction* myAction = (GateSteppingAction *) ( GateRunManager::GetRunManager()->GetUserSteppingAction() );
   TrackingMode theMode =myAction->GetMode();
@@ -614,11 +617,8 @@ G4int GateSourceMgr::PrepareNextEvent( G4Event* event )
   if ( theMode == 3 ) // detector mode
     {
       m_currentSources.push_back(m_fictiveSource);
-      //G4cout << "GateSourceMgr::PrepareNextEvent :   m_fictiveSource = " << m_fictiveSource << Gateendl;
       numVertices = m_fictiveSource->GeneratePrimaries(event);
       m_fictiveSource->SetTime(m_time); // time has been set in GeneratePrimaries
-
-      //	G4cout << "GateSourceMgr::PrepareNextEvent :::::::      Time " << m_time/s << " time limit " << m_timeLimit/s << Gateendl;
 
       if (m_time > m_timeLimit) {  numVertices = 0 ;}
 
@@ -630,24 +630,3 @@ G4int GateSourceMgr::PrepareNextEvent( G4Event* event )
     G4cout << "GateSourceMgr::PrepareNextEvent : numVertices : " << numVertices << Gateendl;
   return numVertices;
 }
-//----------------------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------------------
-/*void GateSourceMgr::SetTimeSlice(G4double time)
-  {
-  mListOfTimeSlices.push_back(time);
-  //GateApplicationMgr* appMgr = GateApplicationMgr::GetInstance();
-  //appMgr->SetTimeInterval(time);
-  }*/
-//----------------------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------
-/*void GateSourceMgr::SetActivity(G4double a)
-  {
-
-  listOfActivity.push_back(a);
-  //GateApplicationMgr* appMgr = GateApplicationMgr::GetInstance();
-  //appMgr->SetActivity(a);
-  }*/
-//----------------------------------------------------------------------------------------

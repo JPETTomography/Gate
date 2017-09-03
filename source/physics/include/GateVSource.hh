@@ -89,8 +89,6 @@ public:
 
   void GeneratePrimariesForBackToBackSource(G4Event* event);
   void GeneratePrimariesForFastI124Source(G4Event* event);
-  void GeneratePrimariesFor3GammaAnnihilationSource(G4Event* event);
-  void GeneratePrimariesForNGammaAnnihilationSource(G4Event* event);
 
   virtual GateSPSPosDistribution* GetPosDist() { return m_posSPS ; }
   virtual GateSPSEneDistribution* GetEneDist() { return m_eneSPS ; }
@@ -140,11 +138,24 @@ public:
 
   void TrigMat();
 
-  void SetPrimeGammaSourceModel(std::string primeSourceModelName) {	mPrimeGammaSourceModelName = primeSourceModelName;}
-  void SetSecondaryGammaSourceModel(std::string secondarySourceModelName) {mSecondaryGammaSourceModelName =  secondarySourceModelName;}
-  void SetLorentzBoostForGammaAnihilation(double x, double y, double z);
+  /** Function set linear polarization angle for particle
+   * @param: angle - angle value (degree unit)
+   * */
+  void SetLinearPolarizationAngle(double angle){mLinearPolarizationAngle = (M_PI/180.0)*angle;}
 
+  /** Function return linear polarization angle in radians
+   * */
+  double GetLinearPolarizationAngle() { return mLinearPolarizationAngle;}
 
+  /** Function set generation of unpolarized particles (what mean that particle has zero polarization vector {0,0,0})
+   * @param: use_unpolarized - set true if you need unpolarized particles
+   * */
+  void SetUnpolarizedParticlesGenerating(bool use_unpolarized){mUseUnpolarizedParticles = use_unpolarized;}
+
+  /** Function inform if unpolarized generation is in use
+   * @return: true - if is in use, false - otherwise
+   * */
+  bool GetUnpolarizedParticlesGenerating(){return mUseUnpolarizedParticles;}
 
 private:
   typedef GateMap<G4String,G4Colour> GateColorMap ;
@@ -220,12 +231,9 @@ protected:
     G4bool fAbortNow; // detector mode
   G4ThreeVector fPosition;// for detector mode because G4Trajectory does not allow to set first trajectory point position !!!
   G4ParticleDefinition* m_pd;
-  //Contain information from which model we get prime gamma source 
-  std::string mPrimeGammaSourceModelName;
-  //Contain information from which model we get secondary gamma source 
-  std::string mSecondaryGammaSourceModelName;
-  //Boost reprented by positron momentum - for JEPT class model use
-  TVector3 mLorentzBoostVector;
+
+  double mLinearPolarizationAngle;
+  bool mUseUnpolarizedParticles;
 
 };
 

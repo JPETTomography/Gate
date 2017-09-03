@@ -64,9 +64,8 @@ protected:
   G4UIcmdWithADoubleAndUnit*           setEnergyRangecmd;
   G4UIcmdWithAString*                  VisualizeCmd;
   G4UIcommand*                         useDefaultHalfLifeCmd;
-  G4UIcmdWithAString*				   PrimeGammaSourceModelNameCmd;
-  G4UIcmdWithAString*				   SecondaryGammaSourceModelNameCmd;
-  G4UIcmdWith3Vector* 				   LorentzBoostVectorCmdForGammaSourceModel;
+  G4UIcmdWithADoubleAndUnit*	       LinearPolarizationCmd;
+  G4UIcmdWithABool*					   UseUnpolarizedParticlesCmd;
 
 };
 

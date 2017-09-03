@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2016 The J-PET Gate Authors. All rights reserved.
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -16,9 +16,16 @@
 #include "GateJPETParaPositroniumDecayModel.hh"
 #include "TLorentzVector.h"
 #include "G4Electron.hh"
+#include "G4PhysicalConstants.hh"
+#include "GateConstants.hh"
+#include "G4SystemOfUnits.hh"
+#include <cmath>
+GateJPETParaPositroniumDecayModel* GateJPETParaPositroniumDecayModel::ptrJPETParaPositroniumDecayModel=0;
 GateJPETParaPositroniumDecayModel::GateJPETParaPositroniumDecayModel()
 {
-	GateGammaSourceModel::mParticlesNumber = 2;
+	G4cout <<"GateJPETParaPositroniumDecayModel initialization.\n";
+	SetParticlesNumber(2);
+	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
 GateJPETParaPositroniumDecayModel::~GateJPETParaPositroniumDecayModel()
@@ -27,22 +34,37 @@ GateJPETParaPositroniumDecayModel::~GateJPETParaPositroniumDecayModel()
 
 void GateJPETParaPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryParticle*>& particles)
 {
-	Double_t mass_e = G4Electron::Definition()->GetPDGMass()/1000;//GeV
 
-	// positronium
-	TLorentzVector vec_pozytonium(0.0, 0.0, 0.0, 2.0*mass_e);
+	Double_t mass_e = 0.511*MeV/1000.0;//GeV - because TGenPhaseSpace work with GeV
 
-	// 2 gamma particles mass
+	TLorentzVector pozytonium(0.0, 0.0, 0.0, 2.0*mass_e);
+
+	// 2 gamma quanta mass
 	Double_t mass_secondaries[2] = {0.0, 0.0};
 
 	TGenPhaseSpace m_2_body_decay;
-	m_2_body_decay.SetDecay(vec_pozytonium, 2, mass_secondaries);
+	m_2_body_decay.SetDecay(pozytonium, 2, mass_secondaries);
 	m_2_body_decay.Generate();
 
-	for(int i=0; i<GateGammaSourceModel::mParticlesNumber; ++i){
+	int particles_number = GetParticlesNumber();
+	for(int i=0; i<particles_number; ++i){
 		TLorentzVector partDir = *m_2_body_decay.GetDecay(i);
-		partDir.Boost(GateGammaSourceModel::PositronMomentum);
-		particles[i]->SetMomentum( (partDir.Px())/1000.0, (partDir.Py())/1000.0, (partDir.Pz())/1000.0 );
+		partDir.Boost(GetPositronMomentum());
+		particles[i]->SetMomentum( (partDir.Px())*1000.0, (partDir.Py())*1000.0, (partDir.Pz())*1000.0 ); // "*1000.0" because GetDecay return momentum in GeV but Geant4 and Gate make calculation in MeV
+		particles[i]->SetPolarization(GetPolarization(particles[i]->GetMomentumDirection()));
+	}
+}
+
+G4String GateJPETParaPositroniumDecayModel::GetModelName()
+{
+	return "pPsJPET";
+}
+
+GateJPETParaPositroniumDecayModel* GateJPETParaPositroniumDecayModel::GetInstance()
+{
+	if(!ptrJPETParaPositroniumDecayModel){
+		ptrJPETParaPositroniumDecayModel = new GateJPETParaPositroniumDecayModel;
 	}
 
+	return ptrJPETParaPositroniumDecayModel;
 }

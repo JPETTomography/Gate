@@ -32,7 +32,7 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
     m_source(source)
 {
 
-//    GateSourceDir = new G4UIdirectory("/gate/source/");
+//    GateSourceDir = new G4UIdirectory("/gate/source/"); "particle"
 //    GateSourceDir->SetGuidance("GATE source manager control.");
 
 //Added new activity units
@@ -155,18 +155,13 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
 
-  cmdName = GetDirectoryName()+"setPrimeGammaSourceModel";
-  PrimeGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
-  PrimeGammaSourceModelNameCmd->SetGuidance("Prime gamma source in NGammaAnihilation process");
+  cmdName = GetDirectoryName()+"setLinearPolarizationAngle";
+  LinearPolarizationCmd = new G4UIcmdWithADoubleAndUnit(cmdName,this);
+  LinearPolarizationCmd->SetGuidance("Set linear polarization by given angle");
 
-  cmdName = GetDirectoryName()+"setSecondaryGammaSourceModel";
-  SecondaryGammaSourceModelNameCmd = new G4UIcmdWithAString(cmdName,this);
-  SecondaryGammaSourceModelNameCmd->SetGuidance("Secondary gamma source in NGammaAnihilation process");
-
-  cmdName = GetDirectoryName()+"setBoostForGammaSourceModel";
-  LorentzBoostVectorCmdForGammaSourceModel = new G4UIcmdWith3Vector(cmdName,this);
-  LorentzBoostVectorCmdForGammaSourceModel->SetGuidance("Set Lorentz boost for prime gamma source");
-
+  cmdName = GetDirectoryName()+"setUseUnpolarizedParticles";
+  UseUnpolarizedParticlesCmd = new G4UIcmdWithABool(cmdName,this);
+  UseUnpolarizedParticlesCmd->SetGuidance("Set unpolarized particles generation");
 }
 //----------------------------------------------------------------------------------------
 
@@ -195,9 +190,8 @@ GateVSourceMessenger::~GateVSourceMessenger()
   delete setEnergyRangecmd;
 //    delete GateSourceDir;
   delete VisualizeCmd;
-  delete PrimeGammaSourceModelNameCmd;
-  delete SecondaryGammaSourceModelNameCmd;
-  delete LorentzBoostVectorCmdForGammaSourceModel;
+  delete LinearPolarizationCmd;
+  delete UseUnpolarizedParticlesCmd;
 }
 //----------------------------------------------------------------------------------------
 
@@ -253,20 +247,13 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
       m_source->GetEneDist()->SetMinEnergy(setMinEnergycmd->GetNewDoubleValue(newValue));
   } else if( command == VisualizeCmd ) {
     m_source->Visualize(newValue);
-  }
-  else if( command == setEnergyRangecmd ) {
+  } else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
+  } else if( command == LinearPolarizationCmd) {
+	  m_source->SetLinearPolarizationAngle(LinearPolarizationCmd->GetNewDoubleRawValue(newValue));
+  } else if( command == UseUnpolarizedParticlesCmd) {
+	  m_source->SetUnpolarizedParticlesGenerating(UseUnpolarizedParticlesCmd->GetNewBoolValue(newValue));
   }
-  else if(command == PrimeGammaSourceModelNameCmd){
-	  m_source->SetPrimeGammaSourceModel(newValue);
-  }else if(command == SecondaryGammaSourceModelNameCmd){
-	  m_source->SetSecondaryGammaSourceModel(newValue);
-  }else if(command == LorentzBoostVectorCmdForGammaSourceModel){
-	  G4ThreeVector vec =   LorentzBoostVectorCmdForGammaSourceModel->GetNew3VectorValue(newValue);
-	  m_source->SetLorentzBoostForGammaAnihilation(vec.x(),vec.y(),vec.z());
-  }
-
-  //G4UIcmdWith3Vector* 				   LorentzBoostVectorCmdForGammaSourceModel
 }
 //----------------------------------------------------------------------------------------
 

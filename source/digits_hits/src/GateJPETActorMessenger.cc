@@ -1,3 +1,18 @@
+/**
+ *  @copyright Copyright 2017 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateJPETActorMessenger.cc
+ */
+
 #include "../include/GateJPETActorMessenger.hh"
 #ifdef G4ANALYSIS_USE_ROOT
 
@@ -30,6 +45,7 @@ GateJPETActorMessenger::~GateJPETActorMessenger()
 	delete pEnableProcessNameCmd;
 	delete pEnableEmissionPointCmd;
 	delete pEnablePrimaryEnergyCmd;
+	delete pEnableASCIFileNameCmd;
 }
 
 void GateJPETActorMessenger::BuildCommands(G4String base)
@@ -120,6 +136,12 @@ void GateJPETActorMessenger::BuildCommands(G4String base)
 	guidance = "Save particle's primary energy";
 	pEnablePrimaryEnergyCmd->SetGuidance(guidance);
 	pEnablePrimaryEnergyCmd->SetParameterName("State",false);
+
+	bb = base+"/enableASCIFile";
+	pEnableASCIFileNameCmd =  new G4UIcmdWithAString(bb,this);
+	guidance = "Save data about particle name and positions.";
+	pEnableASCIFileNameCmd->SetGuidance(guidance);
+	pEnableASCIFileNameCmd->SetParameterName("ASCI file name",false);
 }
 
 void GateJPETActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
@@ -165,6 +187,9 @@ void GateJPETActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
 
 	if(command == pEnablePrimaryEnergyCmd)
 		pActor->SetPrimaryEnergy(pEnablePrimaryEnergyCmd->GetNewBoolValue(param));
+
+	if(command == pEnableASCIFileNameCmd)
+		pActor->SetASCIFileName(param);
 
 	GateActorMessenger::SetNewValue(command ,param );
 }
