@@ -420,7 +420,14 @@ void GateJPETGammaPolarizationActor::GetThetaAndPhi(const G4ThreeVector& k0, con
 		G4double k_y = k.dot(versorY);
 		G4double sinTheta = sin(theta);
 		if(sinTheta == 0){
-			phi = M_PI/2;
+			/** Please look to an article "New Monte Carlo method for Compton and Rayleigh scattering by polarized gamma rays" and study a Fig.1.a;
+			 * In a brief:
+			 * Tha angle theta is an angle between a vector k and a vector k0 (so k0 is axis Z) and is calculated from k0  (axis Z) to k - in this case when SinThata ==1 means that theta == 0 or theta == M_PI (so k lie along k0).
+			 * Now we have relation: cos(ksi) = sin(theta)*cos(phi) [please look to the mentioned article above]
+			 * An angle ksi is angle between k and e0 - in case when theta == 0 or theta == M_PI an angle ksi must be M_PI/2 (because axis Z is perpendicular to e0).
+			 * In this situation we have equality 0 == 0*cos(phi) so phi can be equaled to any value - that why we use here uniform distribution.
+			 * */
+			phi = M_PI*(2.0*G4UniformRand()-1.0);
 		}else{
 			phi = std::acos(k_x/sinTheta);
 		}
