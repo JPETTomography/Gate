@@ -46,10 +46,7 @@ GateJPETActor::GateJPETActor(G4String name, G4int depth):GateVActor(name, depth)
 	 mEnableInteractionTime= false;
 	 mEnableProcessName= false;
 	 mEnableEmissionPoint = false;
-
 	 mFileType = " ";
-
-	 mIsFirstStep=true;
 
 	 GateDebugMessageDec("Actor", 4, "GateJPETActor() -- end" << G4endl);
 }
@@ -127,7 +124,6 @@ void GateJPETActor::Construct()
 
 void GateJPETActor::PreUserTrackingAction(const GateVVolume * /*v*/, const G4Track * t)
 {
-	mIsFirstStep = true;
 	if(mEnableEmissionPoint){
 		mEmissionPositionX = t->GetVertexPosition().x();
 		mEmissionPositionY = t->GetVertexPosition().y();
@@ -143,15 +139,12 @@ void GateJPETActor::BeginOfEventAction(const G4Event *e)
 
 void GateJPETActor::UserSteppingAction(const GateVVolume*, const G4Step *step)
 {
-	if(mParticleNames.size()==0){
-		StandardExtractFunction( step);
-	}else{
-		std::vector<G4String>::iterator found = std::find(mParticleNames.begin(),mParticleNames.end(),step->GetTrack()->GetDefinition()->GetParticleName());
-		if(found != mParticleNames.end()){
-			StandardExtractFunction(step);
-		}
-	}
-	 mIsFirstStep = false;
+	if(IsToSkip(mParticleNames, step->GetTrack()->GetDefinition()->GetParticleName()))
+		return;
+	if(IsToSkip(mEnableProcessNameFiltering, step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()))
+		return;
+
+	StandardExtractFunction(step);
 }
 
 void GateJPETActor::StandardExtractFunction(const G4Step *step)
@@ -288,4 +281,20 @@ void GateJPETActor::SetPrimaryEnergy(bool enablePrimaryEnergy)
 void GateJPETActor::SetASCIFileName(std::string fileName)
 {
 	mASCIFileName = fileName;
+}
+
+void GateJPETActor::SetProcessName(std::string processName)
+{
+	mEnableProcessNameFiltering.push_back(processName);
+}
+
+bool GateJPETActor::IsToSkip(const std::vector<G4String>& vector, const G4String& name)
+{
+	//If vector is empty then there is nothing to filtering so we can't forbid to skip
+	if(vector.size() == 0)
+		return false;
+
+	std::vector<G4String>::const_iterator found = std::find(vector.begin(), vector.end(), name);
+	//If vector has some elements and object "name" is not in the vector then skip it
+	return found == vector.end();
 }

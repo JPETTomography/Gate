@@ -46,6 +46,7 @@ GateJPETActorMessenger::~GateJPETActorMessenger()
 	delete pEnableEmissionPointCmd;
 	delete pEnablePrimaryEnergyCmd;
 	delete pEnableASCIFileNameCmd;
+	delete pEnableProcessCmd;
 }
 
 void GateJPETActorMessenger::BuildCommands(G4String base)
@@ -142,6 +143,12 @@ void GateJPETActorMessenger::BuildCommands(G4String base)
 	guidance = "Save data about particle name and positions.";
 	pEnableASCIFileNameCmd->SetGuidance(guidance);
 	pEnableASCIFileNameCmd->SetParameterName("ASCI file name",false);
+
+	bb = base+"/enableProcess";
+	pEnableProcessCmd =  new G4UIcmdWithAString(bb,this);
+	guidance = "Save data only for specific processes";
+	pEnableProcessCmd->SetGuidance(guidance);
+	pEnableProcessCmd->SetParameterName("Process Filter",false);
 }
 
 void GateJPETActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
@@ -190,6 +197,9 @@ void GateJPETActorMessenger::SetNewValue(G4UIcommand* command, G4String param)
 
 	if(command == pEnableASCIFileNameCmd)
 		pActor->SetASCIFileName(param);
+
+	if(command == pEnableProcessCmd)
+		pActor->SetProcessName(param);
 
 	GateActorMessenger::SetNewValue(command ,param );
 }

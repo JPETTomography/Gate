@@ -154,6 +154,14 @@ public:
 	 */
 	void SetASCIFileName(std::string fileName);
 
+	/**
+	 * Choose for which process record data
+	 * @param: processName - set process name from enabled names in G4 e.g. compton, etc.
+	 * @ATTENTION!: If processName is incorrect any data will be generated
+	 * @TIP: U can use more then once this function to add more process to recored
+	 */
+	void SetProcessName(std::string processName);
+
 protected:
 	GateJPETActor(G4String name, G4int depth=0);
 
@@ -186,6 +194,8 @@ protected:
 	bool mEnableEmissionPoint;
 	/*Record primary energy*/
 	bool mEnablePrimaryEnergy;
+	/*Record only for specific process*/
+	std::vector<G4String> mEnableProcessNameFiltering;
 
 	//Values
 	double mPositionX;
@@ -212,14 +222,18 @@ protected:
 	std::fstream mASCIFile;
 	std::string mASCIFileName;
 
-	//Tracing tools variables
-	bool mIsFirstStep;
-
 	//Special function just for this class
 	/*
 	 * Extract values setted by Set functions
 	 * */
 	void StandardExtractFunction(const G4Step *step);
+
+	/** Check if step is to skip if specific object name is on the list "vector".
+	 * @param: vector - list to check
+	 * @param: name - object name from step to check
+	 * @return: true - when element "name" is not on the list "vector", false - otherwise (this include situation when vector is empty)
+	 * */
+	bool IsToSkip(const std::vector<G4String>& vector, const G4String& name);
 
 };
 
