@@ -1,3 +1,17 @@
+/**
+ *  @copyright Copyright 2018 The J-PET Gate Authors. All rights reserved.
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  @file GateGlobalActor.cc
+ */
 #include "GateGlobalActor.hh"
 #include <cassert>
 #include "G4Step.hh"
@@ -7,7 +21,6 @@
 #include "GateRunManager.hh"
 #include "G4Track.hh"
 
-//GateGlobalActor* GateGlobalActor::pInstance = nullptr;
 std::unique_ptr<GateGlobalActor> GateGlobalActor::upInstance;
 
 GateGlobalActor::GateGlobalActor()
@@ -49,7 +62,7 @@ void GateGlobalActor::NoticeStep(const G4String& volume_name, const G4Step* step
 {
 	if(SkipThisStep(step))
 		return;
-	ConvertToChar(volume_name, mVolumeName, sizeof(mVolumeName));
+	mVolumeName = volume_name;
 	UpdateFromThisStep(step);
 	FillTree();
 }
@@ -104,7 +117,6 @@ void GateGlobalActor::FillTree()
 	pTree->Fill();
 }
 
-//void TryAddUpdateMethod(const G4String& update_method_name, const UpdateMethod& update_function);
 void GateGlobalActor::TryAddUpdateMethod(const G4String& update_method_name, const UpdateMethod& update_method)
 {
 	assert(update_method_name.size() > 0);
@@ -112,30 +124,20 @@ void GateGlobalActor::TryAddUpdateMethod(const G4String& update_method_name, con
 	if(found == mUpdateMethodsPointersList.end())
 		mUpdateMethodsPointersList.emplace(update_method_name, update_method);
 }
-
-void GateGlobalActor::TryAddBranch(const G4String& branch_name, void* variable_adress, const G4String& leaflist)
+template <class T>
+void GateGlobalActor::TryAddBranch(const G4String& branch_name, T& variable)
 {
 	//Branch name must be setted
 	assert(branch_name.size() > 0);
-	//Not null adresses
-	assert(variable_adress != nullptr);
-	//Leaflist must have structur "Name/Type" and because the last 2 chars are "/" and type char thats why it check size > 2
-	assert(leaflist.size() > 2);
-	//"Name/Type" - that why it is checked "/"
-	assert(leaflist[leaflist.size() - 2] == '/');
-	//Look here: https://root.cern.ch/doc/master/classTTree.html and read Case A
-	G4String valid_types_names_for_leadlist = "CBbSsIiFDLlO";
-	assert(valid_types_names_for_leadlist.find(leaflist[leaflist.size()-1]) != std::string::npos);
 
 	if(pFile == nullptr)
 	{
 		InitFile(mFileName);
 		InitTree();
-		G4cout<<"InitFile"<<G4endl;
 	}
 
 	if(pTree->FindBranch(branch_name.c_str()) == nullptr)
-		pTree->Branch(branch_name.c_str(), variable_adress, leaflist.c_str());
+		pTree->Branch(branch_name.c_str(), &variable);
 }
 
 void GateGlobalActor::TryAddCheckFunction(const G4String& check_function_name, const CheckFunction& check_function)
@@ -163,12 +165,6 @@ G4double GateGlobalActor::deg(const G4double& angle_radians) const
 G4double GateGlobalActor::keV(const G4double& energy_MeV) const
 {
 	return energy_MeV * 1000.0; //Because Geant4 (and that's why Gate too) work with MeV
-}
-
-void GateGlobalActor::ConvertToChar(const G4String& value, char* char_table, const int& char_table_size)
-{
-	strncpy(char_table, value.c_str(), char_table_size);
-	char_table[char_table_size - 1] = 0;
 }
 
 /******************************************************************Add below you functions and methods**********************************************************************************************/
@@ -236,15 +232,15 @@ G4bool GateGlobalActor::CheckEmissionPoint(const G4Step& step) const
 
 void GateGlobalActor::SetEnableVolumeName()
 {
-	TryAddBranch("VolumeName", &mVolumeName, "VolumeName/C");
+	TryAddBranch("VolumeName", mVolumeName);
 }
 
 void GateGlobalActor::SetEnableScintilatorPosition()
 {
 	TryAddUpdateMethod("UpdateScintilatorPosition", &GateGlobalActor::UpdateScintilatorPosition);
-	TryAddBranch("ScintilatorPositionAxisX", &mScintilatorPositionAxisX, "ScintilatorPositionAxisX/D");
-	TryAddBranch("ScintilatorPositionAxisY", &mScintilatorPositionAxisY, "ScintilatorPositionAxisY/D");
-	TryAddBranch("ScintilatorPositionAxisZ", &mScintilatorPositionAxisZ, "ScintilatorPositionAxisZ/D");
+	TryAddBranch("ScintilatorPositionAxisX", mScintilatorPositionAxisX);
+	TryAddBranch("ScintilatorPositionAxisY", mScintilatorPositionAxisY);
+	TryAddBranch("ScintilatorPositionAxisZ", mScintilatorPositionAxisZ);
 }
 
 void GateGlobalActor::UpdateScintilatorPosition(const G4Step& step)
@@ -258,7 +254,7 @@ void GateGlobalActor::UpdateScintilatorPosition(const G4Step& step)
 void GateGlobalActor::SetEnableEventID()
 {
 	TryAddUpdateMethod("UpdateEventID", &GateGlobalActor::UpdateEventID);
-	TryAddBranch("EventID", &mEventID, "EventID/I");
+	TryAddBranch("EventID", mEventID);
 }
 
 void GateGlobalActor::UpdateEventID(const G4Step&)
@@ -269,7 +265,7 @@ void GateGlobalActor::UpdateEventID(const G4Step&)
 void GateGlobalActor::SetEnableTrackID()
 {
 	TryAddUpdateMethod("UpdateTrackID", &GateGlobalActor::UpdateTrackID);
-	TryAddBranch("TrackID", &mTrackID, "TrackID/I");
+	TryAddBranch("TrackID", mTrackID);
 }
 
 void GateGlobalActor::UpdateTrackID(const G4Step& step)
@@ -280,7 +276,7 @@ void GateGlobalActor::UpdateTrackID(const G4Step& step)
 void GateGlobalActor::SetEnableEnergyBeforeProcess()
 {
 	TryAddUpdateMethod("UpdateEnergyBeforeProcess", &GateGlobalActor::UpdateEnergyBeforeProcess);
-	TryAddBranch("EnergyBeforeProcess", &mEnergyBeforeProcess, "EnergyBeforeProcess/D");
+	TryAddBranch("EnergyBeforeProcess", mEnergyBeforeProcess);
 }
 
 void GateGlobalActor::UpdateEnergyBeforeProcess(const G4Step& step)
@@ -291,7 +287,7 @@ void GateGlobalActor::UpdateEnergyBeforeProcess(const G4Step& step)
 void GateGlobalActor::SetEnableEnergyAfterProcess()
 {
 	TryAddUpdateMethod("UpdateEnergyAfterProcess", &GateGlobalActor::UpdateEnergyAfterProcess);
-	TryAddBranch("EnergyAfterProcess", &mEnergyAfterProcess, "EnergyAfterProcess/D");
+	TryAddBranch("EnergyAfterProcess", mEnergyAfterProcess);
 }
 
 void GateGlobalActor::UpdateEnergyAfterProcess(const G4Step& step)
@@ -302,7 +298,7 @@ void GateGlobalActor::UpdateEnergyAfterProcess(const G4Step& step)
 void GateGlobalActor::SetEnableEnergyLossDuringProcess()
 {
 	TryAddUpdateMethod("UpdateEnergyLossDuringProcess", &GateGlobalActor::UpdateEnergyLossDuringProcess);
-	TryAddBranch("EnergyLossDuringProcess", &mEnergyLossDuringProcess, "EnergyLossDuringProcess/D");
+	TryAddBranch("EnergyLossDuringProcess", mEnergyLossDuringProcess);
 }
 
 void GateGlobalActor::UpdateEnergyLossDuringProcess(const G4Step& step)
@@ -313,9 +309,9 @@ void GateGlobalActor::UpdateEnergyLossDuringProcess(const G4Step& step)
 void GateGlobalActor::SetEnableMomentumDirectionBeforeProcess()
 {
 	TryAddUpdateMethod("UpdateMomentumDirectionBeforeProcess", &GateGlobalActor::UpdateMomentumDirectionBeforeProcess);
-	TryAddBranch("MomentumDirectionBeforeProcessAxisX", &mMomentumDirectionBeforeProcessAxisX, "MomentumDirectionBeforeProcessAxisX/D");
-	TryAddBranch("MomentumDirectionBeforeProcessAxisY", &mMomentumDirectionBeforeProcessAxisY, "MomentumDirectionBeforeProcessAxisY/D");
-	TryAddBranch("MomentumDirectionBeforeProcessAxisZ", &mMomentumDirectionBeforeProcessAxisZ, "MomentumDirectionBeforeProcessAxisZ/D");
+	TryAddBranch("MomentumDirectionBeforeProcessAxisX", mMomentumDirectionBeforeProcessAxisX);
+	TryAddBranch("MomentumDirectionBeforeProcessAxisY", mMomentumDirectionBeforeProcessAxisY);
+	TryAddBranch("MomentumDirectionBeforeProcessAxisZ", mMomentumDirectionBeforeProcessAxisZ);
 }
 
 void GateGlobalActor::UpdateMomentumDirectionBeforeProcess(const G4Step& step)
@@ -329,9 +325,9 @@ void GateGlobalActor::UpdateMomentumDirectionBeforeProcess(const G4Step& step)
 void GateGlobalActor::SetEnableMomentumDirectionAfterProcess()
 {
 	TryAddUpdateMethod("UpdateMomentumDirectionAfterProcess", &GateGlobalActor::UpdateMomentumDirectionAfterProcess);
-	TryAddBranch("MomentumDirectionAfterProcessAxisX", &mMomentumDirectionAfterProcessAxisX, "MomentumDirectionAfterProcessAxisX/D");
-	TryAddBranch("MomentumDirectionAfterProcessAxisY", &mMomentumDirectionAfterProcessAxisY, "MomentumDirectionAfterProcessAxisY/D");
-	TryAddBranch("MomentumDirectionAfterProcessAxisZ", &mMomentumDirectionAfterProcessAxisZ, "MomentumDirectionAfterProcessAxisZ/D");
+	TryAddBranch("MomentumDirectionAfterProcessAxisX", mMomentumDirectionAfterProcessAxisX);
+	TryAddBranch("MomentumDirectionAfterProcessAxisY", mMomentumDirectionAfterProcessAxisY);
+	TryAddBranch("MomentumDirectionAfterProcessAxisZ", mMomentumDirectionAfterProcessAxisZ);
 }
 
 void GateGlobalActor::UpdateMomentumDirectionAfterProcess(const G4Step& step)
@@ -345,9 +341,9 @@ void GateGlobalActor::UpdateMomentumDirectionAfterProcess(const G4Step& step)
 void GateGlobalActor::SetEnableProcessPosition()
 {
 	TryAddUpdateMethod("UpdateProcessPosition", &GateGlobalActor::UpdateProcessPosition);
-	TryAddBranch("ProcessPositionAxisX", &mProcessPositionAxisX, "ProcessPositionAxisX/D");
-	TryAddBranch("ProcessPositionAxisY", &mProcessPositionAxisY, "ProcessPositionAxisY/D");
-	TryAddBranch("ProcessPositionAxisZ", &mProcessPositionAxisZ, "ProcessPositionAxisZ/D");
+	TryAddBranch("ProcessPositionAxisX", mProcessPositionAxisX);
+	TryAddBranch("ProcessPositionAxisY", mProcessPositionAxisY);
+	TryAddBranch("ProcessPositionAxisZ", mProcessPositionAxisZ);
 }
 
 void GateGlobalActor::UpdateProcessPosition(const G4Step& step)
@@ -360,9 +356,9 @@ void GateGlobalActor::UpdateProcessPosition(const G4Step& step)
 void GateGlobalActor::SetEnableEmissionPointFromSource()
 {
 	TryAddUpdateMethod("UpdateEmissionPointFromSource", &GateGlobalActor::UpdateEmissionPointFromSource);
-	TryAddBranch("EmissionPointFromSourceAxisX", &mEmissionPointFromSourceAxisX, "EmissionPointFromSourceAxisX/D");
-	TryAddBranch("EmissionPointFromSourceAxisY", &mEmissionPointFromSourceAxisY, "EmissionPointFromSourceAxisY/D");
-	TryAddBranch("EmissionPointFromSourceAxisZ", &mEmissionPointFromSourceAxisZ, "EmissionPointFromSourceAxisZ/D");
+	TryAddBranch("EmissionPointFromSourceAxisX", mEmissionPointFromSourceAxisX);
+	TryAddBranch("EmissionPointFromSourceAxisY", mEmissionPointFromSourceAxisY);
+	TryAddBranch("EmissionPointFromSourceAxisZ", mEmissionPointFromSourceAxisZ);
 }
 
 void GateGlobalActor::UpdateEmissionPointFromSource(const G4Step& step)
@@ -375,9 +371,9 @@ void GateGlobalActor::UpdateEmissionPointFromSource(const G4Step& step)
 void GateGlobalActor::SetEnableEmissionMomentumDirectionFromSource()
 {
 	TryAddUpdateMethod("UpdateEmissionMomentumDirectionFromSource", &GateGlobalActor::UpdateEmissionMomentumDirectionFromSource);
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisX", &mEmissionMomentumDirectionFromSourceAxisX, "EmissionMomentumDirectionFromSourceAxisX/D");
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisY", &mEmissionMomentumDirectionFromSourceAxisY, "EmissionMomentumDirectionFromSourceAxisY/D");
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisZ", &mEmissionMomentumDirectionFromSourceAxisZ, "EmissionMomentumDirectionFromSourceAxisZ/D");
+	TryAddBranch("EmissionMomentumDirectionFromSourceAxisX", mEmissionMomentumDirectionFromSourceAxisX);
+	TryAddBranch("EmissionMomentumDirectionFromSourceAxisY", mEmissionMomentumDirectionFromSourceAxisY);
+	TryAddBranch("EmissionMomentumDirectionFromSourceAxisZ", mEmissionMomentumDirectionFromSourceAxisZ);
 }
 
 void GateGlobalActor::UpdateEmissionMomentumDirectionFromSource(const G4Step& step)
@@ -391,7 +387,7 @@ void GateGlobalActor::UpdateEmissionMomentumDirectionFromSource(const G4Step& st
 void GateGlobalActor::SetEnableEmissionEnergyFromSource()
 {
 	TryAddUpdateMethod("UpdateEmissionEnergyFromSource", &GateGlobalActor::UpdateEmissionEnergyFromSource);
-	TryAddBranch("EmissionEnergyFromSource", &mEmissionEnergyFromSource, "EmissionEnergyFromSource/D");
+	TryAddBranch("EmissionEnergyFromSource", mEmissionEnergyFromSource);
 }
 
 void GateGlobalActor::UpdateEmissionEnergyFromSource(const G4Step& step)
@@ -402,18 +398,18 @@ void GateGlobalActor::UpdateEmissionEnergyFromSource(const G4Step& step)
 void GateGlobalActor::SetEnableParticleName()
 {
 	TryAddUpdateMethod("UpdateParticleName", &GateGlobalActor::UpdateParticleName);
-	TryAddBranch("ParticleName", &mParticleName, "ParticleName/C");
+	TryAddBranch("ParticleName", mParticleName);
 }
 
 void GateGlobalActor::UpdateParticleName(const G4Step& step)
 {
-	ConvertToChar(step.GetTrack()->GetDefinition()->GetParticleName(), mParticleName, sizeof(mParticleName));
+	mParticleName = step.GetTrack()->GetDefinition()->GetParticleName();
 }
 
 void GateGlobalActor::SetEnableParticlePGDCoding()
 {
 	TryAddUpdateMethod("UpdateParticlePGDCoding", &GateGlobalActor::UpdateParticlePGDCoding);
-	TryAddBranch("ParticlePGDCoding", &mParticlePGDCoding, "ParticlePGDCoding/I");
+	TryAddBranch("ParticlePGDCoding", mParticlePGDCoding);
 }
 
 void GateGlobalActor::UpdateParticlePGDCoding(const G4Step& step)
@@ -424,7 +420,7 @@ void GateGlobalActor::UpdateParticlePGDCoding(const G4Step& step)
 void GateGlobalActor::SetEnableProcessAngle()
 {
 	TryAddUpdateMethod("UpdateProcessAngle", &GateGlobalActor::UpdateProcessAngle);
-	TryAddBranch("ProcessAngle", &mProcessAngle, "ProcessAngle/D");
+	TryAddBranch("ProcessAngle", mProcessAngle);
 }
 
 void GateGlobalActor::UpdateProcessAngle(const G4Step& step)
@@ -437,9 +433,9 @@ void GateGlobalActor::UpdateProcessAngle(const G4Step& step)
 void GateGlobalActor::SetEnablePolarizationBeforeProcess()
 {
 	TryAddUpdateMethod("UpdatePolarizationBeforeProcess", &GateGlobalActor::UpdatePolarizationBeforeProcess);
-	TryAddBranch("PolarizationBeforeProcessAxisX", &mPolarizationBeforeProcessAxisX, "PolarizationBeforeProcessAxisX/D");
-	TryAddBranch("PolarizationBeforeProcessAxisY", &mPolarizationBeforeProcessAxisY, "PolarizationBeforeProcessAxisY/D");
-	TryAddBranch("PolarizationBeforeProcessAxisZ", &mPolarizationBeforeProcessAxisZ, "PolarizationBeforeProcessAxisZ/D");
+	TryAddBranch("PolarizationBeforeProcessAxisX", mPolarizationBeforeProcessAxisX);
+	TryAddBranch("PolarizationBeforeProcessAxisY", mPolarizationBeforeProcessAxisY);
+	TryAddBranch("PolarizationBeforeProcessAxisZ", mPolarizationBeforeProcessAxisZ);
 }
 
 void GateGlobalActor::UpdatePolarizationBeforeProcess(const G4Step& step)
@@ -453,9 +449,9 @@ void GateGlobalActor::UpdatePolarizationBeforeProcess(const G4Step& step)
 void GateGlobalActor::SetEnablePolarizationAfterProcess()
 {
 	TryAddUpdateMethod("UpdatePolarizationAfterProcess", &GateGlobalActor::UpdatePolarizationAfterProcess);
-	TryAddBranch("PolarizationAfterProcessAxisX", &mPolarizationAfterProcessAxisX, "PolarizationAfterProcessAxisX/D");
-	TryAddBranch("PolarizationAfterProcessAxisY", &mPolarizationAfterProcessAxisY, "PolarizationAfterProcessAxisY/D");
-	TryAddBranch("PolarizationAfterProcessAxisZ", &mPolarizationAfterProcessAxisZ, "PolarizationAfterProcessAxisZ/D");
+	TryAddBranch("PolarizationAfterProcessAxisX", mPolarizationAfterProcessAxisX);
+	TryAddBranch("PolarizationAfterProcessAxisY", mPolarizationAfterProcessAxisY);
+	TryAddBranch("PolarizationAfterProcessAxisZ", mPolarizationAfterProcessAxisZ);
 }
 
 void GateGlobalActor::UpdatePolarizationAfterProcess(const G4Step& step)
@@ -469,10 +465,10 @@ void GateGlobalActor::UpdatePolarizationAfterProcess(const G4Step& step)
 void GateGlobalActor::SetEnableProcessName()
 {
 	TryAddUpdateMethod("UpdateProcessName", &GateGlobalActor::UpdateProcessName);
-	TryAddBranch("ProcessName", &mProcessName, "ProcessName/C");
+	TryAddBranch("ProcessName", mProcessName);
 }
 
 void GateGlobalActor::UpdateProcessName(const G4Step& step)
 {
-	ConvertToChar(step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName(), mProcessName, sizeof(mProcessName));
+	mProcessName = step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 }

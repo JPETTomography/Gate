@@ -118,10 +118,10 @@ private:
 
 	/** Use this function to add new branch to tree.
 	 * @param: branch_name - your branch name (please add branch understandable name)
-	 * @param: variable_adress - just add &YourVariable
-	 * @param: leaflist - add something like "Name/Type" e.g. "Energy/D" - more about type: https://root.cern.ch/doc/master/classTTree.html and read Case A
+	 * @param: variable - just add put here your variable
 	 * */
-	void TryAddBranch(const G4String& branch_name, void* variable_adress, const G4String& leaflist);
+	template <class T>
+	void TryAddBranch(const G4String& branch_name, T& variable);
 
 	/** Use this to add new checking function to list.
 	 * @param: check_function_name - your cheching function name
@@ -147,12 +147,6 @@ private:
 	 * @return: energy in keV
 	 * */
 	G4double keV(const G4double& energy_MeV) const;
-
-	/** Convert G4String to char table. This function is importnat when you save data to branch with option "sth/C".
-	 * @param: value - string to convert
-	 * @param: char_table
-	 * */
-	void ConvertToChar(const G4String& value, char* char_table, const int& char_table_size);
 
 //@Section: Control of saving data
 public:
@@ -311,7 +305,7 @@ private:
 private:
 	//@SubSection: Variables connected with tree branches
 
-	char mVolumeName[50];
+	std::string mVolumeName;
 
 	G4double mScintilatorPositionAxisX;
 	G4double mScintilatorPositionAxisY;
@@ -349,7 +343,7 @@ private:
 
 	G4double mEmissionEnergyFromSource;
 
-	char mParticleName[50];
+	std::string mParticleName;
 
 	G4int mParticlePGDCoding;
 
@@ -363,9 +357,8 @@ private:
 	G4double mPolarizationAfterProcessAxisY;
 	G4double mPolarizationAfterProcessAxisZ;
 
-	char mProcessName[50];
+	std::string mProcessName;
 
-//@Section: Filtering data
 public:
 	//@SubSection: SetFilter
 
