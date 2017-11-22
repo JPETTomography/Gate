@@ -167,6 +167,11 @@ G4double GateGlobalActor::keV(const G4double& energy_MeV) const
 	return energy_MeV * 1000.0; //Because Geant4 (and that's why Gate too) work with MeV
 }
 
+void GateGlobalActor::ConvertToTVector3(const G4ThreeVector& from, TVector3& to)
+{
+	to = TVector3(from.x(), from.y(), from.z());
+}
+
 /******************************************************************Add below you functions and methods**********************************************************************************************/
 void GateGlobalActor::SetFilterProcessName(const G4String& process_name)
 {
@@ -238,17 +243,13 @@ void GateGlobalActor::SetEnableVolumeName()
 void GateGlobalActor::SetEnableScintilatorPosition()
 {
 	TryAddUpdateMethod("UpdateScintilatorPosition", &GateGlobalActor::UpdateScintilatorPosition);
-	TryAddBranch("ScintilatorPositionAxisX", mScintilatorPositionAxisX);
-	TryAddBranch("ScintilatorPositionAxisY", mScintilatorPositionAxisY);
-	TryAddBranch("ScintilatorPositionAxisZ", mScintilatorPositionAxisZ);
+	TryAddBranch("ScintilatorPosition", mScintilatorPosition);
 }
 
 void GateGlobalActor::UpdateScintilatorPosition(const G4Step& step)
 {
 	const G4TouchableHistory* touchable = dynamic_cast<const G4TouchableHistory*>(step.GetPostStepPoint()->GetTouchable());
-	mScintilatorPositionAxisX = touchable->GetTranslation().x();
-	mScintilatorPositionAxisY = touchable->GetTranslation().y();
-	mScintilatorPositionAxisZ = touchable->GetTranslation().z();
+	ConvertToTVector3(touchable->GetTranslation(), mScintilatorPosition);
 }
 
 void GateGlobalActor::SetEnableEventID()
@@ -309,79 +310,56 @@ void GateGlobalActor::UpdateEnergyLossDuringProcess(const G4Step& step)
 void GateGlobalActor::SetEnableMomentumDirectionBeforeProcess()
 {
 	TryAddUpdateMethod("UpdateMomentumDirectionBeforeProcess", &GateGlobalActor::UpdateMomentumDirectionBeforeProcess);
-	TryAddBranch("MomentumDirectionBeforeProcessAxisX", mMomentumDirectionBeforeProcessAxisX);
-	TryAddBranch("MomentumDirectionBeforeProcessAxisY", mMomentumDirectionBeforeProcessAxisY);
-	TryAddBranch("MomentumDirectionBeforeProcessAxisZ", mMomentumDirectionBeforeProcessAxisZ);
+	TryAddBranch("MomentumDirectionBeforeProcess", mMomentumDirectionBeforeProcess);
 }
 
 void GateGlobalActor::UpdateMomentumDirectionBeforeProcess(const G4Step& step)
 {
-	G4ThreeVector mom_dir= step.GetPreStepPoint()->GetMomentumDirection().unit();
-	mMomentumDirectionBeforeProcessAxisX = mom_dir.x();
-	mMomentumDirectionBeforeProcessAxisY = mom_dir.y();
-	mMomentumDirectionBeforeProcessAxisZ = mom_dir.z();
+	ConvertToTVector3(step.GetPreStepPoint()->GetMomentumDirection().unit(), mMomentumDirectionBeforeProcess);
 }
 
 void GateGlobalActor::SetEnableMomentumDirectionAfterProcess()
 {
 	TryAddUpdateMethod("UpdateMomentumDirectionAfterProcess", &GateGlobalActor::UpdateMomentumDirectionAfterProcess);
-	TryAddBranch("MomentumDirectionAfterProcessAxisX", mMomentumDirectionAfterProcessAxisX);
-	TryAddBranch("MomentumDirectionAfterProcessAxisY", mMomentumDirectionAfterProcessAxisY);
-	TryAddBranch("MomentumDirectionAfterProcessAxisZ", mMomentumDirectionAfterProcessAxisZ);
+	TryAddBranch("MomentumDirectionAfterProcess", mMomentumDirectionAfterProcess);
 }
 
 void GateGlobalActor::UpdateMomentumDirectionAfterProcess(const G4Step& step)
 {
-	G4ThreeVector mom_dir = step.GetPostStepPoint()->GetMomentumDirection().unit();
-	mMomentumDirectionAfterProcessAxisX = mom_dir.x();
-	mMomentumDirectionAfterProcessAxisY = mom_dir.y();
-	mMomentumDirectionAfterProcessAxisZ = mom_dir.z();
+	ConvertToTVector3(step.GetPostStepPoint()->GetMomentumDirection().unit(), mMomentumDirectionAfterProcess);
 }
 
 void GateGlobalActor::SetEnableProcessPosition()
 {
 	TryAddUpdateMethod("UpdateProcessPosition", &GateGlobalActor::UpdateProcessPosition);
-	TryAddBranch("ProcessPositionAxisX", mProcessPositionAxisX);
-	TryAddBranch("ProcessPositionAxisY", mProcessPositionAxisY);
-	TryAddBranch("ProcessPositionAxisZ", mProcessPositionAxisZ);
+	TryAddBranch("ProcessPosition", mProcessPosition);
 }
 
 void GateGlobalActor::UpdateProcessPosition(const G4Step& step)
 {
-	mProcessPositionAxisX = step.GetTrack()->GetPosition().x();
-	mProcessPositionAxisY = step.GetTrack()->GetPosition().y();
-	mProcessPositionAxisZ = step.GetTrack()->GetPosition().z();
+	ConvertToTVector3(step.GetTrack()->GetPosition(), mProcessPosition);
 }
 
 void GateGlobalActor::SetEnableEmissionPointFromSource()
 {
 	TryAddUpdateMethod("UpdateEmissionPointFromSource", &GateGlobalActor::UpdateEmissionPointFromSource);
-	TryAddBranch("EmissionPointFromSourceAxisX", mEmissionPointFromSourceAxisX);
-	TryAddBranch("EmissionPointFromSourceAxisY", mEmissionPointFromSourceAxisY);
-	TryAddBranch("EmissionPointFromSourceAxisZ", mEmissionPointFromSourceAxisZ);
+	TryAddBranch("EmissionPointFromSource", mEmissionPointFromSource);
 }
 
 void GateGlobalActor::UpdateEmissionPointFromSource(const G4Step& step)
 {
-	mEmissionPointFromSourceAxisX = step.GetTrack()->GetVertexPosition().x();
-	mEmissionPointFromSourceAxisY = step.GetTrack()->GetVertexPosition().y();
-	mEmissionPointFromSourceAxisZ = step.GetTrack()->GetVertexPosition().z();
+	ConvertToTVector3(step.GetTrack()->GetVertexPosition(), mEmissionPointFromSource);
 }
 
 void GateGlobalActor::SetEnableEmissionMomentumDirectionFromSource()
 {
 	TryAddUpdateMethod("UpdateEmissionMomentumDirectionFromSource", &GateGlobalActor::UpdateEmissionMomentumDirectionFromSource);
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisX", mEmissionMomentumDirectionFromSourceAxisX);
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisY", mEmissionMomentumDirectionFromSourceAxisY);
-	TryAddBranch("EmissionMomentumDirectionFromSourceAxisZ", mEmissionMomentumDirectionFromSourceAxisZ);
+	TryAddBranch("EmissionMomentumDirectionFromSource", mEmissionMomentumDirectionFromSource);
 }
 
 void GateGlobalActor::UpdateEmissionMomentumDirectionFromSource(const G4Step& step)
 {
-	G4ThreeVector mom_dir = step.GetTrack()->GetVertexMomentumDirection();
-	mEmissionMomentumDirectionFromSourceAxisX = mom_dir.x();
-	mEmissionMomentumDirectionFromSourceAxisY = mom_dir.y();
-	mEmissionMomentumDirectionFromSourceAxisZ = mom_dir.z();
+	ConvertToTVector3(step.GetTrack()->GetVertexMomentumDirection(), mEmissionMomentumDirectionFromSource);
 }
 
 void GateGlobalActor::SetEnableEmissionEnergyFromSource()
@@ -433,33 +411,23 @@ void GateGlobalActor::UpdateProcessAngle(const G4Step& step)
 void GateGlobalActor::SetEnablePolarizationBeforeProcess()
 {
 	TryAddUpdateMethod("UpdatePolarizationBeforeProcess", &GateGlobalActor::UpdatePolarizationBeforeProcess);
-	TryAddBranch("PolarizationBeforeProcessAxisX", mPolarizationBeforeProcessAxisX);
-	TryAddBranch("PolarizationBeforeProcessAxisY", mPolarizationBeforeProcessAxisY);
-	TryAddBranch("PolarizationBeforeProcessAxisZ", mPolarizationBeforeProcessAxisZ);
+	TryAddBranch("PolarizationBeforeProcess", mPolarizationBeforeProcess);
 }
 
 void GateGlobalActor::UpdatePolarizationBeforeProcess(const G4Step& step)
 {
-	G4ThreeVector polarization = step.GetPreStepPoint()->GetPolarization().unit();
-	mPolarizationBeforeProcessAxisX = polarization.x();
-	mPolarizationBeforeProcessAxisY = polarization.y();
-	mPolarizationBeforeProcessAxisZ = polarization.z();
+	ConvertToTVector3(step.GetPreStepPoint()->GetPolarization().unit(), mPolarizationBeforeProcess);
 }
 
 void GateGlobalActor::SetEnablePolarizationAfterProcess()
 {
 	TryAddUpdateMethod("UpdatePolarizationAfterProcess", &GateGlobalActor::UpdatePolarizationAfterProcess);
-	TryAddBranch("PolarizationAfterProcessAxisX", mPolarizationAfterProcessAxisX);
-	TryAddBranch("PolarizationAfterProcessAxisY", mPolarizationAfterProcessAxisY);
-	TryAddBranch("PolarizationAfterProcessAxisZ", mPolarizationAfterProcessAxisZ);
+	TryAddBranch("PolarizationAfterProcess", mPolarizationAfterProcess);
 }
 
 void GateGlobalActor::UpdatePolarizationAfterProcess(const G4Step& step)
 {
-	G4ThreeVector polarization = step.GetPostStepPoint()->GetPolarization().unit();
-	mPolarizationAfterProcessAxisX = polarization.x();
-	mPolarizationAfterProcessAxisY = polarization.y();
-	mPolarizationAfterProcessAxisZ = polarization.z();
+	ConvertToTVector3(step.GetPostStepPoint()->GetPolarization().unit(), mPolarizationAfterProcess);
 }
 
 void GateGlobalActor::SetEnableProcessName()

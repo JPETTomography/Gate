@@ -23,6 +23,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include "TVector3.h"
 
 /**
  * @About class: This class represent global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
@@ -147,6 +148,12 @@ private:
 	 * @return: energy in keV
 	 * */
 	G4double keV(const G4double& energy_MeV) const;
+
+	/** Convert G4ThreeVector to TVector3 - use this function when is need to save data as TVector3
+	 * @param: from - input G4ThreeVector
+	 * @param: to - output TVector3
+	 * */
+	void ConvertToTVector3(const G4ThreeVector& from, TVector3& to);
 
 //@Section: Control of saving data
 public:
@@ -307,9 +314,7 @@ private:
 
 	std::string mVolumeName;
 
-	G4double mScintilatorPositionAxisX;
-	G4double mScintilatorPositionAxisY;
-	G4double mScintilatorPositionAxisZ;
+	TVector3 mScintilatorPosition;
 
 	G4int mEventID;
 
@@ -321,25 +326,15 @@ private:
 
 	G4double mEnergyLossDuringProcess;
 
-	G4double mMomentumDirectionBeforeProcessAxisX;
-	G4double mMomentumDirectionBeforeProcessAxisY;
-	G4double mMomentumDirectionBeforeProcessAxisZ;
+	TVector3 mMomentumDirectionBeforeProcess;
 
-	G4double mMomentumDirectionAfterProcessAxisX;
-	G4double mMomentumDirectionAfterProcessAxisY;
-	G4double mMomentumDirectionAfterProcessAxisZ;
+	TVector3 mMomentumDirectionAfterProcess;
 
-	G4double mProcessPositionAxisX;
-	G4double mProcessPositionAxisY;
-	G4double mProcessPositionAxisZ;
+	TVector3 mProcessPosition;
 
-	G4double mEmissionPointFromSourceAxisX;
-	G4double mEmissionPointFromSourceAxisY;
-	G4double mEmissionPointFromSourceAxisZ;
+	TVector3 mEmissionPointFromSource;
 
-	G4double mEmissionMomentumDirectionFromSourceAxisX;
-	G4double mEmissionMomentumDirectionFromSourceAxisY;
-	G4double mEmissionMomentumDirectionFromSourceAxisZ;
+	TVector3 mEmissionMomentumDirectionFromSource;
 
 	G4double mEmissionEnergyFromSource;
 
@@ -349,13 +344,9 @@ private:
 
 	G4double mProcessAngle;
 
-	G4double mPolarizationBeforeProcessAxisX;
-	G4double mPolarizationBeforeProcessAxisY;
-	G4double mPolarizationBeforeProcessAxisZ;
+	TVector3 mPolarizationBeforeProcess;
 
-	G4double mPolarizationAfterProcessAxisX;
-	G4double mPolarizationAfterProcessAxisY;
-	G4double mPolarizationAfterProcessAxisZ;
+	TVector3 mPolarizationAfterProcess;
 
 	std::string mProcessName;
 
