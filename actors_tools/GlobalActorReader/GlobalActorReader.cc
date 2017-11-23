@@ -130,19 +130,23 @@ double GlobalActorReader::GetComptonPhiValue()
     std::uniform_real_distribution<double> distribution(0.0,1.0);
 
     //This is based on article "New Monte Carlo method for Compton and Rayleigh scattering by polarized gamma rays ,G.O. Depaola"
-
+		double phi = 0;
     TVector3 e0 = PolarizationBeforeProcess.GetValue();
     if(e0.Mag() == 0)
-        return M_PI*(2.0*distribution(generator)-1.0);
+		{
+        phi = M_PI*(2.0*distribution(generator)-1.0);
+		}
+		else
+		{
+    	TVector3 k0 = MomentumDirectionBeforeProcess.GetValue();
+    	TVector3 k = MomentumDirectionAfterProcess.GetValue();
 
-    TVector3 k0 = MomentumDirectionBeforeProcess.GetValue();
-    TVector3 k = MomentumDirectionAfterProcess.GetValue();
+    	double sinTheta = sin(k0.Angle(k));
+    	phi = sinTheta == 0 ? M_PI*(2.0*distribution(generator)-1.0) : std::acos(k.Dot(e0)/sinTheta);
 
-    double sinTheta = sin(k0.Angle(k));
-    double phi = sinTheta == 0 ? M_PI*(2.0*distribution(generator)-1.0) : std::acos(k.Dot(e0)/sinTheta);
+    	if(k.Dot(k0.Cross(e0).Unit()) < 0)
+        	phi *= -1.0;
+		}
 
-    if(k.Dot(k0.Cross(e0).Unit()) < 0)
-        phi *= -1.0;
-
-    return phi;
+    return deg(phi);
 }
