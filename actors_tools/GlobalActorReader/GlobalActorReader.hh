@@ -78,7 +78,51 @@ private:
     int mEntriesNumber;
     //Current index of entry
     int mCurrentEntryIndex;
+
 public:
+/**GET-functions.
+	This is only way how you return values;
+*/
+	/**Return volume (layer) name*/
+	std::string GetVolumeName() const;
+	/**Return scintilator translation vector*/
+	TVector3 GetScintilatorPosition() const;
+	/**Return event ID*/
+	int GetEventID() const;
+	/**Return trac ID*/
+	int GetTrackID() const;
+	/**Return particle energy before process (e.g. before scattering)*/
+	double GetEnergyBeforeProcess() const;
+	/**Return particle energy after process (e.g. after scattering)*/
+	double GetEnergyAfterProcess() const;
+	/**Return particle energy loss during process (e.g. during scattering)*/
+	double GetEnergyLossDuringProcess() const;
+	/**Return particle momemntum direction before process (e.g. before scattering)*/
+	TVector3 GetMomentumDirectionBeforeProcess() const;
+	/**Return particle momemntum direction after process (e.g. after scattering)*/
+	TVector3 GetMomentumDirectionAfterProcess() const;
+	/**Return proces position in lab coordinate system*/
+	TVector3 GetProcessPosition() const;
+	/**Return emission point from source*/
+	TVector3 GetEmissionPointFromSource() const;
+	/**Return particle momentum direction just after emission from source*/
+	TVector3 GetEmissionMomentumDirectionFromSource() const;
+	/**Return particle energy just after emission from source*/
+	double GetEmissionEnergyFromSource() const;
+	/**Return particle name*/
+	std::string GetParticleName() const;
+	/**Return particle PDG code*/
+	int GetParticlePGDCoding() const;
+	/**Return angle betwean particle momentum before and after process*/
+	double GetProcessAngle() const;
+	/**Return particle polarization before process*/
+	TVector3 GetPolarizationBeforeProcess() const;
+	/**Return particle polarization after process*/
+	TVector3 GetPolarizationAfterProcess() const;
+	/**Return process name*/
+	std::string GetProcessName() const;
+
+private:
 /** VARIABLES
  * Declar here your variable by using template class Variable<yourType>
  * Please add description of your variable here
@@ -101,13 +145,13 @@ public:
     Variable<TVector3> MomentumDirectionBeforeProcess;
     //Particle momemntum direction after process (e.g. after scattering)
     Variable<TVector3> MomentumDirectionAfterProcess;
-    //Proces position in lab coordinate system
+    //Process position in lab coordinate system
     Variable<TVector3> ProcessPosition;
     //Emission point from source
     Variable<TVector3> EmissionPointFromSource;
     //Particle momentum direction just after emission from source
     Variable<TVector3> EmissionMomentumDirectionFromSource;
-    //Particle energyjust after emission from source
+    //Particle energy just after emission from source
     Variable<double> EmissionEnergyFromSource;
     //Particle name
     Variable<std::string> ParticleName;

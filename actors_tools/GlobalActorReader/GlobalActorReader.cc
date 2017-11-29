@@ -117,6 +117,44 @@ void GlobalActorReader::Notice(const bool& value)
         ++mInitializedVariablesNumber;
 }
 
+std::string GlobalActorReader::GetVolumeName() const {return VolumeName.GetValue();}
+
+TVector3 GlobalActorReader::GetScintilatorPosition() const {return ScintilatorPosition.GetValue();}
+
+int GlobalActorReader::GetEventID() const {return EventID.GetValue();}
+
+int GlobalActorReader::GetTrackID() const {return TrackID.GetValue();}
+
+double GlobalActorReader::GetEnergyBeforeProcess() const {return EnergyBeforeProcess.GetValue();}
+
+double GlobalActorReader::GetEnergyAfterProcess() const {return EnergyAfterProcess.GetValue();}
+
+double GlobalActorReader::GetEnergyLossDuringProcess() const {return EnergyLossDuringProcess.GetValue();}
+
+TVector3 GlobalActorReader::GetMomentumDirectionBeforeProcess() const {return MomentumDirectionBeforeProcess.GetValue();}
+
+TVector3 GlobalActorReader::GetMomentumDirectionAfterProcess() const {return MomentumDirectionAfterProcess.GetValue();}
+
+TVector3 GlobalActorReader::GetProcessPosition() const {return ProcessPosition.GetValue();}
+
+TVector3 GlobalActorReader::GetEmissionPointFromSource() const {return EmissionPointFromSource.GetValue();}
+
+TVector3 GlobalActorReader::GetEmissionMomentumDirectionFromSource() const {return EmissionMomentumDirectionFromSource.GetValue();}
+
+double GlobalActorReader::GetEmissionEnergyFromSource() const {return EmissionEnergyFromSource.GetValue();}
+
+std::string GlobalActorReader::GetParticleName() const {return ParticleName.GetValue();}
+
+int GlobalActorReader::GetParticlePGDCoding() const {return ParticlePGDCoding.GetValue();}
+
+double GlobalActorReader::GetProcessAngle() const {return ProcessAngle.GetValue();}
+
+TVector3 GlobalActorReader::GetPolarizationBeforeProcess() const {return PolarizationBeforeProcess.GetValue();}
+
+TVector3 GlobalActorReader::GetPolarizationAfterProcess() const {return PolarizationAfterProcess.GetValue();}
+
+std::string GlobalActorReader::GetProcessName() const {return ProcessName.GetValue();}
+
 double GlobalActorReader::GetComptonThetaValue()
 {
     TVector3 k0 = MomentumDirectionBeforeProcess.GetValue();
