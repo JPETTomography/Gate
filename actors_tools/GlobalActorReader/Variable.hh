@@ -24,21 +24,33 @@
  * Class take care of extracing data from branch and take care of extracting valid data.
  * @Author: Mateusz Bała
  * @Email: bala.mateusz@gmail.com
+ * Parameters:
+ * @param: T - destination type
+ * @param: use_pointer - if T represent number type (int, double, float, etc.) then set always FALSE, otherwise TRUE.
 */
-template <class T>
+template <class T, bool use_pointer>
 class Variable
 {
 public:
-    Variable() {upValue.reset();}
-    ~Variable() {}
+    Variable() 
+		{
+			pBranch = 0;
+			pValue = 0;
+		}
+
+    ~Variable()
+		{
+			if(use_pointer)
+				delete pValue;
+		}
 
     /** This function return value of variable, but if variable was not initialized (what mean variable does not exist) this function throw exception.
     */
     T GetValue()
     {
-        if(upValue.get() != nullptr)
-            return *upValue.get();
-        throw std::logic_error("Calling variable not initialized in tree.");
+				if(use_pointer)
+					return *pValue;
+				return Value;
     }
     /** Use this method to attach object of this class to branch.
      * This function try attach to branch - if this is imposble (what means that branch does not exist) this function return false.
@@ -48,18 +60,22 @@ public:
     */
     bool TryAttachToBranch(TTree** tree, std::string branch_name)
     {
+
         if((*tree)->FindBranch(branch_name.c_str()) == nullptr)
             return false;
 
-        upValue.reset(new T());
-        pValue = upValue.get();
-        (*tree)->SetBranchAddress(branch_name.c_str(), &pValue);
+				if(use_pointer)
+					(*tree)->SetBranchAddress(branch_name.c_str(), &pValue, &pBranch);
+				else
+        	(*tree)->SetBranchAddress(branch_name.c_str(), &Value, &pBranch);
+
         return true;
     }
 
 private:
-    std::unique_ptr<T> upValue;
-    T* pValue;
+    T Value;
+		T* pValue;
+		TBranch* pBranch;
 };
 
 #endif // VARIABLE_HH

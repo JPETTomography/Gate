@@ -56,6 +56,7 @@ bool GlobalActorReader::LoadFile(const std::string& file_name)
 
 bool GlobalActorReader::Read()
 {
+
     if(mCurrentEntryIndex < mEntriesNumber && pTree)
         pTree->GetEntry(mCurrentEntryIndex);
     else
@@ -117,43 +118,43 @@ void GlobalActorReader::Notice(const bool& value)
         ++mInitializedVariablesNumber;
 }
 
-std::string GlobalActorReader::GetVolumeName() const {return VolumeName.GetValue();}
+std::string GlobalActorReader::GetVolumeName() {return VolumeName.GetValue();}
 
-TVector3 GlobalActorReader::GetScintilatorPosition() const {return ScintilatorPosition.GetValue();}
+TVector3 GlobalActorReader::GetScintilatorPosition() {return ScintilatorPosition.GetValue();}
 
-int GlobalActorReader::GetEventID() const {return EventID.GetValue();}
+int GlobalActorReader::GetEventID() {return EventID.GetValue();}
 
-int GlobalActorReader::GetTrackID() const {return TrackID.GetValue();}
+int GlobalActorReader::GetTrackID() { return TrackID.GetValue();}
 
-double GlobalActorReader::GetEnergyBeforeProcess() const {return EnergyBeforeProcess.GetValue();}
+double GlobalActorReader::GetEnergyBeforeProcess() {return EnergyBeforeProcess.GetValue();}
 
-double GlobalActorReader::GetEnergyAfterProcess() const {return EnergyAfterProcess.GetValue();}
+double GlobalActorReader::GetEnergyAfterProcess() {return EnergyAfterProcess.GetValue();}
 
-double GlobalActorReader::GetEnergyLossDuringProcess() const {return EnergyLossDuringProcess.GetValue();}
+double GlobalActorReader::GetEnergyLossDuringProcess() {return EnergyLossDuringProcess.GetValue();}
 
-TVector3 GlobalActorReader::GetMomentumDirectionBeforeProcess() const {return MomentumDirectionBeforeProcess.GetValue();}
+TVector3 GlobalActorReader::GetMomentumDirectionBeforeProcess() {return MomentumDirectionBeforeProcess.GetValue();}
 
-TVector3 GlobalActorReader::GetMomentumDirectionAfterProcess() const {return MomentumDirectionAfterProcess.GetValue();}
+TVector3 GlobalActorReader::GetMomentumDirectionAfterProcess() {return MomentumDirectionAfterProcess.GetValue();}
 
-TVector3 GlobalActorReader::GetProcessPosition() const {return ProcessPosition.GetValue();}
+TVector3 GlobalActorReader::GetProcessPosition() {return ProcessPosition.GetValue();}
 
-TVector3 GlobalActorReader::GetEmissionPointFromSource() const {return EmissionPointFromSource.GetValue();}
+TVector3 GlobalActorReader::GetEmissionPointFromSource() {return EmissionPointFromSource.GetValue();}
 
-TVector3 GlobalActorReader::GetEmissionMomentumDirectionFromSource() const {return EmissionMomentumDirectionFromSource.GetValue();}
+TVector3 GlobalActorReader::GetEmissionMomentumDirectionFromSource() {return EmissionMomentumDirectionFromSource.GetValue();}
 
-double GlobalActorReader::GetEmissionEnergyFromSource() const {return EmissionEnergyFromSource.GetValue();}
+double GlobalActorReader::GetEmissionEnergyFromSource() {return EmissionEnergyFromSource.GetValue();}
 
-std::string GlobalActorReader::GetParticleName() const {return ParticleName.GetValue();}
+std::string GlobalActorReader::GetParticleName() {return ParticleName.GetValue();}
 
-int GlobalActorReader::GetParticlePGDCoding() const {return ParticlePGDCoding.GetValue();}
+int GlobalActorReader::GetParticlePGDCoding() {return ParticlePGDCoding.GetValue();}
 
-double GlobalActorReader::GetProcessAngle() const {return ProcessAngle.GetValue();}
+double GlobalActorReader::GetProcessAngle() {return ProcessAngle.GetValue();}
 
-TVector3 GlobalActorReader::GetPolarizationBeforeProcess() const {return PolarizationBeforeProcess.GetValue();}
+TVector3 GlobalActorReader::GetPolarizationBeforeProcess() {return PolarizationBeforeProcess.GetValue();}
 
-TVector3 GlobalActorReader::GetPolarizationAfterProcess() const {return PolarizationAfterProcess.GetValue();}
+TVector3 GlobalActorReader::GetPolarizationAfterProcess() {return PolarizationAfterProcess.GetValue();}
 
-std::string GlobalActorReader::GetProcessName() const {return ProcessName.GetValue();}
+std::string GlobalActorReader::GetProcessName() {return ProcessName.GetValue();}
 
 double GlobalActorReader::GetComptonThetaValue()
 {

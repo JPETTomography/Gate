@@ -84,43 +84,43 @@ public:
 	This is only way how you return values;
 */
 	/**Return volume (layer) name*/
-	std::string GetVolumeName() const;
+	std::string GetVolumeName();
 	/**Return scintilator translation vector*/
-	TVector3 GetScintilatorPosition() const;
+	TVector3 GetScintilatorPosition();
 	/**Return event ID*/
-	int GetEventID() const;
+	int GetEventID();
 	/**Return trac ID*/
-	int GetTrackID() const;
+	int GetTrackID();
 	/**Return particle energy before process (e.g. before scattering)*/
-	double GetEnergyBeforeProcess() const;
+	double GetEnergyBeforeProcess();
 	/**Return particle energy after process (e.g. after scattering)*/
-	double GetEnergyAfterProcess() const;
+	double GetEnergyAfterProcess();
 	/**Return particle energy loss during process (e.g. during scattering)*/
-	double GetEnergyLossDuringProcess() const;
+	double GetEnergyLossDuringProcess();
 	/**Return particle momemntum direction before process (e.g. before scattering)*/
-	TVector3 GetMomentumDirectionBeforeProcess() const;
+	TVector3 GetMomentumDirectionBeforeProcess();
 	/**Return particle momemntum direction after process (e.g. after scattering)*/
-	TVector3 GetMomentumDirectionAfterProcess() const;
+	TVector3 GetMomentumDirectionAfterProcess();
 	/**Return proces position in lab coordinate system*/
-	TVector3 GetProcessPosition() const;
+	TVector3 GetProcessPosition();
 	/**Return emission point from source*/
-	TVector3 GetEmissionPointFromSource() const;
+	TVector3 GetEmissionPointFromSource();
 	/**Return particle momentum direction just after emission from source*/
-	TVector3 GetEmissionMomentumDirectionFromSource() const;
+	TVector3 GetEmissionMomentumDirectionFromSource();
 	/**Return particle energy just after emission from source*/
-	double GetEmissionEnergyFromSource() const;
+	double GetEmissionEnergyFromSource();
 	/**Return particle name*/
-	std::string GetParticleName() const;
+	std::string GetParticleName();
 	/**Return particle PDG code*/
-	int GetParticlePGDCoding() const;
+	int GetParticlePGDCoding();
 	/**Return angle betwean particle momentum before and after process*/
-	double GetProcessAngle() const;
+	double GetProcessAngle();
 	/**Return particle polarization before process*/
-	TVector3 GetPolarizationBeforeProcess() const;
+	TVector3 GetPolarizationBeforeProcess();
 	/**Return particle polarization after process*/
-	TVector3 GetPolarizationAfterProcess() const;
+	TVector3 GetPolarizationAfterProcess();
 	/**Return process name*/
-	std::string GetProcessName() const;
+	std::string GetProcessName();
 
 private:
 /** VARIABLES
@@ -128,43 +128,43 @@ private:
  * Please add description of your variable here
 **/
     //Volume name (layer name)
-    Variable<std::string> VolumeName;
+    Variable<std::string, true> VolumeName;
     //Scintilator translation vector (if detector does not rotate it is equal scintilator centrum position
-    Variable<TVector3> ScintilatorPosition;
+    Variable<TVector3, true> ScintilatorPosition;
     //Event ID
-    Variable<int> EventID;
+    Variable<int, false> EventID;
     //Track ID - each EventID has one or more tracks
-    Variable<int> TrackID;
+    Variable<int, false> TrackID;
     //Particle energy before process (e.g. before scattering)
-    Variable<double> EnergyBeforeProcess;
+    Variable<double, false> EnergyBeforeProcess;
     //Particle energy after process (e.g. after scattering)
-    Variable<double> EnergyAfterProcess;
+    Variable<double, false> EnergyAfterProcess;
     //Particle energy loss during process (e.g. during scattering)
-    Variable<double> EnergyLossDuringProcess;
+    Variable<double, false> EnergyLossDuringProcess;
     //Particle momemntum direction before process (e.g. before scattering)
-    Variable<TVector3> MomentumDirectionBeforeProcess;
+    Variable<TVector3, true> MomentumDirectionBeforeProcess;
     //Particle momemntum direction after process (e.g. after scattering)
-    Variable<TVector3> MomentumDirectionAfterProcess;
+    Variable<TVector3, true> MomentumDirectionAfterProcess;
     //Process position in lab coordinate system
-    Variable<TVector3> ProcessPosition;
+    Variable<TVector3, true> ProcessPosition;
     //Emission point from source
-    Variable<TVector3> EmissionPointFromSource;
+    Variable<TVector3, true> EmissionPointFromSource;
     //Particle momentum direction just after emission from source
-    Variable<TVector3> EmissionMomentumDirectionFromSource;
+    Variable<TVector3, true> EmissionMomentumDirectionFromSource;
     //Particle energy just after emission from source
-    Variable<double> EmissionEnergyFromSource;
+    Variable<double, false> EmissionEnergyFromSource;
     //Particle name
-    Variable<std::string> ParticleName;
+    Variable<std::string, true> ParticleName;
     //Particle PDG code
-    Variable<int> ParticlePGDCoding;
+    Variable<int, false> ParticlePGDCoding;
     //Angle betwean particle momentum before and after process
-    Variable<double> ProcessAngle;
+    Variable<double, false> ProcessAngle;
     //Particle polarization before process
-    Variable<TVector3> PolarizationBeforeProcess;
+    Variable<TVector3, true> PolarizationBeforeProcess;
     //Particle polarization after process
-    Variable<TVector3> PolarizationAfterProcess;
+    Variable<TVector3, true> PolarizationAfterProcess;
     //Process name
-    Variable<std::string> ProcessName;
+    Variable<std::string, true> ProcessName;
 
 public:
 /** EXTRA FUNCTIONS
