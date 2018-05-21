@@ -57,6 +57,7 @@ protected:
 	G4UIcmdWithABool* pEnableEmissionPointCmd;
 	G4UIcmdWithABool* pEnablePrimaryEnergyCmd;
 	G4UIcmdWithAString* pEnableASCIFileNameCmd;
+	G4UIcmdWithAString* pEnableProcessCmd;
 };
 #endif //GATEJPETACTORMESSANGER_HH/
 #endif //G4ANALYSIS_USE_ROOT
