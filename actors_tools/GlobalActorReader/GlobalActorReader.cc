@@ -110,6 +110,11 @@ void GlobalActorReader::InitVariables()
     Notice(PolarizationBeforeProcess.TryAttachToBranch(&pTree, "PolarizationBeforeProcess"));
     Notice(PolarizationAfterProcess.TryAttachToBranch(&pTree, "PolarizationAfterProcess"));
     Notice(ProcessName.TryAttachToBranch(&pTree, "ProcessName"));
+    Notice(ParentID.TryAttachToBranch(&pTree, "ParentID"));
+    Notice(InteractionTime.TryAttachToBranch(&pTree, "InteractionTime"));
+    Notice(LocalTime.TryAttachToBranch(&pTree, "LocalTime"));
+    Notice(GlobalTime.TryAttachToBranch(&pTree, "GlobalTime"));
+    Notice(ProperTime.TryAttachToBranch(&pTree, "ProperTime"));
 }
 
 void GlobalActorReader::Notice(const bool& value)
@@ -155,6 +160,16 @@ TVector3 GlobalActorReader::GetPolarizationBeforeProcess() {return PolarizationB
 TVector3 GlobalActorReader::GetPolarizationAfterProcess() {return PolarizationAfterProcess.GetValue();}
 
 std::string GlobalActorReader::GetProcessName() {return ProcessName.GetValue();}
+
+int GlobalActorReader::GetParentID() {return ParentID.GetValue();}
+
+double GlobalActorReader::GetInteractionTime() {return InteractionTime.GetValue();}
+
+double GlobalActorReader::GetLocalTime() {return LocalTime.GetValue();}
+
+double GlobalActorReader::GetLocalTime() {return GlobalTime.GetValue();}
+
+double GlobalActorReader::GetProperTime() {return ProperTime.GetValue();}
 
 double GlobalActorReader::GetComptonThetaValue()
 {

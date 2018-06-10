@@ -121,6 +121,16 @@ public:
 	TVector3 GetPolarizationAfterProcess();
 	/**Return process name*/
 	std::string GetProcessName();
+	/**Return parent ID*/
+	int GetParentID();
+	/**Return interaction time*/
+	double GetInteractionTime();
+	/**Return local time*/
+	double GetLocalTime();
+	/**Return global time*/
+	double GetLocalTime();
+	/**Return proper time*/
+	double GetProperTime();
 
 private:
 /** VARIABLES
@@ -165,6 +175,16 @@ private:
     Variable<TVector3, true> PolarizationAfterProcess;
     //Process name
     Variable<std::string, true> ProcessName;
+    //Parent ID
+    Variable<int, false> ParentID;
+    //Interaction time
+    Variable<double, false> InteractionTime;
+    //Local time
+    Variable<double, false> LocalTime;
+    //Global time
+    Variable<double, false> GlobalTime;
+    //Proper time
+    Variable<double, false> ProperTime;
 
 public:
 /** EXTRA FUNCTIONS
