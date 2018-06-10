@@ -440,3 +440,69 @@ void GateGlobalActor::UpdateProcessName(const G4Step& step)
 {
 	mProcessName = step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 }
+
+void GateGlobalActor::SetEnableParentID()
+{
+	TryAddUpdateMethod("UpdateParentID", &GateGlobalActor::UpdateParentID);
+	TryAddBranch("ParentID", mParentID);
+}
+
+void GateGlobalActor::UpdateParentID(const G4Step& step)
+{
+	mParentID = step.GetTrack()->GetParentID();
+}
+
+void GateGlobalActor::SetEnableInteractionTime()
+{
+	TryAddUpdateMethod("UpdateInteractionTime", &GateGlobalActor::UpdateInteractionTime);
+	TryAddBranch("InteractionTime", mInteractionTime);
+}
+
+void GateGlobalActor::UpdateInteractionTime(const G4Step& step)
+{
+	mInteractionTime = step.GetDeltaTime();
+}
+
+void GateGlobalActor::SetEnableLocalTime()
+{
+	TryAddUpdateMethod("UpdateLocalTime", &GateGlobalActor::UpdateLocalTime);
+	TryAddBranch("LocalTime", mLocalTime);
+}
+
+void GateGlobalActor::UpdateLocalTime(const G4Step& step)
+{
+	mLocalTime = step.GetTrack()->GetLocalTime();
+}
+
+void GateGlobalActor::SetEnableGlobalTime()
+{
+	TryAddUpdateMethod("UpdateGlobalTime", &GateGlobalActor::UpdateGlobalTime);
+	TryAddBranch("GlobalTime", mGlobalTime);
+}
+
+void GateGlobalActor::UpdateGlobalTime(const G4Step& step)
+{
+	mGlobalTime = step.GetTrack()->GetGlobalTime();
+}
+
+void GateGlobalActor::SetEnableProperTime()
+{
+	TryAddUpdateMethod("UpdateProperTime", &GateGlobalActor::UpdateProperTime);
+	TryAddBranch("ProperTime", mProperTime);
+}
+
+void GateGlobalActor::UpdateProperTime(const G4Step& step)
+{
+	mProperTime = step.GetTrack()->GetProperTime();
+}
+
+void GateGlobalActor::SetFilterIgnoreProcessName(const G4String& process_name)
+{
+	TryAddCheckFunction("CheckIgnoreProcessName", &GateGlobalActor::CheckIgnoreProcessName);
+	TryAddToSet(mFilterIgnoreProcessesNames, process_name);
+}
+
+G4bool GateGlobalActor::CheckIgnoreProcessName(const G4Step& step) const
+{
+	return !(mFilterIgnoreProcessesNames.find(step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()) != mFilterIgnoreProcessesNames.cend());
+}

@@ -235,6 +235,30 @@ public:
 	 * */
 	void SetEnableProcessName();
 
+	/** Set enable saving parent ID
+	 * */
+	void SetEnableParentID();
+
+	/** Set enable interaction time. This time is equal difference between local time of pre and post step of track. 
+	    Please remember that definition of local time is: time since the track was created.
+	 * */
+	void SetEnableInteractionTime();
+
+	/** Set enable local time.
+	    Please remember that definition of local time is: time since the track was created.
+	 * */
+	void SetEnableLocalTime();
+
+	/** Set enable global time.
+	    Please remember that definition of global time is: time since the event was created.
+	 * */
+	void SetEnableGlobalTime();
+
+	/** Set enable proper time.
+	    Please remember that definition of proper time is: time in its rest frame since the track was created.
+	 * */
+	void SetEnableProperTime();
+
 private:
 	//@SubSection: Update methods
 
@@ -309,6 +333,26 @@ private:
 	 * */
 	void UpdateProcessName(const G4Step& step);
 
+	/** Update data about parent ID
+	 * */
+	void UpdateParentID(const G4Step& step);
+
+	/** Update interaction time value
+	 * */
+	void UpdateInteractionTime(const G4Step& step);
+
+	/** Update local time
+	 * */
+	void UpdateLocalTime(const G4Step& step);
+
+	/** Update global time
+	 * */
+	void UpdateGlobalTime(const G4Step& step);
+
+	/** Update proper time
+	 * */
+	void UpdateProperTime(const G4Step& step);
+
 private:
 	//@SubSection: Variables connected with tree branches
 
@@ -350,6 +394,16 @@ private:
 
 	std::string mProcessName;
 
+	G4int mParentID;
+
+	G4double mInteractionTime;
+
+	G4double mLocalTime;
+
+	G4double mGlobalTime;
+
+	G4double mProperTime;
+
 public:
 	//@SubSection: SetFilter
 
@@ -383,6 +437,12 @@ public:
 	 * */
 	void SetFilterEmissionPoint(const G4ThreeVector& emission_point);
 
+	/* Set filter which ignore sepecific process (for example does not save steps with Compton process)
+	 * @param: process_name - name of process which you want ingore during simulation
+	 * @IsReusable: Yes
+	 * */
+	void SetFilterIgnoreProcessName(const G4String& process_name);
+
 private:
 	//@SubSection: Check functions
 
@@ -411,6 +471,11 @@ private:
 	 * */
 	G4bool CheckEmissionPoint(const G4Step& step) const;
 
+	/** Check if process name from step is on ignoring filter list
+	 * @return: TRUE - when is it, FALSE - otherwise
+	 * */
+	G4bool CheckIgnoreProcessName(const G4Step& step) const;
+
 private:
 	//@SubSection: Variables which represent filters (filter can be represented by list of variables e.g. list of partciles names)
 	//Using of set<> is recommended because of log complexity of set<> (vector has to use std::find which has linear complexity)
@@ -420,6 +485,7 @@ private:
 	std::set<int> mFilterPDGCodes;
 	G4double mFilterProcessAngle;
 	G4ThreeVector mFilterEmissionPoint;
+	std::set<G4String> mFilterIgnoreProcessesNames;
 };
 
 #endif
