@@ -167,7 +167,7 @@ double GlobalActorReader::GetInteractionTime() {return InteractionTime.GetValue(
 
 double GlobalActorReader::GetLocalTime() {return LocalTime.GetValue();}
 
-double GlobalActorReader::GetLocalTime() {return GlobalTime.GetValue();}
+double GlobalActorReader::GetGlobalTime() {return GlobalTime.GetValue();}
 
 double GlobalActorReader::GetProperTime() {return ProperTime.GetValue();}
 

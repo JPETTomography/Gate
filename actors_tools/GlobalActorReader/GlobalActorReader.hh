@@ -128,7 +128,7 @@ public:
 	/**Return local time*/
 	double GetLocalTime();
 	/**Return global time*/
-	double GetLocalTime();
+	double GetGlobalTime();
 	/**Return proper time*/
 	double GetProperTime();
 
