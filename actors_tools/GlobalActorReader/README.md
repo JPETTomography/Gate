@@ -15,6 +15,7 @@ Compilation of code
 -----------------
 
 When you finish your implementation of your analysis code do below steps:
+
 mkdir build
 cd build
 cmake ..
