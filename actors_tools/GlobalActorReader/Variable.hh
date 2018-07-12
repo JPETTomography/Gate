@@ -46,7 +46,7 @@ public:
 
     /** This function return value of variable, but if variable was not initialized (what mean variable does not exist) this function throw exception.
     */
-    T GetValue()
+    const T GetValue() const
     {
 				if(use_pointer)
 					return *pValue;

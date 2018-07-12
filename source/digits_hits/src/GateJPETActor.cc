@@ -182,7 +182,7 @@ void GateJPETActor::StandardExtractFunction(const G4Step *step)
 	if(mEnableKineticEnergy)
 		mKinecticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
 	if(mEnableInteractionTime)
-		mInteractionTime = step->GetPostStepPoint()->GetLocalTime();
+		mInteractionTime = step->GetDeltaTime();
 	if(mEnableProcessName) {
 		G4String str = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 		strcpy(mProcessName, str.c_str());

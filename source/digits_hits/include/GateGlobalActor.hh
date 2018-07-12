@@ -159,155 +159,102 @@ private:
 public:
 	//@SubSection: SetEnable methods
 
-	/** Set enable saving volume name (volume attached to actor)
-	 * */
 	void SetEnableVolumeName();
 
-	/** Set enable saving scintilator position (this variable is method how detect two different scintilators in the same layer (volume))
-	 * */
 	void SetEnableScintilatorPosition();
 
-	/** Set enable saving event ID
-	 * */
 	void SetEnableEventID();
 
-	/** Set enable saving track ID
-	 * */
 	void SetEnableTrackID();
 
-	/** Set enable saving particle energy before process (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableEnergyBeforeProcess();
 
-	/** Set enable saving particle energy after process (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableEnergyAfterProcess();
 
-	/** Set enable saving particle energy loss during process (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableEnergyLossDuringProcess();
 
-	/** Set enable saving particle momentum direction before process (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableMomentumDirectionBeforeProcess();
 
-	/** Set enable saving particle momentum direction after process (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableMomentumDirectionAfterProcess();
 
-	/** Set enable saving process position (e.g. Comptom process, Rayley process, etc.)
-	 * */
 	void SetEnableProcessPosition();
 
-	/** Set enable saving particle emission point from source
-	 * */
 	void SetEnableEmissionPointFromSource();
 
-	/** Set enable saving particle momentum direction from emission source
-	 * */
 	void SetEnableEmissionMomentumDirectionFromSource();
 
-	/** Set enable saving particle emission energy from source
-	 * */
 	void SetEnableEmissionEnergyFromSource();
 
-	/** Set enable saving particle name
-	 * */
 	void SetEnableParticleName();
 
-	/** Set enable saving particle PDG code
-	 * */
 	void SetEnableParticlePGDCoding();
 
-	/** Set enable saving angle between momentum direction before and after process
-	 * */
 	void SetEnableProcessAngle();
 
-	/** Set enable saving particle polarization before process
-	 * */
 	void SetEnablePolarizationBeforeProcess();
 
-	/** Set enable saving particle polarization after process
-	 * */
 	void SetEnablePolarizationAfterProcess();
 
-	/** Set enable saving process name
-	 * */
 	void SetEnableProcessName();
+
+	void SetEnableParentID();
+
+	void SetEnableInteractionTime();
+
+	void SetEnableLocalTime();
+
+	void SetEnableGlobalTime();
+
+	void SetEnableProperTime();
 
 private:
 	//@SubSection: Update methods
 
-	/** Update data about scintilator position
-	 * */
 	void UpdateScintilatorPosition(const G4Step& step);
 
-	/** Update data about event ID
-	 * */
 	void UpdateEventID(const G4Step& step);
 
-	/** Update data about track ID
-	 * */
 	void UpdateTrackID(const G4Step& step);
 
-	/** Update data about particle energy before process
-	 * */
 	void UpdateEnergyBeforeProcess(const G4Step& step);
 
-	/** Update data about particle energy after process
-	* */
 	void UpdateEnergyAfterProcess(const G4Step& step);
 
-	/** Update data about energy loss during process (it's just difference between particle energy before and after process)
-	 * */
 	void UpdateEnergyLossDuringProcess(const G4Step& step);
 
-	/** Update data about particle momentum direction before process
-	 * */
 	void UpdateMomentumDirectionBeforeProcess(const G4Step& step);
 
-	/** Update data about particle momentum direction after process
-	 * */
 	void UpdateMomentumDirectionAfterProcess(const G4Step& step);
 
-	/** Update data about point where process has happened
-	 * */
 	void UpdateProcessPosition(const G4Step& step);
 
-	/** Update data about particle emission point from source
-	 * */
 	void UpdateEmissionPointFromSource(const G4Step& step);
 
-	/** Update data about particle emission momementum direction from source
-	 * */
 	void UpdateEmissionMomentumDirectionFromSource(const G4Step& step);
 
-	/** Update data about particle energy from source
-	 * */
 	void UpdateEmissionEnergyFromSource(const G4Step& step);
 
-	/** Update data about particle name
-	 * */
 	void UpdateParticleName(const G4Step& step);
 
-	/** Update data about particle PDG code
-	 * */
 	void UpdateParticlePGDCoding(const G4Step& step);
 
-	/** Update data about angle between particle momementum direction before anf after process
-	 * */
 	void UpdateProcessAngle(const G4Step& step);
 
-	/** Update data about particle polarization before process
-	 * */
 	void UpdatePolarizationBeforeProcess(const G4Step& step);
-	/** Update data about article polarization after process
-	 * */
+
 	void UpdatePolarizationAfterProcess(const G4Step& step);
 
-	/** Update data about process name
-	 * */
 	void UpdateProcessName(const G4Step& step);
+
+	void UpdateParentID(const G4Step& step);
+
+	void UpdateInteractionTime(const G4Step& step);
+
+	void UpdateLocalTime(const G4Step& step);
+
+	void UpdateGlobalTime(const G4Step& step);
+
+	void UpdateProperTime(const G4Step& step);
 
 private:
 	//@SubSection: Variables connected with tree branches
@@ -350,6 +297,16 @@ private:
 
 	std::string mProcessName;
 
+	G4int mParentID;
+
+	G4double mInteractionTime;
+
+	G4double mLocalTime;
+
+	G4double mGlobalTime;
+
+	G4double mProperTime;
+
 public:
 	//@SubSection: SetFilter
 
@@ -383,6 +340,12 @@ public:
 	 * */
 	void SetFilterEmissionPoint(const G4ThreeVector& emission_point);
 
+	/* Set filter which ignore sepecific process (for example does not save steps with Compton process)
+	 * @param: process_name - name of process which you want ingore during simulation
+	 * @IsReusable: Yes
+	 * */
+	void SetFilterIgnoreProcessName(const G4String& process_name);
+
 private:
 	//@SubSection: Check functions
 
@@ -411,6 +374,11 @@ private:
 	 * */
 	G4bool CheckEmissionPoint(const G4Step& step) const;
 
+	/** Check if process name from step is on ignoring filter list
+	 * @return: TRUE - when is it, FALSE - otherwise
+	 * */
+	G4bool CheckIgnoreProcessName(const G4Step& step) const;
+
 private:
 	//@SubSection: Variables which represent filters (filter can be represented by list of variables e.g. list of partciles names)
 	//Using of set<> is recommended because of log complexity of set<> (vector has to use std::find which has linear complexity)
@@ -420,6 +388,7 @@ private:
 	std::set<int> mFilterPDGCodes;
 	G4double mFilterProcessAngle;
 	G4ThreeVector mFilterEmissionPoint;
+	std::set<G4String> mFilterIgnoreProcessesNames;
 };
 
 #endif

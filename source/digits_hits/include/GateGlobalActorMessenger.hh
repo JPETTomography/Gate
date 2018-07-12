@@ -274,11 +274,17 @@ private:
 	G4UIcmdWithoutParameter* pEnablePolarizationBeforeProcessCmd;
 	G4UIcmdWithoutParameter* pEnablePolarizationAfterProcessCmd;
 	G4UIcmdWithoutParameter* pEnableProcessNameCmd;
+	G4UIcmdWithoutParameter* pEnableParentIDCmd;
+	G4UIcmdWithoutParameter* pEnableInteractionTimeCmd;
+	G4UIcmdWithoutParameter* pEnableLocalTimeCmd;
+	G4UIcmdWithoutParameter* pEnableGlobalTimeCmd;
+	G4UIcmdWithoutParameter* pEnableProperTimeCmd;
 
 	//@CommandSection: G4UIcmdWithAString
 	G4UIcmdWithAString* pFileNameCmd;
 	G4UIcmdWithAString* pFilterProcessNameCmd;
 	G4UIcmdWithAString* pFilterParticleNameCmd;
+	G4UIcmdWithAString* pFilterIgnoreProcessNameCmd;
 
 	//@CommandSection: G4UIcmdWithAnInteger
 	G4UIcmdWithAnInteger* pFilterParticlePDGCodeCmd;

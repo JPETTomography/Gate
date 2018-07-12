@@ -219,14 +219,21 @@ void GateGlobalActorMessenger::BuildBoolCmds()
 	AddSimpleCmd("enablePolarizationBeforeProcess", "Save particle polarization before process", &pEnablePolarizationBeforeProcessCmd);
 	AddSimpleCmd("enablePolarizationAfterProcess", "Save particle polarization after process", &pEnablePolarizationAfterProcessCmd);
 	AddSimpleCmd("enableProcessName", "Save process name", &pEnableProcessNameCmd);
+	AddSimpleCmd("enableParentID", "Save parent ID", &pEnableParentIDCmd);
+	AddSimpleCmd("enableInteractionTime", "Save interaction time (time of step)", &pEnableInteractionTimeCmd);
+	AddSimpleCmd("enableLocalTime", "Save local time (time since the track was created)", &pEnableLocalTimeCmd);
+	AddSimpleCmd("enableGlobalTime", "Save global time (time since the event was created)", &pEnableGlobalTimeCmd);
+	AddSimpleCmd("enableProperTime", "Save proper time (time in its rest frame since the track was created)", &pEnableProperTimeCmd);
+	
 }
 
 void GateGlobalActorMessenger::BuildStringCmds()
 {
 	//Here add your G4String type command (use command AddStringCmd to add new one).
 	AddStringCmd("saveTo", "ROOT file name where data from GlobalActor will be saved", &pFileNameCmd);
-	AddStringCmd("filterProcessName", "Save data only for processe with this name. You can call this command more then once to add more processes names.", &pFilterProcessNameCmd);
+	AddStringCmd("filterProcessName", "Save data only for process with this name. You can call this command more then once to add more processes names.", &pFilterProcessNameCmd);
 	AddStringCmd("filterParticleName", "Save data only for particle with this name. You can call this command more then once to add more particle names.", &pFilterParticleNameCmd);
+	AddStringCmd("filterIgnoreProcessName", "Save data only for process without this name. You can call this command more then once to add more processes names.", &pFilterIgnoreProcessNameCmd);
 }
 void GateGlobalActorMessenger::BuildIntegerCmds()
 {
@@ -287,6 +294,16 @@ G4bool GateGlobalActorMessenger::SetNewBoolValue(G4UIcommand* command, G4String 
 			GateGlobalActor::Instance()->SetEnablePolarizationAfterProcess();
 	else if(command == pEnableProcessNameCmd)
 			GateGlobalActor::Instance()->SetEnableProcessName();
+	else if(command == pEnableParentIDCmd)
+			GateGlobalActor::Instance()->SetEnableParentID();
+	else if(command == pEnableInteractionTimeCmd)
+			GateGlobalActor::Instance()->SetEnableInteractionTime();
+	else if(command == pEnableLocalTimeCmd)
+			GateGlobalActor::Instance()->SetEnableLocalTime();
+	else if(command == pEnableGlobalTimeCmd)
+			GateGlobalActor::Instance()->SetEnableGlobalTime();
+	else if(command == pEnableProperTimeCmd)
+			GateGlobalActor::Instance()->SetEnableProperTime();
 	else
 		return false;
 	return true;
@@ -301,6 +318,8 @@ G4bool GateGlobalActorMessenger::SetNewStringValue(G4UIcommand* command, G4Strin
 		GateGlobalActor::Instance()->SetFilterProcessName(GetCommandValue(pFilterProcessNameCmd, parameter));
 	else if(command == pFilterParticleNameCmd)
 		GateGlobalActor::Instance()->SetFilterParticleName(GetCommandValue(pFilterParticleNameCmd, parameter));
+	else if(command == pFilterIgnoreProcessNameCmd)
+		GateGlobalActor::Instance()->SetFilterIgnoreProcessName(GetCommandValue(pFilterIgnoreProcessNameCmd, parameter));
 	else
 		return false;
 	return true;
