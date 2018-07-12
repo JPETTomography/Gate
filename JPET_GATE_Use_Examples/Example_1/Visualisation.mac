@@ -1,8 +1,15 @@
+#==========================================================================================
+# ABOUT THIS MACRO
+# Description: To dispaly geometry and simulation we has to configure viewer in GATE
+# Author: Mateusz Bała
+# E-mail: bala.mateusz@gmail.com
+#==========================================================================================
+
 /vis/open                           OGLS
 
-#============================================
+#==========================================================================================
 # Changing view of world
-#============================================
+#==========================================================================================
 
 #/vis/viewer/set/viewpointThetaPhi   0 0 #View from z-axis
 #/vis/viewer/set/viewpointThetaPhi 90 0  #View from x-axis
