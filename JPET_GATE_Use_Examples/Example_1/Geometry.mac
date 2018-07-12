@@ -1,0 +1,22 @@
+/gate/geometry/setMaterialDatabase    GateMaterials.db
+
+#============================================
+# Simulation word description
+#============================================
+/gate/world/geometry/setXLength 300. cm
+/gate/world/geometry/setYLength 300. cm
+/gate/world/geometry/setZLength 300. cm
+/gate/world/vis/setVisible 1 #To hide world's frame please set 0
+
+
+#============================================
+# Detector geometry
+#============================================
+/gate/world/daughters/name detector
+/gate/world/daughters/systemType scanner
+/gate/world/daughters/insert cylinder
+/gate/detector/setMaterial EJ230 
+/gate/detector/geometry/setRmin 50 cm
+/gate/detector/geometry/setRmax 52 cm
+/gate/detector/geometry/setHeight 250 cm
+/gate/detector/vis/setVisible 1
