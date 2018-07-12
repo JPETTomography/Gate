@@ -82,7 +82,7 @@ private:
 public:
 /**GET-functions.
 	This is only way how you return values;
-    For more informations check varaibles descriptions.
+    For more informations check variables descriptions.
 */
     std::string GetVolumeName() const;
 
@@ -137,11 +137,11 @@ private:
  * Declar here your variable by using template class Variable<yourType>
  * Please add description of your variable here
 **/
-    //Volume name (layer name) - this varaible tell in which volume (layer) something happened e.g. gamma scattered in volume wit name "LayerA"
+    //Volume name (layer name) - this variable tell in which volume (layer) something happened e.g. gamma scattered in volume wit name "LayerA"
     Variable<std::string, true> VolumeName;
     //Scintilator translation vector (if detector does not rotate it is equal scintilator centrum position) - this is useful when you want to know where exacly process happened (from VolumeName you know layer and from ScintilatorPosition you know which scintilator)
     Variable<TVector3, true> ScintilatorPosition;
-    //Event ID - this variable tell you which event is related to particl e.g. you have e+ and gamma - both created during event no 1 (both has the same EventID)
+    //Event ID - this variable tell you which event is related to particle e.g. you have e+ and gamma - both created during event no 1 (both has the same EventID)
     Variable<int, false> EventID;
     //Track ID - each EventID has one or more tracks e.g. e+ and 2 gammas from e+ annihilation - both has EventID=1, e+ has trackID=1, gamma no 1 has trackID=2, gamma no 2 has trackID = 3
     Variable<int, false> TrackID;
@@ -157,7 +157,7 @@ private:
     Variable<TVector3, true> MomentumDirectionAfterProcess;
     //Process position in lab coordinate system - by this variable you know where exacly process happened
     Variable<TVector3, true> ProcessPosition;
-    //Emission point from source - by this varaible you know position of source which emitted particle
+    //Emission point from source - by this variable you know position of source which emitted particle
     Variable<TVector3, true> EmissionPointFromSource;
     //Particle momentum direction just after emission from source
     Variable<TVector3, true> EmissionMomentumDirectionFromSource;
