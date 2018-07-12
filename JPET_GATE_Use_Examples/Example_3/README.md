@@ -54,10 +54,15 @@ Links to detailed descriptions
 For more information and exmples please use below links:
 
 [Setting up the physics](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Setting_up_the_physics)
+
 [Defining the source](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Source)
+
 [Setting up application and a general introduction to GATE](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Getting_started)
+
 [Defining geometry](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_geometry)
+
 [Visualisation](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
+
 [ROOT users guide](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html)
 
 

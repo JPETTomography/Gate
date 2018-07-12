@@ -38,6 +38,9 @@ Links to detailed descriptions
 For more information and exmples please use below links:
 
 [Defining geometry](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_geometry)
+
 [Visualisation](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
+
+[ROOT users guide](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html)
 
 
