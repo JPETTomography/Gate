@@ -4,14 +4,14 @@ What will you learn from this example ?
 ---------------------------------------
 
 In this example, you'll learn how to run simulations for a set number of events and how to archive simulation data. As in example number 1, here we will use the same detector's geometry. 
-In addition, you will learn how to set selected physical processes and define two sources (**linear** and **point**) of particles. Please read descriptions in makro files to know more - feel free to modifying macros.
+In addition, you will learn how to set selected physical processes and define two sources (**linear** and **point**) of particles. Please read descriptions in macro files to know more - feel free to modifying macros.
 
 Files description
 ------------------
 
 **Main.mac** - This is the main macro you call in GATE, it manages the remaining macros.
 
-**Visualisation.mac** - contains information how present geometry
+**Visualization.mac** - contains information how present geometry
 
 **Geometry.mac** - describes detector geometry
 
@@ -26,10 +26,10 @@ Files description
 **GateMaterials.db** - database of materials
 
 
-How to run makro ?
+How to run macro ?
 ------------------
 
-In makros directory call:
+In macros directory call:
 ```
 Gate Main.mac
 ```
@@ -51,7 +51,7 @@ To close ROOT call:
 Links to detailed descriptions
 -------------------------------
 
-For more information and exmples please use below links:
+For more information and examples please use below links:
 
 [Setting up the physics](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Setting_up_the_physics)
 
@@ -61,7 +61,7 @@ For more information and exmples please use below links:
 
 [Defining geometry](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_geometry)
 
-[Visualisation](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
+[Visualization](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
 
 [ROOT users guide](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html)
 

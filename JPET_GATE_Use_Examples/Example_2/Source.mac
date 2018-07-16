@@ -11,7 +11,7 @@
 # Source below is point at position (0,0,0) cm with activity 1 kBq. Mode of this source is
 # JPETSource which offers three types of source: SGJPET (single gamma), pPsJPET (2 gammas
 # from pPs decay) and oPsJPET (3 gammas from oPs decay). Here we use pPsJPEt type.
-# These gammas momementum direction has spherical uniform distribution
+# These gammas momentum direction has spherical uniform distribution
 #==========================================================================================
 
 /gate/source/addSource PointSource JPETSource
@@ -31,7 +31,7 @@
 
 
 #==========================================================================================
-# Initialisation of sources
+# Initialization of sources
 #==========================================================================================
 
 /gate/source/list

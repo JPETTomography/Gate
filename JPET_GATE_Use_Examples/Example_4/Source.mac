@@ -10,7 +10,7 @@
 # Source below is point at position (0,0,0) cm with activity 1 kBq. Mode of this source is
 # JPETSource which offers three types of source: SGJPET (single gamma), pPsJPET (2 gammas
 # from pPs decay) and oPsJPET (3 gammas from oPs decay). Here we use pPsJPEt type.
-# These gammas momementum direction has spherical uniform distribution
+# These gammas momentum direction has spherical uniform distribution
 #==========================================================================================
 
 /gate/source/addSource PointSource JPETSource
@@ -30,11 +30,11 @@
 
 #===================================================================================================
 # Definition of point source
-# Source below is linear (cylinder shape) with center at position (0,0,0) cm, radiu 0.1 mm, 
-# legth 50 cm and activity 1 kBq. 
+# Source below is linear (cylinder shape) with center at position (0,0,0) cm, radius 0.1 mm, 
+# length 50 cm and activity 1 kBq. 
 # Model of this source is JPETSource which offers three types of source: 
 # SGJPET (single gamma), pPsJPET (2 gammas from pPs decay) and oPsJPET (3 gammas from oPs decay). 
-# Here we use oPsJPEt type.These gammas momementum direction has spherical uniform distribution
+# Here we use oPsJPEt type.These gammas momentum direction has spherical uniform distribution
 #===================================================================================================
 
 /gate/source/addSource LinearSource JPETSource
@@ -58,7 +58,7 @@
 
 
 #===================================================================================================
-# Initialisation of sources
+# Initialization of sources
 #===================================================================================================
 
 /gate/source/list

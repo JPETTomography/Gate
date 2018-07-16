@@ -22,7 +22,7 @@
 /gate/physics/processes/ElectronIonisation/setModel StandardModel
 
 #==========================================================================================
-# Initialisation of physics
+# Initialization of physics
 #==========================================================================================
 
 /gate/physics/processList Enabled

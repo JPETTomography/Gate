@@ -1,14 +1,14 @@
 About this section
 ------------------
 
-Here you can find some examples how work with GATE by usig macros. Each one example focus on other problem.
+Here you can find some examples how work with GATE by using macros. Each one example focus on other problem.
 
-How to correctly istall GATE from this repository?
+How to correctly install GATE from this repository?
 ---------------------------------------------------
 
 # Required libraries
 
-Befor we start discussing GATE installation it is required to install some extra libraries.
+Before we start discussing GATE installation it is required to install some extra libraries.
 
 ## CLHEP
 1. Download CLHEP from http://proj-clhep.web.cern.ch/proj-clhep/
@@ -75,7 +75,7 @@ git clone https://github.com/JPETTomography/Gate.git
  make install
  ```
 
- If cmake command failed you can mauly modyfie cmake by command:
+ If cmake command failed you can manually modifiede cmake by command:
  ```
  ccmake ..
  ```
@@ -95,13 +95,13 @@ To close a window and GATE call:
 ```
 exit
 ```
-This mode is useful when you want visualise simulation.
+This mode is useful when you want visualize simulation.
 
 2. More often we execute Main.mac by calling single command:
 ```
 Gate Main.mac
 ```
 
-More information is provided in exaples.
+More information is provided in examples.
 
  

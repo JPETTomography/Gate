@@ -7,13 +7,13 @@
 
 
 #==================================================================================
-# VISUALISATION
-# Description: Visualisation.mac file contains information how present geometry
+# VISUALIZATION
+# Description: Visualization.mac file contains information how present geometry
 #==================================================================================
 
 /vis/enable
 #/vis/disable #You can hide graphic by calling this command
-/control/execute Visualisation.mac
+/control/execute Visualization.mac
 
 #==================================================================================
 # GEOMETRY
@@ -23,9 +23,9 @@
 /control/execute Geometry.mac
 
 #==================================================================================
-# INITIALISATION
-# Description: This part starts GATE visualisation
+# INITIALIZATION
+# Description: This part starts GATE visualization
 #==================================================================================
 
 /gate/run/initialize
-/vis/scene/add/axes # To hide system axies set "#"
+/vis/scene/add/axes # To hide system axes set "#"

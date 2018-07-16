@@ -8,8 +8,8 @@
 
 #===================================================================================================
 # Definition of point source
-# Source below is linear (cylinder shape) with center at position (0,0,0) cm, radiu 0.1 mm, 
-# legth 50 cm and activity 1 kBq. 
+# Source below is linear (cylinder shape) with center at position (0,0,0) cm, radius 0.1 mm, 
+# length 50 cm and activity 1 kBq. 
 # Model of this source is JPETSource which offers three types of source: 
 # SGJPET (single gamma), pPsJPET (2 gammas from pPs decay) and oPsJPET (3 gammas from oPs decay). 
 # Here we use pPsJPEt type.These gammas momementum direction has spherical uniform distribution
@@ -36,7 +36,7 @@
 
 
 #===================================================================================================
-# Initialisation of sources
+# Initialization of sources
 #===================================================================================================
 
 /gate/source/list

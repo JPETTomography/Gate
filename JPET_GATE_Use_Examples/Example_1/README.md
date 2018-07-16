@@ -1,4 +1,4 @@
-   Example no 1: visualisation of detector geometry
+   Example no 1: visualization of detector geometry
 
 What will you learn from this example ?
 ---------------------------------------
@@ -10,16 +10,16 @@ Files description
 
 **Main.mac** - This is the main macro you call in GATE, it manages the remaining macros.
 
-**Visualisation.mac** - contains information how present geometry
+**Visualization.mac** - contains information how present geometry
 
 **Geometry.mac** - describes detector geometry
 
 **GateMaterials.db** - database of materials
 
-How to run makro ?
+How to run macro ?
 ------------------
 
-In makros directory call:
+In macros directory call:
 ```
 Gate
 ```
@@ -35,11 +35,11 @@ exit
 Links to detailed descriptions
 -------------------------------
 
-For more information and exmples please use below links:
+For more information and examples please use below links:
 
 [Defining geometry](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_geometry)
 
-[Visualisation](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
+[Visualization](http://wiki.opengatecollaboration.org/index.php/Users_Guide:Defining_a_system)
 
 [ROOT users guide](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html)
 

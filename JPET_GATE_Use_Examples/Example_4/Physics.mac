@@ -15,14 +15,14 @@
 /gate/physics/processes/Compton/setModel LivermorePolarizedModel #StandardModel
 
 #==========================================================================================
-# Electron ionisation for e- (for e+ is possible too)
+# Electron ionization for e- (for e+ is possible too)
 #==========================================================================================
 
 /gate/physics/addProcess ElectronIonisation e-
 /gate/physics/processes/ElectronIonisation/setModel StandardModel
 
 #==========================================================================================
-# Initialisation of physics
+# Initialization of physics
 #==========================================================================================
 
 /gate/physics/processList Enabled
