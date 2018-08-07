@@ -77,7 +77,12 @@ G4ThreeVector GateGammaSourceModel::GetPolarization(const G4ThreeVector& momentu
 			polarization.unit();
 			polarization -= polarization.dot(d0) * d0;
 	}
-	return polarization;
+	return polarization.unit();
+}
+
+G4ThreeVector GateGammaSourceModel::GetPerpendicularPolarizationToItsMomentumAndOtherPolarization(const G4ThreeVector& own_momentum_direction, const G4ThreeVector& other_polarization)
+{
+ return own_momentum_direction.unit().cross( other_polarization.unit() ).unit();
 }
 
 void GateGammaSourceModel::SetLinearPolarizationAngle(double angle, bool is_degree)
