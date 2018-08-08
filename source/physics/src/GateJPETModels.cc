@@ -17,9 +17,10 @@
 /** Below add #include with your model class header file.
  * Please add new to #include comment with shot class description.
  * */
-#include "GateJPETParaPositroniumDecayModel.hh" //Generate 2 gamma from PPs decay
-#include "GateJPETOrtoPositroniumDecayModel.hh" //Generate 3 gamma from OPs decay
+#include "GateJPETParaPositroniumDecayModel.hh" //Generate 2 gamma from pPs decay
+#include "GateJPETOrtoPositroniumDecayModel.hh" //Generate 3 gamma from oPs decay
 #include "GateJPETSingleGammaModel.hh" //Generate 1 gamma
+#include "GateJPETParaPlusPromptDecayModel.hh"//Generate 2 gammas from pPs decay and one from deexcitation
 
 GateJPETModels::GateJPETModels()
 {
@@ -41,5 +42,8 @@ void GateJPETModels::InitModels()
 
 	//Generate single gamma - useful for tests
 	GateJPETSingleGammaModel::GetInstance();
+
+	//Generate 2 + 1 gammas
+	GateJPETParaPlusPromptDecayModel::GetInstance();
 }
 

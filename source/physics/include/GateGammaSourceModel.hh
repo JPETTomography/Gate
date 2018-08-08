@@ -89,6 +89,8 @@ class GateGammaSourceModel
 		 * */
 		bool GetIsUnpolarizedGammaGenerationInUse();
 
+		G4ThreeVector GetPerpendicularPolarizationToItsMomentumAndOtherPolarization(const G4ThreeVector& own_momentum_direction, const G4ThreeVector& other_polarization);
+
 	private:
 		//Number of gamma quanta which model generate
 		int mParticlesNumber;

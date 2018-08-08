@@ -47,12 +47,19 @@ void GateJPETParaPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 	m_2_body_decay.Generate();
 
 	int particles_number = GetParticlesNumber();
+
+	if( particles_number != 2)
+		G4cout<<"Incorrect number of particles. Number of particles: "<<particles_number<<G4endl;
+
 	for(int i=0; i<particles_number; ++i){
 		TLorentzVector partDir = *m_2_body_decay.GetDecay(i);
 		partDir.Boost(GetPositronMomentum());
 		particles[i]->SetMomentum( (partDir.Px())*1000.0, (partDir.Py())*1000.0, (partDir.Pz())*1000.0 ); // "*1000.0" because GetDecay return momentum in GeV but Geant4 and Gate make calculation in MeV
 		particles[i]->SetPolarization(GetPolarization(particles[i]->GetMomentumDirection()));
 	}
+
+	particles[1]->SetPolarization( GetPerpendicularPolarizationToItsMomentumAndOtherPolarization( particles[1]->GetMomentum(), particles[0]->GetPolarization() ) );
+
 }
 
 G4String GateJPETParaPositroniumDecayModel::GetModelName()
