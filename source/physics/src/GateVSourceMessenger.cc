@@ -154,14 +154,6 @@ GateVSourceMessenger::GateVSourceMessenger(GateVSource* source)
   VisualizeCmd = new G4UIcmdWithAString(cmdName,this);
   VisualizeCmd->SetGuidance("Visualize the source in the geometry");
   VisualizeCmd->SetParameterName("count color size",false);
-
-  cmdName = GetDirectoryName()+"setLinearPolarizationAngle";
-  LinearPolarizationCmd = new G4UIcmdWithADoubleAndUnit(cmdName,this);
-  LinearPolarizationCmd->SetGuidance("Set linear polarization by given angle");
-
-  cmdName = GetDirectoryName()+"setUseUnpolarizedParticles";
-  UseUnpolarizedParticlesCmd = new G4UIcmdWithABool(cmdName,this);
-  UseUnpolarizedParticlesCmd->SetGuidance("Set unpolarized particles generation");
 }
 //----------------------------------------------------------------------------------------
 
@@ -190,8 +182,6 @@ GateVSourceMessenger::~GateVSourceMessenger()
   delete setEnergyRangecmd;
 //    delete GateSourceDir;
   delete VisualizeCmd;
-  delete LinearPolarizationCmd;
-  delete UseUnpolarizedParticlesCmd;
 }
 //----------------------------------------------------------------------------------------
 
@@ -249,10 +239,6 @@ void GateVSourceMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     m_source->Visualize(newValue);
   } else if( command == setEnergyRangecmd ) {
       m_source->GetEneDist()->SetEnergyRange(setEnergyRangecmd->GetNewDoubleValue(newValue));
-  } else if( command == LinearPolarizationCmd) {
-	  m_source->SetLinearPolarizationAngle(LinearPolarizationCmd->GetNewDoubleRawValue(newValue));
-  } else if( command == UseUnpolarizedParticlesCmd) {
-	  m_source->SetUnpolarizedParticlesGenerating(UseUnpolarizedParticlesCmd->GetNewBoolValue(newValue));
   }
 }
 //----------------------------------------------------------------------------------------

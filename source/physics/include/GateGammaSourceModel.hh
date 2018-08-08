@@ -21,6 +21,7 @@
 #include "G4PrimaryParticle.hh"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TRandom3.h"
 //#include "GateJPETSourceManager.hh"
 //#include "GateJPETSource.hh"
 
@@ -32,74 +33,92 @@
  * */
 class GateGammaSourceModel
 {
-	public:
-		GateGammaSourceModel();
-		virtual ~GateGammaSourceModel();
-		/** Function fill each particle with data about momentum.
-		 * @param: particles - list with initialized particles - without momentum information
-		 * */
-		virtual void GetGammaParticles(std::vector<G4PrimaryParticle*>& particles) = 0;
+ public:
+  GateGammaSourceModel();
+  virtual ~GateGammaSourceModel();
+  /** Function fill each particle with data about momentum.
+   * @param: particles - list with initialized particles - without momentum information
+   * */
+  virtual void GetGammaParticles(std::vector<G4PrimaryParticle*>& particles) = 0;
 
-		/** Function set positron momentum.
-		 * @param: boost - positron boost
-		 * */
-		void SetPositronMomentum(const TVector3& boost);
+  /** Function set positron momentum.
+   * @param: boost - positron boost
+   * */
+  void SetPositronMomentum(const TVector3& boost);
 
-		TVector3 GetPositronMomentum();
+  TVector3 GetPositronMomentum();
 
-		/** Function return model name.
-		 * @return: model name - it's always simple string
-		 * */
-		virtual G4String GetModelName()=0;
+  /** Function return model name.
+   * @return: model name - it's always simple string
+   * */
+  virtual G4String GetModelName()=0;
 
-		/** Function generate perpendicular vector to vector 'source_vector'.
-		 * @param: source_vector - vector with respect to which we generate a perpendicular vector
-		 * @return: perpendicular vector to vector 'source_vector'
-		 * */
-		G4ThreeVector SetPerpendicularVector(const G4ThreeVector& source_vector);
+  /** Function generate perpendicular vector to vector 'source_vector'.
+   * @param: source_vector - vector with respect to which we generate a perpendicular vector
+   * @return: perpendicular vector to vector 'source_vector'
+   * */
+  G4ThreeVector SetPerpendicularVector(const G4ThreeVector& source_vector);
 
-		/** Function return polarization vector which is perpendicular to momentum direction.
-		 * @param: momentum_direction - gamma momentum direction with respect to which we generate a linear polarization vector
-		 * @return: linear polarization vector (this include zero vector {0,0,0} if unpolarized gamma generation is set.
-		 * */
-		G4ThreeVector GetPolarization(const G4ThreeVector& momentum_direction);
+  /** Function return polarization vector which is perpendicular to momentum direction.
+   * @param: momentum_direction - gamma momentum direction with respect to which we generate a linear polarization vector
+   * @return: linear polarization vector (this include zero vector {0,0,0} if unpolarized gamma generation is set.
+   * */
+  G4ThreeVector GetPolarization(const G4ThreeVector& momentum_direction);
 
-		/** Function set angle for future linear polarization (in plane orthogonal to to gamma momentum direction)
-		 * @param: angle - angle value
-		 * @param: is_degree - if value of angle is in radians set this param as false
-		 * */
-		void SetLinearPolarizationAngle(double angle, bool is_degree = true);
+  /** Function set angle for future linear polarization (in plane orthogonal to to gamma momentum direction)
+   * @param: angle - angle value
+   * @param: is_degree - if value of angle is in radians set this param as false
+   * */
+  void SetLinearPolarizationAngle(double angle, bool is_degree = true);
 
-		/** Function set number gamma quanta which will be generate by children classes
-		 * @param: particle_number - number of gamma quanta which will be generate by model
-		 * */
-		void SetParticlesNumber(int particles_number);
+  /** Function set number gamma quanta which will be generate by children classes
+   * @param: particle_number - number of gamma quanta which will be generate by model
+   * */
+  void SetParticlesNumber(int particles_number);
 
-		/** Function return number of gamma quanta which will be generate by model
-		 * */
-		int GetParticlesNumber();
+  /** Function return number of gamma quanta which will be generate by model
+   * */
+  int GetParticlesNumber();
 
-		/** Function set generation of unpolarized gamma quanta if is needed
-		 * @param: use_unpolarized - set this true if you need unpolarized gamma
-		 * */
-		void SetUnpolarizedGammaGeneration(bool use_unpolarized = false);
+  /** Function set generation of unpolarized gamma quanta if is needed
+   * @param: use_unpolarized - set this true if you need unpolarized gamma
+   * */
+  void SetUnpolarizedGammaGeneration(bool use_unpolarized = false);
 
-		/** Function inform if unpolarized gamma quanta generation is set.
-		 * @return: true - model generate unpolarized gamma, false - otherwise
-		 * */
-		bool GetIsUnpolarizedGammaGenerationInUse();
+  /** Function inform if unpolarized gamma quanta generation is set.
+   * @return: true - model generate unpolarized gamma, false - otherwise
+   * */
+  bool GetIsUnpolarizedGammaGenerationInUse();
 
-		G4ThreeVector GetPerpendicularPolarizationToItsMomentumAndOtherPolarization(const G4ThreeVector& own_momentum_direction, const G4ThreeVector& other_polarization);
+  G4ThreeVector GetPerpendicularPolarizationToItsMomentumAndOtherPolarization(const G4ThreeVector& own_momentum_direction, const G4ThreeVector& other_polarization);
 
-	private:
-		//Number of gamma quanta which model generate
-		int mParticlesNumber;
-		//Positron momentum
-		TVector3 mPositronMomentum;
-		//Linear polarization angle in plane perpendicular to gamma momentum direction
-		double mPolarizationAngleInRadians;
-		//When user want generate unpolarized gamma (i.e. zero polarization vector) this variable is true (by default false)
-		bool mUseUnpolarizedGamma;
+  void SetSeedForRandomGenerator( unsigned int seed );
+
+  unsigned int GetSeedForRandomGenerator();
+
+  void SetPromptGammaEnergy( double energy );
+
+  double GetPromptGammaEnergy();
+
+  TRandom3* GetRandomGenerator();
+
+ private:
+  G4ThreeVector calcPolarization( G4ThreeVector& d0, double angle_radians );
+
+ private:
+  //Number of gamma quanta which model generate
+  int mParticlesNumber;
+  //Positron momentum
+  TVector3 mPositronMomentum;
+  //Linear polarization angle in plane perpendicular to gamma momentum direction
+  double mPolarizationAngleInRadians;
+  bool mUseRandomAnglesForPolarizations;
+  //When user want generate unpolarized gamma (i.e. zero polarization vector) this variable is true (by default false)
+  bool mUseUnpolarizedGamma;
+
+  unsigned int mSeedForRandomGenerator;
+  TRandom3* ptrRandomGenerator = nullptr;
+  double mPromptGammaEnergy;
 };
 
 #endif
