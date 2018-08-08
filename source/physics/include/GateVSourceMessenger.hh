@@ -64,8 +64,6 @@ protected:
   G4UIcmdWithADoubleAndUnit*           setEnergyRangecmd;
   G4UIcmdWithAString*                  VisualizeCmd;
   G4UIcommand*                         useDefaultHalfLifeCmd;
-  G4UIcmdWithADoubleAndUnit*	       LinearPolarizationCmd;
-  G4UIcmdWithABool*					   UseUnpolarizedParticlesCmd;
 
 };
 

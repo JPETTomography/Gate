@@ -19,7 +19,6 @@
 #include "GateGammaSourceModel.hh"
 #include "TGenPhaseSpace.h"
 #include "GateJPETSourceManager.hh"
-#include "TRandom3.h"
 
 /**Author: Mateusz Bała
  * Email: bala.mateusz@gmail.com
@@ -50,8 +49,6 @@ class GateJPETParaPlusPromptDecayModel : public GateGammaSourceModel
   void AddGammasFromParaPositronium( std::vector<G4PrimaryParticle*>& particles );
   void AddGammaFromDeexcitation( std::vector<G4PrimaryParticle*>& particles );
   G4ThreeVector GetRandomVectorOnSphere();
- private:
-  TRandom3* ptrRandomGenerator;
 };
 
 #endif

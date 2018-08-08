@@ -21,14 +21,13 @@
 #include "G4SystemOfUnits.hh"
 #include <cmath>
 
-GateJPETParaPlusPromptDecayModel* GateJPETParaPlusPromptDecayModel::ptrJPETParaPlusPromptDecayModel=0;
+GateJPETParaPlusPromptDecayModel* GateJPETParaPlusPromptDecayModel::ptrJPETParaPlusPromptDecayModel=nullptr;
 
 GateJPETParaPlusPromptDecayModel::GateJPETParaPlusPromptDecayModel()
 {
  G4cout <<"GateJPETParaPlusPromptDecayModel initialization.\n";
  SetParticlesNumber(3);
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
- ptrRandomGenerator = new TRandom3( 0 );
 }
 
 GateJPETParaPlusPromptDecayModel::~GateJPETParaPlusPromptDecayModel()
@@ -56,11 +55,11 @@ GateJPETParaPlusPromptDecayModel* GateJPETParaPlusPromptDecayModel::GetInstance(
 
 void GateJPETParaPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4PrimaryParticle*>& particles )
 {
- G4ThreeVector momementum_direction = GetRandomVectorOnSphere();
- G4double kinetic_energy = 1.157 * MeV; //Add here command
- G4ThreeVector gamma_polarization = GetPolarization( momementum_direction );
+ G4ThreeVector momentum_direction = GetRandomVectorOnSphere();
+ G4double kinetic_energy = GetPromptGammaEnergy();
+ G4ThreeVector gamma_polarization = GetPolarization( momentum_direction );
 
- particles[ 0 ]->SetMomentumDirection( momementum_direction );
+ particles[ 0 ]->SetMomentumDirection( momentum_direction );
  particles[ 0 ]->SetMass( 0.0 );
  particles[ 0 ]->SetKineticEnergy( kinetic_energy );
  particles[ 0 ]->SetPolarization( gamma_polarization );
@@ -69,11 +68,11 @@ void GateJPETParaPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4P
 void GateJPETParaPlusPromptDecayModel::AddGammasFromParaPositronium( std::vector<G4PrimaryParticle*>& particles )
 {
  Double_t mass_e = 0.511 * MeV / 1000.0;//GeV - because TGenPhaseSpace work with GeV
- TLorentzVector pozytonium( 0.0, 0.0, 0.0, 2.0 * mass_e );
+ TLorentzVector positronium( 0.0, 0.0, 0.0, 2.0 * mass_e );
  Double_t mass_secondaries[ 2 ] = { 0.0, 0.0 };
 
  TGenPhaseSpace two_body_decay;
- two_body_decay.SetDecay( pozytonium, 2, mass_secondaries );
+ two_body_decay.SetDecay( positronium, 2, mass_secondaries );
  two_body_decay.Generate();
 
  TLorentzVector gamma_1_momentum = *two_body_decay.GetDecay( 0 );
@@ -92,6 +91,6 @@ void GateJPETParaPlusPromptDecayModel::AddGammasFromParaPositronium( std::vector
 G4ThreeVector GateJPETParaPlusPromptDecayModel::GetRandomVectorOnSphere()
 {
  Double_t x = 0, y = 0, z = 0;
- ptrRandomGenerator->Sphere( x, y, z, 1.0 );
+ GetRandomGenerator()->Sphere( x, y, z, 1.0 );
  return G4ThreeVector( x, y, z );
 }

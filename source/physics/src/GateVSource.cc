@@ -102,9 +102,6 @@ GateVSource::GateVSource(G4String name): m_name( name ) {
 
   SetNumberOfParticles(1); // important !
 
-  mLinearPolarizationAngle = 0;
-  mUseUnpolarizedParticles = false;
-
 }
 //-------------------------------------------------------------------------------------------------
 
