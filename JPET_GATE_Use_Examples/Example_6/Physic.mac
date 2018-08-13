@@ -1,0 +1,7 @@
+
+/gate/physics/addProcess Compton gamma
+#/gate/physics/processes/Compton/setModel StandardModel
+/gate/physics/processes/Compton/setModel LivermorePolarizedModel
+
+/gate/physics/processList Enabled
+/gate/physics/processList Initialized

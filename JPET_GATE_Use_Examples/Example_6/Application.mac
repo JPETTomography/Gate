@@ -1,0 +1,16 @@
+#==========================================================================================
+# ABOUT THIS MACRO
+# Description: Por multisources simulations only proper way of use is using time slice.
+# Only by this way you receive real ratio between sources with different activity.
+# Author: Mateusz Bała
+# E-mail: bala.mateusz@gmail.com
+#==========================================================================================
+
+#/gate/application/setTimeSlice 1. s
+#/gate/application/setTimeStart 0. s
+#/gate/application/setTimeStop 1. s
+
+#==========================================================================================
+# Run a simulation
+#==========================================================================================
+/gate/application/startDAQ

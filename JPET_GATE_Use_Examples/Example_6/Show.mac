@@ -1,0 +1,33 @@
+#==================================================================================
+# ABOUT THIS MACRO
+# Description: This macro shows how to visualize detector geometries in GATE.
+# Author: Mateusz Bała
+# E-mail: bala.mateusz@gmail.com
+#==================================================================================
+
+
+#==================================================================================
+# VISUALIZATION
+# Description: Visualization.mac file contains information how present geometry
+#==================================================================================
+
+/vis/enable
+/gate/geometry/setMaterialDatabase    GateMaterials.db
+#/vis/disable #You can hide graphic by calling this command
+/control/execute Visualization.mac
+
+#==================================================================================
+# GEOMETRY
+# Description: Geometry.mac file describes detector geometry
+#==================================================================================
+
+#/control/execute Geometry.mac
+/control/execute GeometryPhantomNEMA.mac
+
+#==================================================================================
+# INITIALIZATION
+# Description: This part starts GATE visualization
+#==================================================================================
+
+/gate/run/initialize
+#/vis/scene/add/axes # To hide system axes set "#"

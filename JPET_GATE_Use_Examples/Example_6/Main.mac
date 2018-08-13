@@ -1,0 +1,14 @@
+/vis/disable
+/gate/geometry/setMaterialDatabase    GateMaterials.db
+/control/execute Geometry.mac
+/control/execute GeometryPhantomNEMA.mac
+/control/execute Physic.mac
+/control/execute Actor.mac
+/control/execute ActorPhantomNEMA.mac #Just comment it with "#" if don't want to save data from NEMA phantom
+/gate/run/initialize 
+/control/execute SourceNEMA.mac
+/gate/output/allowNoOutput
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed auto
+/control/execute Application.mac
+exit
