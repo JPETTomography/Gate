@@ -7,7 +7,7 @@
 /gate/source/upperinterior_hot/gps/shape      Cylinder
 /gate/source/upperinterior_hot/gps/radius     14.7 cm
 /gate/source/upperinterior_hot/gps/halfz      10.7 cm
-/gate/source/upperinterior_hot/setActivity    36028186 Bq
+/gate/source/upperinterior_hot/setActivity    3602818.6 Bq
 /gate/source/upperinterior_hot/setType        pPsJPET
 /gate/source/upperinterior_hot/gps/particle   gamma
 /gate/source/upperinterior_hot/gps/Forbid     NEMA_IQ
@@ -53,7 +53,7 @@
 /gate/source/LRinterior_hot/gps/shape         Cylinder
 /gate/source/LRinterior_hot/gps/radius        7.7 cm
 /gate/source/LRinterior_hot/gps/halfz         10.7 cm
-/gate/source/LRinterior_hot/setActivity       5281545 Bq
+/gate/source/LRinterior_hot/setActivity       528154.5 Bq
 /gate/source/LRinterior_hot/setType           pPsJPET
 /gate/source/LRinterior_hot/gps/particle      gamma
 /gate/source/LRinterior_hot/gps/Forbid        upperinterior
@@ -76,7 +76,7 @@
 /gate/source/LLinterior_hot/gps/shape         Cylinder
 /gate/source/LLinterior_hot/gps/radius        7.7 cm
 /gate/source/LLinterior_hot/gps/halfz         10.7 cm
-/gate/source/LLinterior_hot/setActivity       5281545 Bq
+/gate/source/LLinterior_hot/setActivity       528154.5 Bq
 /gate/source/LLinterior_hot/setType           pPsJPET
 /gate/source/LLinterior_hot/gps/particle      gamma
 /gate/source/LLinterior_hot/gps/Forbid        upperinterior
@@ -100,7 +100,7 @@
 /gate/source/interiorbox_hot/gps/halfx        7. cm
 /gate/source/interiorbox_hot/gps/halfy        3.85 cm
 /gate/source/interiorbox_hot/gps/halfz        10.7 cm
-/gate/source/interiorbox_hot/setActivity      12090338 Bq
+/gate/source/interiorbox_hot/setActivity      1209033.8 Bq
 /gate/source/interiorbox_hot/setType          pPsJPET
 /gate/source/interiorbox_hot/gps/particle     gamma
 /gate/source/interiorbox_hot/gps/Forbid       sphere22
@@ -119,7 +119,7 @@
 /gate/source/sphere10mm/gps/type              Volume
 /gate/source/sphere10mm/gps/shape             Sphere
 /gate/source/sphere10mm/gps/radius            0.5 cm
-/gate/source/sphere10mm/setActivity           11100. Bq
+/gate/source/sphere10mm/setActivity           1110.0 Bq
 /gate/source/sphere10mm/setType               pPsJPET
 /gate/source/sphere10mm/gps/particle          gamma
 
@@ -130,7 +130,7 @@
 /gate/source/capillary10mm/gps/shape          Cylinder
 /gate/source/capillary10mm/gps/radius         0.25 cm
 /gate/source/capillary10mm/gps/halfz          3.2 cm
-/gate/source/capillary10mm/setActivity        26641. Bq
+/gate/source/capillary10mm/setActivity        2664.1 Bq
 /gate/source/capillary10mm/setType            pPsJPET
 /gate/source/capillary10mm/gps/particle       gamma
 
@@ -140,7 +140,7 @@
 /gate/source/sphere13mm/gps/type              Volume
 /gate/source/sphere13mm/gps/shape             Sphere
 /gate/source/sphere13mm/gps/radius            0.65 cm
-/gate/source/sphere13mm/setActivity           24387. Bq
+/gate/source/sphere13mm/setActivity           2438.7 Bq
 /gate/source/sphere13mm/setType               pPsJPET
 /gate/source/sphere13mm/gps/particle          gamma
 
@@ -151,7 +151,7 @@
 /gate/source/capillary13mm/gps/shape          Cylinder
 /gate/source/capillary13mm/gps/radius         0.25 cm
 /gate/source/capillary13mm/gps/halfz          3.1125 cm
-/gate/source/capillary13mm/setActivity        25912. Bq
+/gate/source/capillary13mm/setActivity        2591.2 Bq
 /gate/source/capillary13mm/setType            pPsJPET
 /gate/source/capillary13mm/gps/particle       gamma
 
@@ -161,7 +161,7 @@
 /gate/source/sphere17mm/gps/type              Volume
 /gate/source/sphere17mm/gps/shape             Sphere
 /gate/source/sphere17mm/gps/radius            0.85 cm
-/gate/source/sphere17mm/setActivity           54536. Bq
+/gate/source/sphere17mm/setActivity           5453.6 Bq
 /gate/source/sphere17mm/setType               pPsJPET
 /gate/source/sphere17mm/gps/particle          gamma
 
@@ -172,7 +172,7 @@
 /gate/source/capillary17mm/gps/shape          Cylinder
 /gate/source/capillary17mm/gps/radius         0.25 cm
 /gate/source/capillary17mm/gps/halfz          3.025 cm
-/gate/source/capillary17mm/setActivity        25184. Bq
+/gate/source/capillary17mm/setActivity        2518.4 Bq
 /gate/source/capillary17mm/setType            pPsJPET
 /gate/source/capillary17mm/gps/particle       gamma
 
@@ -182,7 +182,7 @@
 /gate/source/sphere22mm/gps/type              Volume
 /gate/source/sphere22mm/gps/shape             Sphere
 /gate/source/sphere22mm/gps/radius            1.1 cm
-/gate/source/sphere22mm/setActivity           118196. Bq
+/gate/source/sphere22mm/setActivity           11819.6 Bq
 /gate/source/sphere22mm/setType               pPsJPET
 /gate/source/sphere22mm/gps/particle          gamma
 
@@ -193,7 +193,7 @@
 /gate/source/capillary22mm/gps/shape          Cylinder
 /gate/source/capillary22mm/gps/radius         0.25 cm
 /gate/source/capillary22mm/gps/halfz          2.9 cm
-/gate/source/capillary22mm/setActivity        24143. Bq
+/gate/source/capillary22mm/setActivity        2414.3 Bq
 /gate/source/capillary22mm/setType            pPsJPET
 /gate/source/capillary22mm/gps/particle       gamma
 

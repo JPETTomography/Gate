@@ -4,6 +4,12 @@
 
 https://github.com/JPETTomography/j-pet-gate-tools/tree/master/examples/simulations/main/NEMA_Image_Quality
 
+## About sources activities:
+
+1. To maintain the correct ratio between source activities please use only **/gate/application/setTimeSOMETHING** methods
+2. By default activities of this NEMA phantom are 10 times lower - it is to reduce time of simulation.
+3. This example needs aproximately 10 minutes to simulates 1 second
+
 ## Geometry overview
 
 ![Alt text](images/NEMA-front.png?raw=false "Front of phantom")
