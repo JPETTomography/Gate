@@ -11,7 +11,7 @@ https://github.com/JPETTomography/j-pet-gate-tools/tree/master/examples/simulati
 3. This example needs aproximately 10 minutes to simulates 1 second
 
 ## Creating of control histograms
-If you want create control histograms for NEMA phantom you can find source code for this here [here](https://github.com/BlurredChoise/DataAnalysisFromSimulations/tree/master/NEMAControlHistograms)
+If you want create control histograms for NEMA phantom you can find source code for this [here](https://github.com/BlurredChoise/DataAnalysisFromSimulations/tree/master/NEMAControlHistograms)
 
 ## Geometry overview
 
