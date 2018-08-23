@@ -21,6 +21,9 @@
 #include "GateJPETOrtoPositroniumDecayModel.hh" //Generate 3 gamma from oPs decay
 #include "GateJPETSingleGammaModel.hh" //Generate 1 gamma
 #include "GateJPETParaPlusPromptDecayModel.hh"//Generate 2 gammas from pPs decay and one from deexcitation
+#include "GateJPETOrtoPlusPromptDecayModel.hh"//Generate 3 gammas from pPs decay and one from deexcitation
+#include "GateJPETFourGammasDecayModel.hh"//Generate 4 gammas from positronium annihilation
+#include "GateJPETFiveGammasDecayModel.hh"//Generate 5 gammas from positronium annihilation
 
 GateJPETModels::GateJPETModels()
 {
@@ -32,18 +35,27 @@ GateJPETModels::~GateJPETModels()
 
 void GateJPETModels::InitModels()
 {
-	//Below add your class constructor call and description
+ //Below add your class constructor call and description
 
-	//Generate 2 gamma from PPs decay
-	GateJPETParaPositroniumDecayModel::GetInstance();
+ //Generate 2 gamma from PPs decay
+ GateJPETParaPositroniumDecayModel::GetInstance();
 
-	//Generate 3 gamma from OPs decay
-	GateJPETOrtoPositroniumDecayModel::GetInstance();
+ //Generate 3 gamma from OPs decay
+ GateJPETOrtoPositroniumDecayModel::GetInstance();
 
-	//Generate single gamma - useful for tests
-	GateJPETSingleGammaModel::GetInstance();
+ //Generate single gamma - useful for tests
+ GateJPETSingleGammaModel::GetInstance();
 
-	//Generate 2 + 1 gammas
-	GateJPETParaPlusPromptDecayModel::GetInstance();
+ //Generate 2 + 1 gammas
+ GateJPETParaPlusPromptDecayModel::GetInstance();
+
+ //Generate 3 + 1 gammas
+ GateJPETOrtoPlusPromptDecayModel::GetInstance();
+
+ //Generate 4 gammas from positronium annihilation
+ GateJPETFourGammasDecayModel::GetInstance();
+
+ //Generate 5 gammas from positronium annihilation
+ GateJPETFiveGammasDecayModel::GetInstance();
 }
 
