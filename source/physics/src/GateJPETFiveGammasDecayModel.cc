@@ -28,6 +28,7 @@ GateJPETFiveGammasDecayModel::GateJPETFiveGammasDecayModel()
  G4cout <<"GateJPETFiveGammasDecayModel initialization.\n";
  SetParticlesNumber( 5 );
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
+ fRandomGen.SetSeed(0);
 }
 
 GateJPETFiveGammasDecayModel::~GateJPETFiveGammasDecayModel()
@@ -40,9 +41,17 @@ void GateJPETFiveGammasDecayModel::GetGammaParticles(std::vector<G4PrimaryPartic
  TLorentzVector positronium( 0.0, 0.0, 0.0, 2.0 * mass_e );
  Double_t mass_secondaries[ 5 ] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
- TGenPhaseSpace four_body_decay;
- four_body_decay.SetDecay( positronium, 4, mass_secondaries );
- four_body_decay.Generate(); 
+ TGenPhaseSpace five_body_decay;
+ five_body_decay.SetDecay( positronium, 5, mass_secondaries );
+
+ double uniform_weight, gen_weigth;
+
+ do
+ {
+  uniform_weight = fRandomGen.Uniform( 0.03 * 1.1 );
+  gen_weigth = five_body_decay.Generate();
+ }
+ while ( uniform_weight > gen_weigth );
 
  TLorentzVector gamma_momentum;
  G4ThreeVector gamma_polarization;
@@ -50,7 +59,7 @@ void GateJPETFiveGammasDecayModel::GetGammaParticles(std::vector<G4PrimaryPartic
  int particles_number = GetParticlesNumber();
  for ( int i = 0; i < particles_number; ++i )
  {
-  gamma_momentum = *four_body_decay.GetDecay( i );
+  gamma_momentum = *five_body_decay.GetDecay( i );
   particles[ i ]->SetMomentum( gamma_momentum.Px() * 1000.0, gamma_momentum.Py() * 1000.0, gamma_momentum.Pz() * 1000.0 );
   gamma_polarization = GetPolarization( particles[ i ]->GetMomentumDirection() );
   particles[ i ]->SetPolarization( gamma_polarization );

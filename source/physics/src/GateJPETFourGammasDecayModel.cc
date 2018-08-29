@@ -28,6 +28,7 @@ GateJPETFourGammasDecayModel::GateJPETFourGammasDecayModel()
  G4cout <<"GateJPETFourGammasDecayModel initialization.\n";
  SetParticlesNumber(4);
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
+ fRandomGen.SetSeed(0);
 }
 
 GateJPETFourGammasDecayModel::~GateJPETFourGammasDecayModel()
@@ -41,8 +42,16 @@ void GateJPETFourGammasDecayModel::GetGammaParticles(std::vector<G4PrimaryPartic
  Double_t mass_secondaries[ 4 ] = { 0.0, 0.0, 0.0, 0.0 };
 
  TGenPhaseSpace four_body_decay;
- four_body_decay.SetDecay( positronium, 4, mass_secondaries );
- four_body_decay.Generate(); 
+ four_body_decay.SetDecay( positronium, 4, mass_secondaries ); 
+
+ double uniform_weight, gen_weigth;
+
+ do
+ {
+  uniform_weight = fRandomGen.Uniform( 0.12 * 1.1 );
+  gen_weigth = four_body_decay.Generate();
+ }
+ while ( uniform_weight > gen_weigth );
 
  TLorentzVector gamma_momentum;
  G4ThreeVector gamma_polarization;

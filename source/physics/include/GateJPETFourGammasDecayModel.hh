@@ -19,6 +19,7 @@
 #include "GateGammaSourceModel.hh"
 #include "TGenPhaseSpace.h"
 #include "GateJPETSourceManager.hh"
+#include "TRandom3.h"
 
 /**Author: Mateusz Bała
  * Email: bala.mateusz@gmail.com
@@ -44,6 +45,7 @@ class GateJPETFourGammasDecayModel : public GateGammaSourceModel
  private:
   GateJPETFourGammasDecayModel();
   static GateJPETFourGammasDecayModel* ptrJPETFourGammasDecayModel;
+  TRandom3 fRandomGen;
 };
 
 #endif

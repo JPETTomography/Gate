@@ -44,6 +44,7 @@ class GateJPETFiveGammasDecayModel : public GateGammaSourceModel
  private:
   GateJPETFiveGammasDecayModel();
   static GateJPETFiveGammasDecayModel* ptrJPETFiveGammasDecayModel;
+  TRandom3 fRandomGen;
 };
 
 #endif

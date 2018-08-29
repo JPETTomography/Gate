@@ -69,7 +69,7 @@ void GateJPETOrtoPlusPromptDecayModel::AddGammasFromOrtoPositronium( std::vector
  int particles_number = GetParticlesNumber();
 
  for(int i = 1; i < particles_number; ++i){
-  TLorentzVector partDir = *m_3_body_decay.GetDecay( i );
+  TLorentzVector partDir = *m_3_body_decay.GetDecay( i - 1 );
   partDir.Boost( GetPositronMomentum() );
   // "*1000.0" because GetDecay return momentum in GeV but Geant4 and Gate make calculation in MeV
   particles[ i ]->SetMomentum( ( partDir.Px() ) * 1000.0, (partDir.Py() ) * 1000.0, ( partDir.Pz() ) * 1000.0 ); 
