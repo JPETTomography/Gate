@@ -3,12 +3,13 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #ifndef GATEPHYSICSLIST_CC
 #define GATEPHYSICSLIST_CC
 
+#include "G4Version.hh"
 #include "GatePhysicsList.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4Hybridino.hh"
@@ -87,7 +88,7 @@ GatePhysicsList::GatePhysicsList(): G4VModularPhysicsList()
   pMessenger = new GatePhysicsListMessenger(this);
   pMessenger->BuildCommands("/gate/physics");
 
-  opt = new G4EmProcessOptions();
+  emPar= G4EmParameters::Instance();
 }
 //-----------------------------------------------------------------------------------------
 
@@ -114,13 +115,16 @@ GatePhysicsList::~GatePhysicsList()
   mListOfStepLimiter.clear();
   mListOfG4UserSpecialCut.clear();
   GateVProcess::Delete();
-  delete opt;
 
   // delete the transportation process (should be done in ~G4VUserPhysicsList())
   bool isTransportationDelete = false;
+#if G4VERSION_NUMBER >= 1030
+  auto theParticleIterator=GetParticleIterator();
+#else
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   //G4ParticleTable::G4PTblDicIterator *
   theParticleIterator = theParticleTable->GetIterator();
+#endif
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){//&& !isTransportationDelete){
     G4ParticleDefinition* particle = theParticleIterator->value();
@@ -212,11 +216,11 @@ void GatePhysicsList::ConstructProcess()
         (*GetTheListOfProcesss())[i]->ConstructProcess();
 
       //opt->SetVerbose(2);
-      if(mDEDXBinning>0)   opt->SetDEDXBinning(mDEDXBinning);
-      if(mLambdaBinning>0) opt->SetLambdaBinning(mLambdaBinning);
-      if(mEmin>0)          opt->SetMinEnergy(mEmin);
-      if(mEmax>0)          opt->SetMaxEnergy(mEmax);
-      opt->SetSplineFlag(mSplineFlag);
+      if(mDEDXBinning>0)   emPar->SetNumberOfBins(mDEDXBinning);
+      if(mLambdaBinning>0) emPar->SetNumberOfBins(mLambdaBinning);
+      if(mEmin>0)          emPar->SetMinEnergy(mEmin);
+      if(mEmax>0)          emPar->SetMaxEnergy(mEmax);
+      emPar->SetSpline(mSplineFlag);
     }
   else GateMessage("Physic",1,"GatePhysicsList::Construct() -- Warning: processes already defined!\n");
 
@@ -334,9 +338,9 @@ void GatePhysicsList::ConstructPhysicsList(G4String name)
 
   // Fluorescence processes
   // - default activation of deexcitation process
-  opt->SetFluo(true);
-  opt->SetAuger(true);
-  opt->SetPIXE(true);
+  emPar->SetFluo(true);
+  emPar->SetAuger(true);
+  emPar->SetPixe(true);
 }
 //-----------------------------------------------------------------------------------------
 
@@ -500,7 +504,11 @@ void GatePhysicsList::Print(G4String name)
 
   if(name=="All")
     {
+#if G4VERSION_NUMBER >= 1030
+      auto theParticleIterator=GetParticleIterator();
+#else
       theParticleIterator = theParticleTable->GetIterator();
+#endif
       theParticleIterator -> reset();
       while( (*theParticleIterator)() ) {
 	particle = theParticleIterator->value();
@@ -580,9 +588,9 @@ void GatePhysicsList::AddAtomDeexcitation()
     G4LossTableManager::Instance()->SetAtomDeexcitation(de);
   }
 
-  opt->SetFluo(true);
-  opt->SetAuger(true);
-  opt->SetPIXE(true);
+  emPar->SetFluo(true);
+  emPar->SetAuger(true);
+  emPar->SetPixe(true);
 }
 //-----------------------------------------------------------------------------------------
 
@@ -660,7 +668,7 @@ void GatePhysicsList::PurgeIfFictitious()
 void GatePhysicsList::Write(G4String file)
 {
   G4ParticleDefinition* particle=0;
-  G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
+  //G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   G4ProcessManager* manager = 0;
   G4ProcessVector * processvector = 0;
   //G4ParticleTable::G4PTblDicIterator *
@@ -674,8 +682,12 @@ void GatePhysicsList::Write(G4String file)
 
   os<<"List of particles with their associated processes\n\n";
   if(mLoadState<2)  os<<"<!> *** Warning *** <!>  Processes not yet initialized!\n\n";
-
+#if G4VERSION_NUMBER >= 1030
+  auto theParticleIterator=GetParticleIterator();
+#else
+  G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   theParticleIterator = theParticleTable->GetIterator();
+#endif
   theParticleIterator -> reset();
   while( (*theParticleIterator)() ) {
     particle = theParticleIterator->value();
@@ -718,19 +730,18 @@ void GatePhysicsList::Write(G4String file)
 //-----------------------------------------------------------------------------
 void GatePhysicsList::SetEmProcessOptions()
 {
-  opt = new G4EmProcessOptions();
-  if(mDEDXBinning>0)   opt->SetDEDXBinning(mDEDXBinning);
-  if(mLambdaBinning>0) opt->SetLambdaBinning(mLambdaBinning);
-  if(mEmin>0)          opt->SetMinEnergy(mEmin);
-  if(mEmax>0)          opt->SetMaxEnergy(mEmax);
-  opt->SetSplineFlag(mSplineFlag);
-  opt->SetApplyCuts(true);
+  if(mDEDXBinning>0)   emPar->SetNumberOfBins(mDEDXBinning);
+  if(mLambdaBinning>0) emPar->SetNumberOfBins(mLambdaBinning);
+  if(mEmin>0)          emPar->SetMinEnergy(mEmin);
+  if(mEmax>0)          emPar->SetMaxEnergy(mEmax);
+  emPar->SetSpline(mSplineFlag);
+  emPar->SetApplyCuts(true);
 
   // Fluorescence processes
   // - register all regions in deexcitation process with fluo, auger and PIXE set to "true"
   GateObjectStore *store = GateObjectStore::GetInstance();
   for(GateObjectStore::iterator it=store->begin() ; it!=store->end() ; ++it){
-    opt->SetDeexcitationActiveRegion(it->first,true,true,true); // G4region, fluo, auger, PIXE
+    emPar->SetDeexActiveRegion(it->first,true,true,true); // G4region, fluo, auger, PIXE
   }
 }
 //-----------------------------------------------------------------------------------------
@@ -749,7 +760,7 @@ void GatePhysicsList::SetCuts()
   // SetCutsWithDefault();
 
   // This is needed to enable user cuts
-  opt->SetApplyCuts(true);
+  emPar->SetApplyCuts(true);
 }
 //-----------------------------------------------------------------------------
 
@@ -924,9 +935,13 @@ void GatePhysicsList::DefineCuts(G4VUserPhysicsList * phys)
   //FIXME
   //DD(mListOfStepLimiter.size());
   if (mListOfStepLimiter.size()!=0) {
+#if G4VERSION_NUMBER >= 1030
+    auto theParticleIterator=GetParticleIterator();
+#else
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
     //G4ParticleTable::G4PTblDicIterator *
     theParticleIterator = theParticleTable->GetIterator();
+#endif
     theParticleIterator->reset();
     while( (*theParticleIterator)() ){
       G4ParticleDefinition* particle = theParticleIterator->value();
@@ -943,9 +958,13 @@ void GatePhysicsList::DefineCuts(G4VUserPhysicsList * phys)
 
   //DD(mListOfG4UserSpecialCut.size());
   if (mListOfG4UserSpecialCut.size()!=0) {
+#if ( G4VERSION_NUMBER >= 1030 )
+    auto theParticleIterator=GetParticleIterator();
+#else
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
     //G4ParticleTable::G4PTblDicIterator *
     theParticleIterator = theParticleTable->GetIterator();
+#endif
     theParticleIterator->reset();
     while( (*theParticleIterator)() ){
       G4ParticleDefinition* particle = theParticleIterator->value();
@@ -1193,9 +1212,8 @@ void GatePhysicsList::GetCuts()
 //-----------------------------------------------------------------------------
 void GatePhysicsList::SetOptDEDXBinning(G4int val)
 {
-  //G4EmProcessOptions * opt = new G4EmProcessOptions();
   mDEDXBinning=val;
-  opt->SetDEDXBinning(mDEDXBinning);
+  emPar->SetNumberOfBins(mDEDXBinning);
 }
 //-----------------------------------------------------------------------------
 
@@ -1203,7 +1221,8 @@ void GatePhysicsList::SetOptDEDXBinning(G4int val)
 void GatePhysicsList::SetOptLambdaBinning(G4int val)
 {
   mLambdaBinning=val;
-  opt->SetLambdaBinning(mLambdaBinning);
+  emPar->SetNumberOfBins(mDEDXBinning);
+  emPar->SetNumberOfBins(mLambdaBinning); 
 }
 //-----------------------------------------------------------------------------
 
@@ -1212,7 +1231,7 @@ void GatePhysicsList::SetOptLambdaBinning(G4int val)
 void GatePhysicsList::SetOptEMin(G4double val)
 {
   mEmin=val;
-  opt->SetMinEnergy(mEmin);
+  emPar->SetMinEnergy(mEmin);
 }
 //-----------------------------------------------------------------------------
 
@@ -1221,7 +1240,7 @@ void GatePhysicsList::SetOptEMin(G4double val)
 void GatePhysicsList::SetOptEMax(G4double val)
 {
   mEmax=val;
-  opt->SetMaxEnergy(mEmax);
+  emPar->SetMaxEnergy(mEmax);
 }
 //-----------------------------------------------------------------------------
 
@@ -1230,7 +1249,7 @@ void GatePhysicsList::SetOptEMax(G4double val)
 void GatePhysicsList::SetOptSplineFlag(G4bool val)
 {
   mSplineFlag=val;
-  opt->SetSplineFlag(mSplineFlag);
+  emPar->SetSpline(mSplineFlag);
 }
 //-----------------------------------------------------------------------------
 

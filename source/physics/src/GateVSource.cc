@@ -3,7 +3,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #include "G4ParticleTable.hh"
@@ -128,12 +128,6 @@ GateVSource::~GateVSource()
 }
 //-------------------------------------------------------------------------------------------------
 
-void GateVSource::Initialize()
-{
-  GetParticleDefinition()->SetPDGLifeTime(0); // let Gate control the decay time of radioactive particles
-}
-
-
 #ifndef G4VIS_USE
 void GateVSource::Visualize(G4String){
 #endif
@@ -232,6 +226,8 @@ G4double GateVSource::GetNextTime( G4double timeStart )
         activityNow = 0.;
       else
         {
+	  // Force life time to 0, time is managed by GATE not G4
+	  GetParticleDefinition()->SetPDGLifeTime(0);
 	  if( m_forcedUnstableFlag )
             {
 	      if( m_forcedLifeTime > 0. )
