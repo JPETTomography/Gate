@@ -34,8 +34,17 @@ GateJPETSingleGammaModel::~GateJPETSingleGammaModel()
 
 void GateJPETSingleGammaModel::GetGammaParticles(std::vector<G4PrimaryParticle*>& particles)
 {
-	G4PrimaryParticle* particle = particles[0];
-	particle->SetPolarization(GetPolarization(particle->GetMomentumDirection()));
+ Double_t x = 0, y = 0, z = 0;
+ GetRandomGenerator()->Sphere( x, y, z, 1.0 );
+
+ G4ThreeVector momentum_direction( x, y, z );
+ G4double kinetic_energy = GetPromptGammaEnergy();
+ G4ThreeVector gamma_polarization = GetPolarization( momentum_direction );
+
+ particles[ 0 ]->SetMomentumDirection( momentum_direction );
+ particles[ 0 ]->SetMass( 0.0 );
+ particles[ 0 ]->SetKineticEnergy( kinetic_energy );
+ particles[ 0 ]->SetPolarization( gamma_polarization );
 }
 
 G4String GateJPETSingleGammaModel::GetModelName()
