@@ -39,6 +39,10 @@ public:
 
   G4int         FindPrimaryID(G4int trackID);
 
+  G4ThreeVector FindInitialMomentum(G4int trackID);
+
+  G4double      FindInitialKineticEnergy(G4int trackID);
+
   void          Initialize();
 
   void                          SetTrajectoryContainer(G4TrajectoryContainer* trajectoryContainer);

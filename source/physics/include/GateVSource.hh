@@ -28,6 +28,7 @@
 
 #include "G4Colour.hh"
 #include "GateMaps.hh"
+#include "TVector3.h"
 //-------------------------------------------------------------------------------------------------
 class GateVSource : public G4SingleParticleSource
 {
@@ -35,7 +36,7 @@ public:
   GateVSource( G4String name );
   virtual ~GateVSource();
 
-  virtual  void Initialize(){}
+  virtual  void Initialize();
 
   virtual void SetName( G4String value ) { m_name = value; }
   virtual G4String GetName()             { return m_name; }

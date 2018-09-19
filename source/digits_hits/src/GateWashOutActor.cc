@@ -79,7 +79,8 @@ void GateWashOutActor::BeginOfRunAction(const G4Run * r) {
 
     GateVSource * SourceIni = (GateSourceMgr::GetInstance())->GetSource(nsource);
 
-    if ( SourceIni->GetType() == G4String("gps") || SourceIni->GetType() == G4String("backtoback") || SourceIni->GetType() == G4String("") );
+    if ( SourceIni->GetType() == G4String("gps") || SourceIni->GetType() == G4String("backtoback") ||
+       SourceIni->GetType() == G4String("") || SourceIni->GetType() == G4String("3GammaAnnihilation") );
     else { GateError("WashOut Actor :: ERROR. Source type is not valid.\n"); }
 
     if ( !(SourceIni->GetIfSourceVoxelized()) ) {

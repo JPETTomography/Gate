@@ -1,0 +1,13 @@
+/vis/disable
+/gate/geometry/setMaterialDatabase    GateMaterials.db
+/control/execute Geometry.mac
+/control/execute GeometryPhantomNEMA.mac
+/control/execute Physic.mac
+/control/execute Actor.mac
+/gate/run/initialize 
+/control/execute SourceNEMA.mac
+/gate/output/allowNoOutput
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed auto
+/control/execute Application.mac
+exit

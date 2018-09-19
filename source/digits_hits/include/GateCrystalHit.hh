@@ -55,11 +55,15 @@ class GateCrystalHit : public G4VHit
 private:
   G4double m_edep;            // energy deposit for the current hit
   G4double m_stepLength;      // length of the step for the current hit
+  G4double m_trackLength;      // length of the track
   G4double m_time;            // time of the current hit
+  G4double m_trackLocalTime;  // time of the current track
   G4ThreeVector m_pos;        // position of the current hit
   G4double m_posx;
   G4double m_posy;
   G4double m_posz;
+  G4ThreeVector m_momDir;        // momentum Direction of the particle after hit
+  G4ThreeVector m_initMomDir;        // momentum Direction of the particle before hit
   G4ThreeVector m_localPos;   // position of the current hit
   G4String m_process;         // process on the current hit
   G4int m_PDGEncoding;        // G4 PDGEncoding
@@ -82,6 +86,10 @@ private:
   G4double m_scannerRotAngle; // Rotation angle of the scanner
   GateOutputVolumeID m_outputVolumeID;
   G4int m_systemID;           // system ID in for the multi-system approach
+  G4double m_energyInitial;   // energy of particle before hit
+  G4double m_energyFinal;     // energy of partice after hit
+  G4double m_generatedEnergy; // generated kinetic energy of the particle (at the begining of track)
+  G4ThreeVector m_generatedMomentum; // generated momentum of the particle (at the begining of track)
 
   // To use with GateROOTBasicOutput classes
   G4ThreeVector pos;  // position
@@ -97,15 +105,40 @@ private:
       inline void SetStepLength(G4double value) { m_stepLength = value; }
       inline G4double GetStepLength() const          { return m_stepLength; }
 
+      inline void SetTrackLength(G4double value) { m_trackLength = value; }
+      inline G4double GetTrackLength() const          { return m_trackLength; }
+
+      inline void     SetTrackLocalTime(G4double aTime)    { m_trackLocalTime = aTime; }
+      inline G4double GetTrackLocalTime() const                { return m_trackLocalTime; }
+
       inline void     SetTime(G4double aTime)    { m_time = aTime; }
       inline G4double GetTime() const                { return m_time; }
+
+      inline void     SetInitialEnergy(G4double iEnergy)    { m_energyInitial = iEnergy; }
+      inline G4double GetInitialEnergy() const                { return m_energyInitial; }
+
+      inline void     SetFinalEnergy(G4double fEnergy)    { m_energyFinal = fEnergy; }
+      inline G4double GetFinalEnergy() const                { return m_energyFinal; }
 
       inline void  SetGlobalPos(const G4ThreeVector& xyz)    { m_pos = xyz; }
       inline const G4ThreeVector& GetGlobalPos() const            { return m_pos; }
 
 
+      inline void  SetMomentumDir(const G4ThreeVector& xyz)     { m_momDir = xyz; }
+      inline const G4ThreeVector& GetMomentumDir() const             { return m_momDir; }
+
+      inline void  SetInitialMomentumDir(const G4ThreeVector& xyz)     { m_initMomDir = xyz; }
+      inline const G4ThreeVector& GetInitialMomentumDir() const             { return m_initMomDir; }
+
+      inline void  SetGeneratedMomentum(const G4ThreeVector& xyz) { m_generatedMomentum = xyz;}
+      inline const G4ThreeVector& GetGeneratedMomentum() const         { return m_generatedMomentum; }
+
+      inline void  SetGeneratedEnergy(const G4double j) { m_generatedEnergy = j;}
+      inline G4double GetGeneratedEnergy()         { return m_generatedEnergy; }
+
       inline void  SetLocalPos(const G4ThreeVector& xyz)     { m_localPos = xyz; }
       inline const G4ThreeVector& GetLocalPos() const             { return m_localPos; }
+
 
       inline void     SetProcess(G4String proc) { m_process = proc; }
       inline G4String GetProcess() const             { return m_process; }
