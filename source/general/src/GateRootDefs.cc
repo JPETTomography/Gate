@@ -111,15 +111,6 @@ void GateRootHitBuffer::Clear()
   runID           = -1;
   axialPos        = 0.;
   rotationAngle   = 0.;
-  initMomDirX     = 0.;
-  initMomDirY     = 0.;
-  initMomDirZ     = 0.;
-  energyInitial      = 0.;
-  energyFinal     = 0;
-  generatedEnergy = 0;
-  generatedMomentumX = 0;
-  generatedMomentumY = 0;
-  generatedMomentumZ = 0;
 
   strcpy (processName, " ");
   strcpy (comptonVolumeName," ");
@@ -324,13 +315,6 @@ void GateHitTree::SetBranchAddresses(TTree* hitTree,GateRootHitBuffer& buffer)
   hitTree->SetBranchAddress("comptVolName",&buffer.comptonVolumeName);
   hitTree->SetBranchAddress("RayleighVolName",&buffer.RayleighVolumeName);
   hitTree->SetBranchAddress("volumeID",buffer.volumeID);
-  hitTree->SetBranchAddress("generatedEnergy",&buffer.generatedEnergy);
-  hitTree->SetBranchAddress("initMomDirX",&buffer.initMomDirX);
-  hitTree->SetBranchAddress("initMomDirY",&buffer.initMomDirY);
-  hitTree->SetBranchAddress("initMomDirZ",&buffer.initMomDirZ);
-  hitTree->SetBranchAddress("generatedMomentumX",&buffer.generatedMomentumX);
-  hitTree->SetBranchAddress("generatedMomentumY",&buffer.generatedMomentumY);
-  hitTree->SetBranchAddress("generatedMomentumZ",&buffer.generatedMomentumZ);
 }
 
 
@@ -599,6 +583,7 @@ void GateCoincTree::Init(GateRootCoincBuffer& buffer)
   if ( GateCoincidenceDigi::GetCoincidenceASCIIMask(17) )
     Branch("rotationAngle",  &buffer.rotationAngle,"rotationAngle/F");
 
+  if ( GateCoincidenceDigi::GetCoincidenceASCIIMask(1) )
     Branch("eventID1",       &buffer.eventID1,"eventID1/I");
   if ( GateCoincidenceDigi::GetCoincidenceASCIIMask(2) )
     Branch("sourceID1",      &buffer.sourceID1,"sourceID1/I");
@@ -679,4 +664,6 @@ void GateCoincTree::Init(GateRootCoincBuffer& buffer)
     Branch("RayleighVolName2",  (void *)buffer.RayleighVolumeName2,"RayleighVolName2/C");
 }
 
+
 #endif
+
