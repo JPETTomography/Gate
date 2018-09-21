@@ -3,7 +3,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #ifndef GATEVSOURCE_H
@@ -36,7 +36,7 @@ public:
   GateVSource( G4String name );
   virtual ~GateVSource();
 
-  virtual  void Initialize();
+  virtual  void Initialize(){}
 
   virtual void SetName( G4String value ) { m_name = value; }
   virtual G4String GetName()             { return m_name; }

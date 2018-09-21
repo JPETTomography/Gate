@@ -5,7 +5,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 /*!
@@ -37,7 +37,7 @@ public:
   G4int GeneratePrimaries(G4Event* event);
   void GenerateVertex(G4Event* );
   void SetFilename(G4String filename);
-
+  
 protected:
   GateSourceOfPromptGammaMessenger * pMessenger;
   bool mIsInitializedFlag;
@@ -47,6 +47,7 @@ protected:
   double mEnergy; // because particle_energy is private (FIXME will be changed)
 
   void Initialize();
+  double ng;
   void InitializeNumberOfPrimaries();
 }; // end class
 //------------------------------------------------------------------------

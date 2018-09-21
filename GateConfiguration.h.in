@@ -7,6 +7,7 @@
 
 #cmakedefine GATE_USE_ROOT                 @GATE_USE_ROOT@
 #cmakedefine GATE_USE_OPTICAL              @GATE_USE_OPTICAL@
+#cmakedefine GATE_USE_XRAYLIB              @GATE_USE_XRAYLIB@
 #cmakedefine GATE_ANALYSIS_USE_GENERAL     @GATE_ANALYSIS_USE_GENERAL@
 #cmakedefine GATE_ANALYSIS_USE_FILE        @GATE_ANALYSIS_USE_FILE@
 #cmakedefine GATE_USE_LMF                  @GATE_USE_LMF@
@@ -14,6 +15,7 @@
 #cmakedefine GATE_USE_GEANT4_UIVIS         @GATE_USE_GEANT4_UIVIS@
 #cmakedefine GATE_USE_RTK                  @GATE_USE_RTK@
 #cmakedefine GATE_USE_ITK                  @GATE_USE_ITK@
+#cmakedefine GATE_USE_DAVIS                @GATE_USE_DAVIS@
 
 #ifdef GATE_USE_ROOT
  #define G4ANALYSIS_USE_ROOT 1

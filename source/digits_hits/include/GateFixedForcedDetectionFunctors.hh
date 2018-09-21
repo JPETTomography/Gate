@@ -10,23 +10,35 @@
 #include <G4CompositeEMDataSet.hh>
 #include <G4CrossSectionHandler.hh>
 #include <G4Poisson.hh>
+#include <G4Gamma.hh>
+
+/* Gate */
 #include "GateEnergyResponseFunctor.hh"
-#include "G4Gamma.hh"
+
 /* ITK */
 #include <itkImage.h>
 #include <itkImageRegionIterator.h>
 #include <itkTimeProbe.h>
+#include <itkForwardFFTImageFilter.h>
 
 /* RTK */
 #include <rtkConfiguration.h>
+
+/* XRAYLIB */
+#ifdef GATE_USE_XRAYLIB
+#include <xraylib.h>
+// xraylib defines ZMAX which interfers with another Geant4 dev, undefine.
+#  ifdef ZMAX
+#    undef ZMAX
+#  endif
+#endif
 
 struct newPhoton
   {
   G4ThreeVector direction;
   G4ThreeVector position;
-  double energy;
   double weight;
-  double time;
+  double energy;
   };
 
 namespace GateFixedForcedDetectionFunctor
@@ -44,11 +56,11 @@ namespace GateFixedForcedDetectionFunctor
       InterpolationWeightMultiplication()
         {
         }
-      ;
+
       ~InterpolationWeightMultiplication()
         {
         }
-      ;
+
       bool operator!=(const InterpolationWeightMultiplication &) const
         {
         return false;
@@ -86,9 +98,14 @@ namespace GateFixedForcedDetectionFunctor
       typedef float InputPixelType;
       typedef itk::Image<InputPixelType, Dimension> InputImageType;
       typedef itk::Image<double, 2> MaterialMuImageType;
+      typedef itk::Image<double, 2> MaterialDeltaImageType;
 
       VAccumulation() :
-          m_NumberOfPrimaries(0), m_EnergyResolvedBinSize(0.), m_generatePhotons(false)
+          m_NumberOfPrimaries(0),
+          m_MuToDeltaImageOffset(0),
+          m_EnergyResolvedBinSize(0.),
+          m_generatePhotons(false),
+          m_ARF(false)
         {
         for (int i = 0; i < ITK_MAX_THREADS; i++)
           {
@@ -118,6 +135,11 @@ namespace GateFixedForcedDetectionFunctor
         {
         m_EnergyWeightList = _arg;
         }
+      void SetMuToDeltaImageOffset(const std::ptrdiff_t o)
+        {
+        m_MuToDeltaImageOffset = o;
+        }
+
       void Init(unsigned int nthreads)
         {
         for (unsigned int i = 0; i < nthreads; i++)
@@ -152,6 +174,11 @@ namespace GateFixedForcedDetectionFunctor
         return m_MaterialMu.GetPointer();
         }
 
+      MaterialDeltaImageType *GetMaterialDelta()
+        {
+        return m_MaterialDelta.GetPointer();
+        }
+
       void CreateMaterialMuMap(G4EmCalculator *emCalculator,
                                const double energySpacing,
                                const double energyMax,
@@ -164,10 +191,6 @@ namespace GateFixedForcedDetectionFunctor
           energyList.push_back(energyList.back() + energySpacing);
           }
         CreateMaterialMuMap(emCalculator, energyList, gateImageVolume);
-        MaterialMuImageType::SpacingType spacing;
-        spacing[0] = 1.;
-        spacing[1] = energySpacing;
-        m_MaterialMu->SetSpacing(spacing);
         MaterialMuImageType::PointType origin;
         origin.Fill(0.);
         m_MaterialMu->SetOrigin(origin);
@@ -240,11 +263,103 @@ namespace GateFixedForcedDetectionFunctor
         << muProbe.GetTotal() << ' '
         << muProbe.GetUnit()
         << G4endl;
+
+        MaterialMuImageType::SpacingType spacing;
+        spacing[0] = 1.;
+        if(energyList.size()>1)
+          spacing[1] = energyList[1]-energyList[0];
+        else
+          spacing[1] = 1.*keV;
+        m_MaterialMu->SetSpacing(spacing);
         }
+
+      void CreateMaterialDeltaMap(const double energySpacing,
+                                  const double energyMax,
+                                  GateVImageVolume * gateImageVolume)
+        {
+        std::vector<double> energyList;
+        energyList.push_back(0.);
+        while (energyList.back() < energyMax)
+          {
+          energyList.push_back(energyList.back() + energySpacing);
+          }
+        CreateMaterialDeltaMap(energyList, gateImageVolume);
+        MaterialDeltaImageType::PointType origin;
+        origin.Fill(0.);
+        m_MaterialDelta->SetOrigin(origin);
+        }
+
+      void CreateMaterialDeltaMap(const std::vector<double> & energyList,
+                                  GateVImageVolume * gateImageVolume)
+        {
+        m_EnergyList = energyList;
+        itk::TimeProbe deltaProbe;
+        deltaProbe.Start();
+
+        /* Get image materials + world */
+        std::vector<G4Material*> imageWorldMaterials;
+        gateImageVolume->BuildLabelToG4MaterialVector(imageWorldMaterials);
+        GateVVolume *volume = gateImageVolume;
+        while (volume->GetLogicalVolumeName() != "world_log")
+          {
+          volume = volume->GetParentVolume();
+          }
+        imageWorldMaterials.push_back(const_cast<G4Material*>(volume->GetMaterial()));
+
+        MaterialDeltaImageType::RegionType region;
+        region.SetSize(0, imageWorldMaterials.size());
+        region.SetSize(1, energyList.size());
+        m_MaterialDelta = MaterialDeltaImageType::New();
+        m_MaterialDelta->SetRegions(region);
+        m_MaterialDelta->Allocate();
+        itk::ImageRegionIterator<MaterialDeltaImageType> it(m_MaterialDelta, region);
+        for (unsigned int energy = 0; energy < energyList.size(); energy++)
+          {
+          for (unsigned int i = 0; i < imageWorldMaterials.size(); i++)
+            {
+            G4Material * mat = imageWorldMaterials[i];
+            double delta = 0.0;
+            double Density = mat->GetDensity() / (g/cm3);
+#ifdef GATE_USE_XRAYLIB
+            for (unsigned int i = 0; i < mat->GetElementVector()->size(); ++i)
+              {
+              delta += (1 - Refractive_Index_Re(mat->GetElementVector()->at(i)->GetSymbol(), energyList[energy]/(keV), 1.0)) * mat->GetFractionVector()[i];
+              }
+#else
+            G4Exception( "GateFixedForcedDetectionFunctors::CreateMaterialDeltaMap", "CreateMaterialDeltaMap", FatalException, "Xraylib is not available\n");
+#endif
+            delta *= Density;
+            it.Set(delta);
+            ++it;
+            }
+          }
+
+        deltaProbe.Stop();
+        G4cout
+        << "Computation of the delta lookup table took "
+        << deltaProbe.GetTotal() << ' '
+        << deltaProbe.GetUnit()
+        << G4endl;
+
+        MaterialDeltaImageType::SpacingType spacing;
+        spacing[0] = 1.;
+        if(energyList.size()>1)
+          spacing[1] = energyList[1]-energyList[0];
+        else
+          spacing[1] = 1.*keV;
+        m_MaterialDelta->SetSpacing(spacing);
+        }
+
 
       MaterialMuImageType::Pointer GetMaterialMuMap()
         {
         return m_MaterialMu;
+        }
+
+
+      MaterialDeltaImageType::Pointer GetMaterialDeltaMap()
+        {
+        return m_MaterialDelta;
         }
 
       double GetIntegralOverDetectorAndReset()
@@ -316,19 +431,22 @@ namespace GateFixedForcedDetectionFunctor
         {
         newPhoton photon;
         photon.weight = weight;
-
+        photon.energy = energy;
         for (int i = 0; i < 3; i++)
           {
           photon.position[i] = photonPosition[i];
           photon.direction[i] = photonDirection[i];
           }
 
-        photon.energy = energy;
         m_PhotonList[threadId].push_back(photon);
         }
       void setGeneratePhotons(const bool & boolean)
         {
         m_generatePhotons = boolean;
+        }
+      void setGenerateARF(const bool & boolean)
+        {
+        m_ARF = boolean;
         }
 
     protected:
@@ -353,20 +471,41 @@ namespace GateFixedForcedDetectionFunctor
         m_SquaredIntegralOverDetector[threadId] += valueToAccumulate * valueToAccumulate;
         }
 
+      inline void AccumulatePhase(float & output,
+                                  const double valueToAccumulate,
+                                  const double energy)
+        {
+        if (m_EnergyResolvedBinSize > 0)
+          {
+          const std::ptrdiff_t offset = m_EnergyResolvedSliceSize
+                                        * itk::Math::Floor<unsigned int>(energy
+                                                                         / m_EnergyResolvedBinSize
+                                                                         + 0.5);
+          *(&output + offset + m_MuToDeltaImageOffset) += valueToAccumulate;
+          }
+        else
+          {
+          *(&output + m_MuToDeltaImageOffset) += valueToAccumulate;
+          }
+        }
+
       VectorType m_VolumeSpacing;
       std::vector<double> *m_InterpolationWeights;
       std::vector<double> *m_EnergyWeightList;
       MaterialMuImageType::Pointer m_MaterialMu;
+      MaterialDeltaImageType::Pointer m_MaterialDelta;
       VectorType m_DetectorOrientationTimesPixelSurface;
       double m_IntegralOverDetector[ITK_MAX_THREADS];
       double m_SquaredIntegralOverDetector[ITK_MAX_THREADS];
       G4int m_NumberOfPrimaries;
       GateEnergyResponseFunctor *m_ResponseDetector;
       std::vector<double> m_EnergyList;
+      std::ptrdiff_t m_MuToDeltaImageOffset;
       double m_EnergyResolvedBinSize;
       unsigned int m_EnergyResolvedSliceSize;
       std::vector<std::vector<newPhoton> > m_PhotonList;
       bool m_generatePhotons;
+      bool m_ARF;
       };
 
     /* Most of the computation for the primary is done in this functor. After a ray
@@ -428,16 +567,38 @@ namespace GateFixedForcedDetectionFunctor
             double nprimE = m_NumberOfPrimaries * (*m_EnergyWeightList)[i];
             double n = ((nprimE)?G4Poisson(nprimE*a)/nprimE:0.);
             this->Accumulate(threadId,
-            output,
-            n * (*m_EnergyWeightList)[i] * (*m_ResponseDetector)(m_EnergyList[i] ),
-            m_EnergyList[i]);
+                             output,
+                             n * (*m_EnergyWeightList)[i] * (*m_ResponseDetector)(m_EnergyList[i] ),
+                             m_EnergyList[i]);
             }
           else
             {
             this->Accumulate(threadId,
-            output,
-            vcl_exp(-rayIntegral) * (*m_EnergyWeightList)[i],
-            m_EnergyList[i]);}
+                             output,
+                             vcl_exp(-rayIntegral) * (*m_EnergyWeightList)[i],
+                             m_EnergyList[i]);
+            }
+
+          /* Phase for Fresnel diffraction */
+          if (m_MuToDeltaImageOffset != 0)
+            {
+            double *q = m_MaterialDelta->GetPixelContainer()->GetBufferPointer();
+            double rayIntegral = 0.;
+            for (unsigned int j = 0; j < m_InterpolationWeights[threadId].size(); j++)
+              {
+              rayIntegral += m_InterpolationWeights[threadId][j] * *q++;
+              }
+
+            /* Matter wave : for photon, the formula is lambda = hc/E
+             * https://fr.wikipedia.org/wiki/Hypoth%C3%A8se_de_De_Broglie
+             */
+            double wavelength = h_Planck/(eV*s) * c_light/(m/s) / (m_EnergyList[i]/eV);
+            wavelength = wavelength * (m/mm); // To use the same unit as Geant4
+            rayIntegral *= (-2*itk::Math::pi/wavelength);
+            this->AccumulatePhase(output,
+                                  rayIntegral + vcl_log((*m_EnergyWeightList)[i])/2.,
+                                  m_EnergyList[i]);
+            }
           }
 
         /* Reset weights for next ray in thread.*/
@@ -511,8 +672,15 @@ namespace GateFixedForcedDetectionFunctor
 
         /* The last material is the world material. One must fill the weight with
          the length from farthest point to pixel point. */
-        m_InterpolationWeights[threadId].back() = worldVectorNorm;
 
+        if (!m_generatePhotons)
+          {
+          m_InterpolationWeights[threadId].back() = worldVectorNorm;
+          }
+        else
+          {
+          m_InterpolationWeights[threadId].back() = worldVectorNorm;
+          }
         const double energy = Eratio * m_Energy;
         unsigned int e = itk::Math::Round<double, double>(energy / m_MaterialMu->GetSpacing()[1]);
         double *p = m_MaterialMu->GetPixelContainer()->GetBufferPointer()
@@ -526,7 +694,35 @@ namespace GateFixedForcedDetectionFunctor
           }
 
         /* Final computation */
-        Accumulate(threadId, output, vcl_exp(-rayIntegral) * DCScompton * GetSolidAngle(sourceToPixel) * (*m_ResponseDetector)(energy), energy);
+        // double weight = vcl_exp(-rayIntegral) * DCScompton * GetSolidAngle(sourceToPixel) * (*m_ResponseDetector)(energy);
+        double weight = vcl_exp(-rayIntegral) * DCScompton * GetSolidAngle(sourceToPixel);
+        if (m_generatePhotons)
+          {
+          //Accumulate(threadId, output, weight, m_Energy);
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = farthestPoint[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, energy);
+          }
+        else if (m_ARF)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = sourceToPixel[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, energy);
+          }
+        else
+          {
+          Accumulate(threadId, output, weight * (*m_ResponseDetector)(energy), energy);
+          }
 
         /* Reset weights for next ray in thread. */
         std::fill(m_InterpolationWeights[threadId].begin(),
@@ -542,6 +738,7 @@ namespace GateFixedForcedDetectionFunctor
       void SetEnergyZAndWeight(const double &energy, const unsigned int &Z, const double &weight)
         {
         m_Energy = energy;
+        m_Weight = weight;
         m_E0m = m_Energy / electron_mass_c2;
         m_InvWlPhoton = std::sqrt(0.5) * cm * m_Energy / (h_Planck * c_light); /* sqrt(0.5) for trigo reasons, see comment when used */
 
@@ -555,6 +752,8 @@ namespace GateFixedForcedDetectionFunctor
       VectorType m_Direction;
       double m_Energy;
       double m_E0m;
+      double m_Weight;
+
       double m_InvWlPhoton;
       unsigned int m_Z;
       double m_eRadiusOverCrossSectionTerm;
@@ -632,7 +831,34 @@ namespace GateFixedForcedDetectionFunctor
           }
 
         /* Final computation */
-        Accumulate(threadId, output, vcl_exp(-rayIntegral) * DCSrayleigh * GetSolidAngle(sourceToPixel), m_Energy);
+        double weight = vcl_exp(-rayIntegral) * DCSrayleigh * GetSolidAngle(sourceToPixel);
+        if (m_generatePhotons)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = farthestPoint[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
+          }
+        else if (m_ARF)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = sourceToPixel[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
+          }
+
+        else
+          {
+          Accumulate(threadId, output, weight, m_Energy);
+          }
 
         /* Reset weights for next ray in thread. */
         std::fill(m_InterpolationWeights[threadId].begin(),
@@ -649,6 +875,7 @@ namespace GateFixedForcedDetectionFunctor
         unsigned int e = itk::Math::Round<double, double>(energy / m_MaterialMu->GetSpacing()[1]);
         m_InvWlPhoton = std::sqrt(0.5) * cm * energy / (h_Planck * c_light); // sqrt(0.5) for trigo reasons, see comment when used
         m_Energy = energy;
+        m_Weight = weight;
         m_MaterialMuPointer = m_MaterialMu->GetPixelContainer()->GetBufferPointer();
         m_MaterialMuPointer += e * m_MaterialMu->GetLargestPossibleRegion().GetSize()[0];
 
@@ -662,6 +889,7 @@ namespace GateFixedForcedDetectionFunctor
       VectorType m_Direction;
       double *m_MaterialMuPointer;
       double m_InvWlPhoton;
+      double m_Weight;
       double m_Energy;
       unsigned int m_Z;
       double m_eRadiusOverCrossSectionTerm;
@@ -722,7 +950,34 @@ namespace GateFixedForcedDetectionFunctor
           }
 
         /* Final computation */
-        Accumulate(threadId, output, m_Weight * vcl_exp(-rayIntegral)*GetSolidAngle(sourceToPixel)/(4*itk::Math::pi), m_Energy);
+        double weight = m_Weight * vcl_exp(-rayIntegral)*GetSolidAngle(sourceToPixel)/(4*itk::Math::pi);
+        if (m_generatePhotons)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = farthestPoint[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
+          }
+        else if (m_ARF)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = sourceToPixel[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
+          }
+
+        else
+          {
+          Accumulate(threadId, output, weight, m_Energy);
+          }
         /* Reset weights for next ray in thread. */
         std::fill(m_InterpolationWeights[threadId].begin(),
                   m_InterpolationWeights[threadId].end(),
@@ -808,24 +1063,33 @@ namespace GateFixedForcedDetectionFunctor
           }
 
         /* Final computation */
-
+        double weight = m_Weight * vcl_exp(-rayIntegral)*GetSolidAngle(sourceToPixel)/(4*itk::Math::pi);
         if (m_generatePhotons)
           {
-          double weight = m_Weight * vcl_exp(-rayIntegral)*GetSolidAngle(sourceToPixel)/(4*itk::Math::pi);
-          Accumulate(threadId, output, weight, m_Energy);
           VectorType photonDirection;
           VectorType photonPosition;
           for (int i = 0; i < 3; i++)
             {
-            photonDirection[i] =worldVector[i]/worldVectorNorm;
-            photonPosition[i]=farthestPoint[i]*m_VolumeSpacing[i];
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = farthestPoint[i] * m_VolumeSpacing[i];
             }
-
-          SavePhotonsparameters(threadId, photonPosition, photonDirection,weight,m_Energy);
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
           }
+        else if (m_ARF)
+          {
+          VectorType photonDirection;
+          VectorType photonPosition;
+          for (int i = 0; i < 3; i++)
+            {
+            photonDirection[i] = worldVector[i] / worldVectorNorm;
+            photonPosition[i] = sourceToPixel[i] * m_VolumeSpacing[i];
+            }
+          SavePhotonsparameters(threadId, photonPosition, photonDirection, weight, m_Energy);
+          }
+
         else
           {
-          Accumulate(threadId, output, m_Weight * vcl_exp(-rayIntegral)*GetSolidAngle(sourceToPixel)/(4*itk::Math::pi), m_Energy);
+          Accumulate(threadId, output, weight, m_Energy);
           }
 
         /* Reset weights for next ray in thread. */
@@ -837,9 +1101,9 @@ namespace GateFixedForcedDetectionFunctor
       void SetDirection(const VectorType &itkNotUsed(_arg))
         {
         }
-      void SetEnergyZAndWeight(const double &energy,
+      void SetEnergyZAndWeight(const double & energy,
                                const unsigned int &itkNotUsed(Z),
-                               const double &weight)
+                               const double & weight)
         {
         unsigned int e = itk::Math::Round<double, double>(energy / m_MaterialMu->GetSpacing()[1]);
         m_Weight = weight;
@@ -915,6 +1179,35 @@ namespace GateFixedForcedDetectionFunctor
     private:
       double m_invN;
       double m_invNm1;
+      };
+
+    template<class TInput1, class TInput2 = TInput1, class TOutput = std::complex<TInput1>>
+    class Transmittance
+      {
+    public:
+      Transmittance()
+        {
+        }
+      ~Transmittance()
+        {
+        }
+      bool operator!=(const Transmittance &) const
+        {
+        return false;
+        }
+
+      bool operator==(const Transmittance & other) const
+        {
+        return !(*this != other);
+        }
+
+      inline TOutput operator()(const TInput1 A, const TInput2 B) const
+        {
+        /* Calculate transmittance */
+        std::complex<TInput1> amp = std::complex<TInput1>(std::sqrt(A), 0.);  // Amplitude
+        std::complex<TInput1> pt = std::exp(std::complex<TInput1>(0., B));  // Phase Transition
+        return (TOutput) (amp*pt);
+        }
       };
 
   }

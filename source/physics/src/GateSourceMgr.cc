@@ -3,7 +3,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #include <sstream>
@@ -241,6 +241,11 @@ G4int GateSourceMgr::AddSource( std::vector<G4String> sourceVec )
       else if (sourceGeomType == "JPETSource"){
     	source = new GateJPETSource( sourceName );
     	source->SetSourceID( m_sourceProgressiveNumber );
+      }
+      else if (sourceGeomType == "fastY90") {
+        source = new GateSourceFastY90( sourceName );
+        source->SetType("fastY90");
+        source->SetSourceID( m_sourceProgressiveNumber );
       }
       else if (sourceGeomType == "") {
         source = new GateVSource( sourceName );
@@ -599,7 +604,7 @@ G4int GateSourceMgr::PrepareNextEvent( G4Event* event )
             source->SetSourceWeight(GetWeight());
             mNumberOfEventBySource[source->GetSourceID()+1]+=1;
             numVertices = source->GeneratePrimaries( event );
-        }
+          }
         else {
           if( mVerboseLevel > 0 )
             G4cout << "GateSourceMgr::PrepareNextEvent : m_time > m_timeLimit. No vertex generated\n";

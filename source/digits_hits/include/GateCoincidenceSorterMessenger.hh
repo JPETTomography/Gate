@@ -3,7 +3,7 @@
 
 This software is distributed under the terms
 of the GNU Lesser General  Public Licence (LGPL)
-See GATE/LICENSE.txt for further details
+See LICENSE.md for further details
 ----------------------*/
 
 
@@ -39,7 +39,7 @@ class GateCoincidenceSorter;
     \sa GateCoincidenceSorter
 */
 //    Last modification in 12/2011 by Abdul-Fattah.Mohamad-Hadi@subatech.in2p3.fr, for the multi-system approach.
-//    Modified 01/2016 by Jared.STRYDHORST@cea.fr for the
+//    Modified 01/2016 by Jared.STRYDHORST@cea.fr to add control of the presort buffer size
 
 class GateCoincidenceSorterMessenger: public GateClockDependentMessenger
 {

@@ -5,7 +5,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #include "GateConfiguration.h"
@@ -34,7 +34,7 @@
   FIXME:
   - manage a sparse version (not an histo at every pixel)
 
- */
+*/
 
 //-----------------------------------------------------------------------------
 class GateImageOfHistograms:public GateImage
@@ -69,6 +69,7 @@ public:
   virtual void UpdateSizesFromResolutionAndVoxelSize();
   void Scale(double f);
   double ComputeSum();
+  void Deallocate();
 
   // Compute and image (data only) of the sum of histo by pixel (in order HXYZ)
   void ComputeTotalOfCountsImageDataFloat(std::vector<float> & output);
