@@ -3,7 +3,7 @@
 
   This software is distributed under the terms
   of the GNU Lesser General  Public Licence (LGPL)
-  See GATE/LICENSE.txt for further details
+  See LICENSE.md for further details
   ----------------------*/
 
 #include "globals.hh"
@@ -309,7 +309,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                 }
 
               // Counting Rayleigh scatter in phantom
-              if (processName.find("Rayleigh") != G4String::npos)
+              if (processName.find("Rayl") != G4String::npos)
                 {
                   if ((phantomTrackID == photon1ID)||(phantomTrackID == photon2ID)||(phantomTrackID == photon3ID))
                     {
@@ -423,7 +423,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                 }
 
               // Counting Rayleigh scatter in crystal
-              if (processName.find("Rayleigh") != G4String::npos)
+              if (processName.find("Rayl") != G4String::npos)
                 {
 
                   if (crystalTrackID == photon1ID) photon1_crystal_Rayleigh++;

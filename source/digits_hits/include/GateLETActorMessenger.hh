@@ -3,7 +3,7 @@
 
 This software is distributed under the terms
 of the GNU Lesser General  Public Licence (LGPL)
-See GATE/LICENSE.txt for further details
+See LICENSE.md for further details
 ----------------------*/
 
 /*
@@ -31,11 +31,8 @@ public:
 protected:
   GateLETActor * pLETActor;
 
-  G4UIcmdWithABool * pSetRestrictedCmd;
-  G4UIcmdWithADoubleAndUnit * pSetDeltaRestrictedCmd;
   
-  G4UIcmdWithABool * pEnableLETUncertaintyCmd;
-  G4UIcmdWithABool * pSetDoseToWaterCmd;
+  G4UIcmdWithABool * pSetLETtoWaterCmd;
   G4UIcmdWithAString * pAveragingTypeCmd; 
   G4UIcmdWithABool * pSetParallelCalculationCmd;
 };

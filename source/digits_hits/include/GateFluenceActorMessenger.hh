@@ -3,7 +3,7 @@
 
 This software is distributed under the terms
 of the GNU Lesser General  Public Licence (LGPL)
-See GATE/LICENSE.txt for further details
+See LICENSE.md for further details
 ----------------------*/
 
 /*
@@ -29,6 +29,7 @@ public:
 protected:
 
   G4UIcmdWithABool * pEnableSquaredCmd;
+  G4UIcmdWithABool * pEnableStepLengthCmd;
   G4UIcmdWithABool * pEnableUncertaintyCmd;
   G4UIcmdWithABool * pEnableNormCmd;
   G4UIcmdWithABool * pEnableNumberOfHitsCmd;
