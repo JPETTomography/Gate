@@ -42,7 +42,7 @@ void GateJPETParaPlusPromptDecayModel::GetGammaParticles(std::vector<G4PrimaryPa
 
 G4String GateJPETParaPlusPromptDecayModel::GetModelName()
 {
- return "pPsAndPropmtJPET";
+ return "pPsAndPromptJPET";
 }
 
 GateJPETParaPlusPromptDecayModel* GateJPETParaPlusPromptDecayModel::GetInstance()
