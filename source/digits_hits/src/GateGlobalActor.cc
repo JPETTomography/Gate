@@ -69,8 +69,6 @@ void GateGlobalActor::NoticeStep(const G4String& volume_name, const G4Step* step
 
 void GateGlobalActor::SetFileName(const G4String& file_name)
 {
-	G4cout<<"SetFileName"<<G4endl;
-
 	assert(file_name.size() > 0);
 	if(file_name.rfind(".root") == std::string::npos)
 		mFileName = file_name + ".root";
@@ -192,7 +190,7 @@ void GateGlobalActor::SetFilterParticleName(const G4String& particle_name)
 
 G4bool GateGlobalActor::CheckParticleName(const G4Step& step) const
 {
-	return mFilterParticleName.find(step.GetTrack()->GetDefinition()->GetParticleName()) != mFilterParticleName.cend();
+        return mFilterParticleName.find(step.GetTrack()->GetParticleDefinition()->GetParticleName()) != mFilterParticleName.cend();
 }
 
 void GateGlobalActor::SetFilerParticlePDGCode(const G4int& pdg_code)
@@ -203,7 +201,7 @@ void GateGlobalActor::SetFilerParticlePDGCode(const G4int& pdg_code)
 
 G4bool GateGlobalActor::CheckPDGCode(const G4Step& step) const
 {
-	return mFilterPDGCodes.find(step.GetTrack()->GetDefinition()->GetPDGEncoding()) != mFilterPDGCodes.cend();
+        return mFilterPDGCodes.find(step.GetTrack()->GetParticleDefinition()->GetPDGEncoding()) != mFilterPDGCodes.cend();
 }
 
 void GateGlobalActor::SetFilerProcessAngle(const G4double& angle)
@@ -248,7 +246,7 @@ void GateGlobalActor::SetEnableScintilatorPosition()
 
 void GateGlobalActor::UpdateScintilatorPosition(const G4Step& step)
 {
-	const G4TouchableHistory* touchable = dynamic_cast<const G4TouchableHistory*>(step.GetPostStepPoint()->GetTouchable());
+	const G4TouchableHistory* touchable = dynamic_cast<const G4TouchableHistory*>(step.GetPreStepPoint()->GetTouchable());
 	ConvertToTVector3(touchable->GetTranslation(), mScintilatorPosition);
 }
 
@@ -304,7 +302,7 @@ void GateGlobalActor::SetEnableEnergyLossDuringProcess()
 
 void GateGlobalActor::UpdateEnergyLossDuringProcess(const G4Step& step)
 {
-	mEnergyLossDuringProcess = keV(step.GetPreStepPoint()->GetTotalEnergy() - step.GetPostStepPoint()->GetTotalEnergy());
+        mEnergyLossDuringProcess = keV(step.GetTotalEnergyDeposit());
 }
 
 void GateGlobalActor::SetEnableMomentumDirectionBeforeProcess()
@@ -337,7 +335,7 @@ void GateGlobalActor::SetEnableProcessPosition()
 
 void GateGlobalActor::UpdateProcessPosition(const G4Step& step)
 {
-	ConvertToTVector3(step.GetTrack()->GetPosition(), mProcessPosition);
+        ConvertToTVector3(step.GetPostStepPoint()->GetPosition(), mProcessPosition);
 }
 
 void GateGlobalActor::SetEnableEmissionPointFromSource()
@@ -381,7 +379,7 @@ void GateGlobalActor::SetEnableParticleName()
 
 void GateGlobalActor::UpdateParticleName(const G4Step& step)
 {
-	mParticleName = step.GetTrack()->GetDefinition()->GetParticleName();
+	mParticleName = step.GetTrack()->GetParticleDefinition()->GetParticleName();
 }
 
 void GateGlobalActor::SetEnableParticlePGDCoding()
@@ -392,7 +390,7 @@ void GateGlobalActor::SetEnableParticlePGDCoding()
 
 void GateGlobalActor::UpdateParticlePGDCoding(const G4Step& step)
 {
-	mParticlePGDCoding = step.GetTrack()->GetDefinition()->GetPDGEncoding();
+	mParticlePGDCoding = step.GetTrack()->GetParticleDefinition()->GetPDGEncoding();
 }
 
 void GateGlobalActor::SetEnableProcessAngle()
@@ -482,7 +480,7 @@ void GateGlobalActor::SetEnableGlobalTime()
 
 void GateGlobalActor::UpdateGlobalTime(const G4Step& step)
 {
-	mGlobalTime = step.GetTrack()->GetGlobalTime();
+        mGlobalTime = step.GetPostStepPoint()->GetGlobalTime();
 }
 
 void GateGlobalActor::SetEnableProperTime()
