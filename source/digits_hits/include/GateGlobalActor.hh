@@ -24,6 +24,8 @@
 #include <set>
 #include <memory>
 #include "TVector3.h"
+#include "GateGlobalActorHit.hh"
+#include "GateGlobalActorAdder.hh"
 
 /**
  * @About class: This class represent global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
@@ -34,361 +36,356 @@
  */
 class GateGlobalActor
 {
-	//This type represent checking functions pointers
-	typedef bool(GateGlobalActor::*CheckFunction)(const G4Step&) const;
-	//This type represent updating methods pointers
-	typedef void(GateGlobalActor::*UpdateMethod)(const G4Step&);
-
-public:
-	/** Destructor
-	 * */
-	virtual ~GateGlobalActor();
-
-	/** This function return GateGlobalActor pointer.
-	 * By using this function you receive access to this actor.
-	 * */
-	static GateGlobalActor* Instance();
-
-	/** Function call writing data to file.
-	 * */
-	void Write();
-
-	/** Function call reseting tree method.
-	 * */
-	void Reset();
-
-	/** This method is for communicate LocalActors with GlobalActor.
-	 * @param: volume_name - name of volume to which is attached actor (you can receive access to this by calling GetVolumeName())
-	 * @param: step - step pointer
-	 * */
-	void NoticeStep(const G4String& volume_name, const G4Step* step);
-
-	/** Set destination data file name (ROOT file)
-	 * @param: file_name - root file name (with or without ".root" ending
-	 * */
-	void SetFileName(const G4String& file_name);
-
-private:
-	/** Constructor
-	 * */
-	GateGlobalActor();
-	//Singleton object
-	static std::unique_ptr<GateGlobalActor> upInstance;
-	//Tree with data. This tree name is "GateGlobalActorTree".
-	TTree* pTree;
-	//ROOT file
-	TFile* pFile;
-	//List with all checking function which was chosen by user (by calling SetFilter method)
-	std::map<G4String, CheckFunction> mCheckFunctionsPointersList;
-	//List with all update method which was chosen by user (by calling SetEnable method)
-	std::map<G4String, UpdateMethod> mUpdateMethodsPointersList;
-	//ROOT file name - by default is "GateGlobalActorData.root".
-	G4String mFileName;
-
-private:
-
-	/** Method create ROOT file basing on file name.
-	 * @param: file_name - ROOT file name
-	 * */
-	void InitFile(const G4String& file_name);
-
-	/** Method create tree.
-	 * */
-	void InitTree();
-
-	/** Method call checking functions until one of them return false or checking functions list finish.
-	 * @param: step - step pointer
-	 * @return: TRUE - if one of checking function return FALSE, otherwise this function returns FALSE.
-	 * */
-	G4bool SkipThisStep(const G4Step* step);
+  //This type represent checking functions pointers
+  typedef bool( GateGlobalActor::*CheckFunction )( const GateGlobalActorHit& ) const;
+  //This type represent updating methods pointers
+  typedef void( GateGlobalActor::*UpdateMethod )( const GateGlobalActorHit& );
+
+  public:
+  /** Destructor
+   * */
+  virtual ~GateGlobalActor();
+
+  /** This function return GateGlobalActor pointer.
+   * By using this function you receive access to this actor.
+   * */
+  static GateGlobalActor* Instance();
+
+  /** Function call writing data to file.
+   * */
+  void Write();
+
+  /** Function call reseting tree method.
+   * */
+  void Reset();
+
+  /** This method is for communicate LocalActors with GlobalActor.
+   * @param: volume_name - name of volume to which is attached actor (you can receive access to this by calling GetVolumeName())
+   * @param: step - step pointer
+   * */
+  void NoticeStep( const G4String& volume_name, const G4Step* step );
+
+  /** Set destination data file name (ROOT file)
+   * @param: file_name - root file name (with or without ".root" ending
+   * */
+  void SetFileName( const G4String& file_name );
+
+  void SetEnableAdder();
+
+  void SetTimeIntervalBetweenHits( const G4double& time );
+
+  void CloseActor();
+
+ private:
+  /** Constructor
+   * */
+  GateGlobalActor();
+  //Singleton object
+  static std::unique_ptr<GateGlobalActor> upInstance;
+  //Tree with data. This tree name is "GateGlobalActorTree".
+  TTree* pTree = nullptr;
+  //ROOT file
+  TFile* pFile = nullptr;
+  //List with all checking function which was chosen by user (by calling SetFilter method)
+  std::map<G4String, CheckFunction> mCheckFunctionsPointersList;
+  //List with all update method which was chosen by user (by calling SetEnable method)
+  std::map<G4String, UpdateMethod> mUpdateMethodsPointersList;
+  //ROOT file name - by default is "GateGlobalActorData.root".
+  G4String mFileName = "GateGlobalActorData.root";
 
-	/** This function basing on step and update functions list updates variables.
-	 * @param: step - step pointer
-	 * */
-	void UpdateFromThisStep(const G4Step* step);
+  bool mUseAdder = false;
+  GateGlobalActorAdder mAdder;
 
-	/** This function just fill tree.
-	 * */
-	void FillTree();
+ private:
 
-	/** Use this method to add new update method to list.
-	 * @param: update_method_name - your update method name
-	 * @param: update_method - your method - add it by set &GateGlobalActor::YourUpdateMethod
-	 * */
-	void TryAddUpdateMethod(const G4String& update_method_name, const UpdateMethod& update_method);
+  /** Method create ROOT file basing on file name.
+   * @param: file_name - ROOT file name
+   * */
+  void InitFile( const G4String& file_name );
 
-	/** Use this function to add new branch to tree.
-	 * @param: branch_name - your branch name (please add branch understandable name)
-	 * @param: variable - just add put here your variable
-	 * */
-	template <class T>
-	void TryAddBranch(const G4String& branch_name, T& variable);
+  /** Method create tree.
+   * */
+  void InitTree();
 
-	/** Use this to add new checking function to list.
-	 * @param: check_function_name - your cheching function name
-	 * @param: check_function - your function - add it by set &GateGlobalActor::YourCheckFunction
-	 * */
-	void TryAddCheckFunction(const G4String& check_function_name, const CheckFunction& check_function);
+  /** Method call checking functions until one of them return false or checking functions list finish.
+   * @param: step - step pointer
+   * @return: TRUE - if one of checking function return FALSE, otherwise this function returns FALSE.
+   * */
+  G4bool SkipThisHit( const GateGlobalActorHit& hit );
 
-	/** Function tries to add new element to set - if element exist in set then nothing will happen.
-	 * @param: set - set
-	 * @param: value_to_add - value which probably will be added to set
-	 * */
-	template <class T>
-	void TryAddToSet(std::set<T>& set, const T& value_to_add);
+  /** This function basing on step and update functions list updates variables.
+   * @param: step - step pointer
+   * */
+  void UpdateFromThisHit( const GateGlobalActorHit& hit );
 
-	/** Convert radians to degree
-	 * @param: angle_radians - angle in radians
-	 * @return: angle in degree
-	 * */
-	G4double deg(const G4double& angle_radians) const;
+  /** This function just fill tree.
+   * */
+  void FillTree();
 
-	/** Convert energy in MeV (default energy unit in Geant4 and GATE) to keV.
-	 * @param: energy_MeV - energy in MeV (just energy from GATE and Geant4)
-	 * @return: energy in keV
-	 * */
-	G4double keV(const G4double& energy_MeV) const;
+  /** Use this method to add new update method to list.
+   * @param: update_method_name - your update method name
+   * @param: update_method - your method - add it by set &GateGlobalActor::YourUpdateMethod
+   * */
+  void TryAddUpdateMethod( const G4String& update_method_name, const UpdateMethod& update_method );
 
-	/** Convert G4ThreeVector to TVector3 - use this function when is need to save data as TVector3
-	 * @param: from - input G4ThreeVector
-	 * @param: to - output TVector3
-	 * */
-	void ConvertToTVector3(const G4ThreeVector& from, TVector3& to);
+  /** Use this function to add new branch to tree.
+   * @param: branch_name - your branch name (please add branch understandable name)
+   * @param: variable - just add put here your variable
+   * */
+  template <class T>
+  void TryAddBranch( const G4String& branch_name, T& variable );
 
-//@Section: Control of saving data
-public:
-	//@SubSection: SetEnable methods
+  /** Use this to add new checking function to list.
+   * @param: check_function_name - your cheching function name
+   * @param: check_function - your function - add it by set &GateGlobalActor::YourCheckFunction
+   * */
+  void TryAddCheckFunction( const G4String& check_function_name, const CheckFunction& check_function );
 
-	void SetEnableVolumeName();
+  /** Function tries to add new element to set - if element exist in set then nothing will happen.
+   * @param: set - set
+   * @param: value_to_add - value which probably will be added to set
+   * */
+  template <class T>
+  void TryAddToSet( std::set<T>& set, const T& value_to_add );
 
-	void SetEnableScintilatorPosition();
+  void saveHitsFromAdder();
 
-	void SetEnableEventID();
+ //@Section: Control of saving data
+ public:
+  //@SubSection: SetEnable methods
 
-	void SetEnableTrackID();
+  void SetEnableVolumeName();
 
-	void SetEnableEnergyBeforeProcess();
+  void SetEnableScintilatorPosition();
 
-	void SetEnableEnergyAfterProcess();
+  void SetEnableEventID();
 
-	void SetEnableEnergyLossDuringProcess();
+  void SetEnableTrackID();
 
-	void SetEnableMomentumDirectionBeforeProcess();
+  void SetEnableEnergyBeforeProcess();
 
-	void SetEnableMomentumDirectionAfterProcess();
+  void SetEnableEnergyAfterProcess();
 
-	void SetEnableProcessPosition();
+  void SetEnableEnergyLossDuringProcess();
 
-	void SetEnableEmissionPointFromSource();
+  void SetEnableMomentumDirectionBeforeProcess();
 
-	void SetEnableEmissionMomentumDirectionFromSource();
+  void SetEnableMomentumDirectionAfterProcess();
 
-	void SetEnableEmissionEnergyFromSource();
+  void SetEnableProcessPosition();
 
-	void SetEnableParticleName();
+  void SetEnableEmissionPointFromSource();
 
-	void SetEnableParticlePGDCoding();
+  void SetEnableEmissionMomentumDirectionFromSource();
 
-	void SetEnableProcessAngle();
+  void SetEnableEmissionEnergyFromSource();
 
-	void SetEnablePolarizationBeforeProcess();
+  void SetEnableParticleName();
 
-	void SetEnablePolarizationAfterProcess();
+  void SetEnableParticlePGDCoding();
 
-	void SetEnableProcessName();
+  void SetEnableProcessAngle();
 
-	void SetEnableParentID();
+  void SetEnablePolarizationBeforeProcess();
 
-	void SetEnableInteractionTime();
+  void SetEnablePolarizationAfterProcess();
 
-	void SetEnableLocalTime();
+  void SetEnableProcessName();
 
-	void SetEnableGlobalTime();
+  void SetEnableParentID();
 
-	void SetEnableProperTime();
+  void SetEnableInteractionTime();
 
-private:
-	//@SubSection: Update methods
+  void SetEnableLocalTime();
 
-	void UpdateScintilatorPosition(const G4Step& step);
+  void SetEnableGlobalTime();
 
-	void UpdateEventID(const G4Step& step);
+  void SetEnableProperTime();
 
-	void UpdateTrackID(const G4Step& step);
+ private:
+  //@SubSection: Update methods
 
-	void UpdateEnergyBeforeProcess(const G4Step& step);
+  void UpdateVolumeName( const GateGlobalActorHit& hit );
 
-	void UpdateEnergyAfterProcess(const G4Step& step);
+  void UpdateScintilatorPosition( const GateGlobalActorHit& hit );
 
-	void UpdateEnergyLossDuringProcess(const G4Step& step);
+  void UpdateEventID( const GateGlobalActorHit& hit );
 
-	void UpdateMomentumDirectionBeforeProcess(const G4Step& step);
+  void UpdateTrackID( const GateGlobalActorHit& hit );
 
-	void UpdateMomentumDirectionAfterProcess(const G4Step& step);
+  void UpdateEnergyBeforeProcess( const GateGlobalActorHit& hit );
 
-	void UpdateProcessPosition(const G4Step& step);
+  void UpdateEnergyAfterProcess( const GateGlobalActorHit& hit );
 
-	void UpdateEmissionPointFromSource(const G4Step& step);
+  void UpdateEnergyLossDuringProcess( const GateGlobalActorHit& hit );
 
-	void UpdateEmissionMomentumDirectionFromSource(const G4Step& step);
+  void UpdateMomentumDirectionBeforeProcess( const GateGlobalActorHit& hit );
 
-	void UpdateEmissionEnergyFromSource(const G4Step& step);
+  void UpdateMomentumDirectionAfterProcess( const GateGlobalActorHit& hit );
 
-	void UpdateParticleName(const G4Step& step);
+  void UpdateProcessPosition( const GateGlobalActorHit& hit );
 
-	void UpdateParticlePGDCoding(const G4Step& step);
+  void UpdateEmissionPointFromSource( const GateGlobalActorHit& hit );
 
-	void UpdateProcessAngle(const G4Step& step);
+  void UpdateEmissionMomentumDirectionFromSource( const GateGlobalActorHit& hit );
 
-	void UpdatePolarizationBeforeProcess(const G4Step& step);
+  void UpdateEmissionEnergyFromSource( const GateGlobalActorHit& hit );
 
-	void UpdatePolarizationAfterProcess(const G4Step& step);
+  void UpdateParticleName( const GateGlobalActorHit& hit );
 
-	void UpdateProcessName(const G4Step& step);
+  void UpdateParticlePGDCoding( const GateGlobalActorHit& hit );
 
-	void UpdateParentID(const G4Step& step);
+  void UpdateProcessAngle( const GateGlobalActorHit& hit );
 
-	void UpdateInteractionTime(const G4Step& step);
+  void UpdatePolarizationBeforeProcess( const GateGlobalActorHit& hit );
 
-	void UpdateLocalTime(const G4Step& step);
+  void UpdatePolarizationAfterProcess( const GateGlobalActorHit& hit );
 
-	void UpdateGlobalTime(const G4Step& step);
+  void UpdateProcessName( const GateGlobalActorHit& hit );
 
-	void UpdateProperTime(const G4Step& step);
+  void UpdateParentID( const GateGlobalActorHit& hit );
 
-private:
-	//@SubSection: Variables connected with tree branches
+  void UpdateInteractionTime( const GateGlobalActorHit& hit );
 
-	std::string mVolumeName;
+  void UpdateLocalTime( const GateGlobalActorHit& hit );
 
-	TVector3 mScintilatorPosition;
+  void UpdateGlobalTime( const GateGlobalActorHit& hit );
 
-	G4int mEventID;
+  void UpdateProperTime( const GateGlobalActorHit& hit );
 
-	G4int mTrackID;
+ private:
+  //@SubSection: Variables connected with tree branches
 
-	G4double mEnergyBeforeProcess;
+  std::string mVolumeName;
 
-	G4double mEnergyAfterProcess;
+  TVector3 mScintilatorPosition;
 
-	G4double mEnergyLossDuringProcess;
+  G4int mEventID;
 
-	TVector3 mMomentumDirectionBeforeProcess;
+  G4int mTrackID;
 
-	TVector3 mMomentumDirectionAfterProcess;
+  G4double mEnergyBeforeProcess;
 
-	TVector3 mProcessPosition;
+  G4double mEnergyAfterProcess;
 
-	TVector3 mEmissionPointFromSource;
+  G4double mEnergyLossDuringProcess;
 
-	TVector3 mEmissionMomentumDirectionFromSource;
+  TVector3 mMomentumDirectionBeforeProcess;
 
-	G4double mEmissionEnergyFromSource;
+  TVector3 mMomentumDirectionAfterProcess;
 
-	std::string mParticleName;
+  TVector3 mProcessPosition;
 
-	G4int mParticlePGDCoding;
+  TVector3 mEmissionPointFromSource;
 
-	G4double mProcessAngle;
+  TVector3 mEmissionMomentumDirectionFromSource;
 
-	TVector3 mPolarizationBeforeProcess;
+  G4double mEmissionEnergyFromSource;
 
-	TVector3 mPolarizationAfterProcess;
+  std::string mParticleName;
 
-	std::string mProcessName;
+  G4int mParticlePGDCoding;
 
-	G4int mParentID;
+  G4double mProcessAngle;
 
-	G4double mInteractionTime;
+  TVector3 mPolarizationBeforeProcess;
 
-	G4double mLocalTime;
+  TVector3 mPolarizationAfterProcess;
 
-	G4double mGlobalTime;
+  std::string mProcessName;
 
-	G4double mProperTime;
+  G4int mParentID;
 
-public:
-	//@SubSection: SetFilter
+  G4double mInteractionTime;
 
-	/* Set new process name filter.
-	 * @param: process_name - name of process which you want filter out
-	 * @IsReusable: Yes
-	 * */
-	void SetFilterProcessName(const G4String& process_name);
+  G4double mLocalTime;
 
-	/* Set new particle name filter.
-	 * @param: particle_name - name of particle to filter out
-	 * @IsReusable: Yes
-	 * */
-	void SetFilterParticleName(const G4String& particle_name);
+  G4double mGlobalTime;
 
-	/* Set new particle PDG code filter.
-	 * @param: pdg_code - PDG code of particle which you want filter out
-	 * @IsReusable: Yes
-	 * */
-	void SetFilerParticlePDGCode(const G4int& pdg_code);
+  G4double mProperTime;
 
-	/* Set new process angle (angle between particle momentum direction before and after process) name filter.
-	 * @param: angle - angle between particle momentum direction before and after process which you want filter out
-	 * @IsReusable: No
-	 * */
+ public:
+  //@SubSection: SetFilter
 
-	void SetFilerProcessAngle(const G4double& angle);
-	/* Set new particle emission point filter.
-	 * @param: emission_point- particle emission point form source which you want filter out
-	 * @IsReusable: No
-	 * */
-	void SetFilterEmissionPoint(const G4ThreeVector& emission_point);
+  /* Set new process name filter.
+   * @param: process_name - name of process which you want filter out
+   * @IsReusable: Yes
+   * */
+  void SetFilterProcessName( const G4String& process_name );
 
-	/* Set filter which ignore sepecific process (for example does not save steps with Compton process)
-	 * @param: process_name - name of process which you want ingore during simulation
-	 * @IsReusable: Yes
-	 * */
-	void SetFilterIgnoreProcessName(const G4String& process_name);
+  /* Set new particle name filter.
+   * @param: particle_name - name of particle to filter out
+   * @IsReusable: Yes
+   * */
+  void SetFilterParticleName( const G4String& particle_name );
 
-private:
-	//@SubSection: Check functions
+  /* Set new particle PDG code filter.
+   * @param: pdg_code - PDG code of particle which you want filter out
+   * @IsReusable: Yes
+   * */
+  void SetFilerParticlePDGCode( const G4int& pdg_code );
 
-	/** Check if process name from step is on filter list
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckProcessName(const G4Step& step) const;
+  /* Set new process angle (angle between particle momentum direction before and after process) name filter.
+   * @param: angle - angle between particle momentum direction before and after process which you want filter out
+   * @IsReusable: No
+   * */
 
-	/** Check if particle name from step is on filter list
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckParticleName(const G4Step& step) const;
+  void SetFilerProcessAngle( const G4double& angle );
+  /* Set new particle emission point filter.
+   * @param: emission_point- particle emission point form source which you want filter out
+   * @IsReusable: No
+   * */
+  void SetFilterEmissionPoint(const G4ThreeVector& emission_point);
 
-	/** Check if particle PDG code from step is on filter list
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckPDGCode(const G4Step& step) const;
+  /* Set filter which ignore sepecific process (for example does not save steps with Compton process)
+   * @param: process_name - name of process which you want ingore during simulation
+   * @IsReusable: Yes
+   * */
+  void SetFilterIgnoreProcessName( const G4String& process_name );
 
-	/** Check if angle between particle momentum direction before and after is equal filter value (in small error range)
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckProcessAngle(const G4Step& step) const;
+ private:
+  //@SubSection: Check functions
 
-	/** Check if distance between particle emission point is equal filter value (in small error range)
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckEmissionPoint(const G4Step& step) const;
+  /** Check if process name from step is on filter list
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckProcessName( const GateGlobalActorHit& hit ) const;
 
-	/** Check if process name from step is on ignoring filter list
-	 * @return: TRUE - when is it, FALSE - otherwise
-	 * */
-	G4bool CheckIgnoreProcessName(const G4Step& step) const;
+  /** Check if particle name from step is on filter list
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckParticleName( const GateGlobalActorHit& hit ) const;
 
-private:
-	//@SubSection: Variables which represent filters (filter can be represented by list of variables e.g. list of partciles names)
-	//Using of set<> is recommended because of log complexity of set<> (vector has to use std::find which has linear complexity)
+  /** Check if particle PDG code from step is on filter list
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckPDGCode( const GateGlobalActorHit& hit ) const;
 
-	std::set<G4String> mFilterProcessesNames;
-	std::set<G4String> mFilterParticleName;
-	std::set<int> mFilterPDGCodes;
-	G4double mFilterProcessAngle;
-	G4ThreeVector mFilterEmissionPoint;
-	std::set<G4String> mFilterIgnoreProcessesNames;
+  /** Check if angle between particle momentum direction before and after is equal filter value (in small error range)
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckProcessAngle( const GateGlobalActorHit& hit ) const;
+
+  /** Check if distance between particle emission point is equal filter value (in small error range)
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckEmissionPoint( const GateGlobalActorHit& hit ) const;
+
+  /** Check if process name from step is on ignoring filter list
+   * @return: TRUE - when is it, FALSE - otherwise
+   * */
+  G4bool CheckIgnoreProcessName( const GateGlobalActorHit& hit ) const;
+
+ private:
+  //@SubSection: Variables which represent filters (filter can be represented by list of variables e.g. list of partciles names)
+  //Using of set<> is recommended because of log complexity of set<> (vector has to use std::find which has linear complexity)
+
+  std::set<G4String> mFilterProcessesNames;
+  std::set<G4String> mFilterParticleName;
+  std::set<int> mFilterPDGCodes;
+  G4double mFilterProcessAngle;
+  TVector3 mFilterEmissionPoint;
+  std::set<G4String> mFilterIgnoreProcessesNames;
 };
 
 #endif
