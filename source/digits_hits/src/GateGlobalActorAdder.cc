@@ -8,6 +8,8 @@ GateGlobalActorAdder::~GateGlobalActorAdder() {}
 
 void GateGlobalActorAdder::processHit( const GateGlobalActorHit& hit )
 {
+ if ( hit.getParentID() != 0 ) { return; }
+
  mCurrentProcessedEvent = hit.getEventID();
  GateGlobalActorHits::reverse_iterator found = findLastHitInTheSameScintillator( hit );
  if ( found == mHits.rend() || !isCommonTimeInterval( *found, hit ) ) { insertHit( hit ); }
