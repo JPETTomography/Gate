@@ -84,7 +84,7 @@ class GateGlobalActorHit
   G4double getGlobalTime() const;
 
   void setProperTime( const G4double& time );
-  G4double getProperTime();  
+  G4double getProperTime() const;  
 
   // comparing methods
   bool isTheSameScintillator( const GateGlobalActorHit& hit ) const;

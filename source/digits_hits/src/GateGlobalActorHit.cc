@@ -130,7 +130,7 @@ G4double GateGlobalActorHit::getGlobalTime() const { return mGlobalTime; }
 
 void GateGlobalActorHit::setProperTime( const G4double& time ) { mProperTime = time; }
 
-G4double GateGlobalActorHit::getProperTime() { return mProperTime; }
+G4double GateGlobalActorHit::getProperTime() const { return mProperTime; }
 
 bool GateGlobalActorHit::isTheSameScintillator( const GateGlobalActorHit& hit ) const { return  mScintillatorPosition == hit.mScintillatorPosition; }
 
@@ -153,9 +153,9 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
 
  mEnergyLossDuringProcess = keV( step.GetTotalEnergyDeposit() );
 
- mMomentumDirectionBeforeProcess = getTVector3( step.GetPreStepPoint()->GetMomentumDirection().unit() );
+ mMomentumDirectionBeforeProcess = getTVector3( step.GetPreStepPoint()->GetMomentumDirection() );
 
- mMomentumDirectionAfterProcess = getTVector3( step.GetPostStepPoint()->GetMomentumDirection().unit() );
+ mMomentumDirectionAfterProcess = getTVector3( step.GetPostStepPoint()->GetMomentumDirection() );
 
  mProcessPosition = getTVector3( step.GetPostStepPoint()->GetPosition() );
 
@@ -169,9 +169,9 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
 
  mParticlePGDCoding = step.GetTrack()->GetParticleDefinition()->GetPDGEncoding();
 
- mPolarizationBeforeProcess = getTVector3( step.GetPreStepPoint()->GetPolarization().unit() );
+ mPolarizationBeforeProcess = getTVector3( step.GetPreStepPoint()->GetPolarization() );
 
- mPolarizationAfterProcess = getTVector3( step.GetPostStepPoint()->GetPolarization().unit() );
+ mPolarizationAfterProcess = getTVector3( step.GetPostStepPoint()->GetPolarization() );
 
  mProcessName = step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 
