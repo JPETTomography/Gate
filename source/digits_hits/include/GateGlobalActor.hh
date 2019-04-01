@@ -74,7 +74,7 @@ class GateGlobalActor
 
   void SetTimeIntervalBetweenHits( const G4double& time );
 
-  void CloseActor();
+  void NoticeEndOfEvent();
 
  private:
   /** Constructor

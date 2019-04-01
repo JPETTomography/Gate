@@ -26,12 +26,7 @@ std::unique_ptr<GateGlobalActor> GateGlobalActor::upInstance;
 
 GateGlobalActor::GateGlobalActor() {}
 
-GateGlobalActor::~GateGlobalActor() 
-{ 
- std::cout << "GateGlobalActor::~GateGlobalActor()" << std::endl;
- saveHitsFromAdder();
- Write();
-}
+GateGlobalActor::~GateGlobalActor() {}
 
 GateGlobalActor* GateGlobalActor::Instance()
 {
@@ -52,17 +47,6 @@ void GateGlobalActor::Reset()
 {
  assert( pTree != nullptr );
  pTree->Reset();
-}
-
-void GateGlobalActor::CloseActor()
-{
- saveHitsFromAdder();
- Write();
- pFile = nullptr;
- pTree = nullptr;
- mUseAdder = false;
- mCheckFunctionsPointersList.clear();
- mUpdateMethodsPointersList.clear();
  mAdder.reset();
 }
 
@@ -172,6 +156,11 @@ void GateGlobalActor::TryAddToSet( std::set<T>& set, const T& value_to_add )
 void GateGlobalActor::SetEnableAdder() { mUseAdder = true; }
 
 void GateGlobalActor::SetTimeIntervalBetweenHits( const G4double& time ) { mAdder.setTimeIntervalBetweenHits( time ); }
+
+void GateGlobalActor::NoticeEndOfEvent()
+{
+ if ( mUseAdder ) { saveHitsFromAdder(); }
+}
 
 /******************************************************************Add below you functions and methods**********************************************************************************************/
 
