@@ -22,6 +22,12 @@
 #include <string>
 #include "TVector3.h"
 
+/**
+ * @About: This class represents a single hit in observed volume by Global Actor (GateGlobalAtor). This is format of date which is used by Global Actor and by Global Actor Adder.
+ * Concept of class is to extract (useful for Global Actor) data from step (G4Step).
+ * @author: Mateusz Bała
+ * @email: bala.mateusz@gmail.com
+**/
 class GateGlobalActorHit
 {
  public:

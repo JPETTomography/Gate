@@ -21,6 +21,13 @@
 
 typedef std::vector< GateGlobalActorHit > GateGlobalActorHits;
 
+/**
+ * @About: This class represents digitalization of hits seen by scintillator based detector. If photo scattered more than once in the same scintillato and this scatterings are in time interval
+ * chosen by user they are merged in one hit. Final hit has pre variables (before the Compton scattering) from first hit and post values from last hit. Final energy deposition is equal sum of all
+ * energy depositions from hits.
+ * @author: Mateusz Bała
+ * @email: bala.mateusz@gmail.com
+**/
 class GateGlobalActorAdder
 {
  public:
