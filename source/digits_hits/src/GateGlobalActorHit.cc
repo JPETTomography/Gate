@@ -28,33 +28,6 @@ GateGlobalActorHit::GateGlobalActorHit( const G4Step& step, const std::string& v
  extractDataFromStep( step );
 }
 
-GateGlobalActorHit::GateGlobalActorHit( const GateGlobalActorHit& hit ) 
-{ 
- mVolumeName = hit.mVolumeName;
- mScintillatorPosition = hit.mScintillatorPosition;
- mEventID = hit.mEventID;
- mTrackID = hit.mTrackID;
- mEnergyBeforeProcess = hit.mEnergyBeforeProcess;
- mEnergyAfterProcess = hit.mEnergyAfterProcess;
- mEnergyLossDuringProcess = hit.mEnergyLossDuringProcess;
- mMomentumDirectionBeforeProcess = hit.mMomentumDirectionBeforeProcess;
- mMomentumDirectionAfterProcess = hit.mMomentumDirectionAfterProcess;
- mProcessPosition = hit.mProcessPosition;
- mEmissionPointFromSource = hit.mEmissionPointFromSource;
- mEmissionMomentumDirectionFromSource = hit.mEmissionMomentumDirectionFromSource;
- mEmissionEnergyFromSource = hit.mEmissionEnergyFromSource;
- mParticleName = hit.mParticleName;
- mParticlePGDCoding = hit.mParticlePGDCoding;
- mPolarizationBeforeProcess = hit.mPolarizationBeforeProcess;
- mPolarizationAfterProcess = hit.mPolarizationAfterProcess;
- mProcessName = hit.mProcessName;
- mParentID = hit.mParentID;
- mInteractionTime = hit.mInteractionTime;
- mLocalTime = hit.mLocalTime;
- mGlobalTime = hit.mGlobalTime;
- mProperTime = hit.mProperTime;
-}
-
 void GateGlobalActorHit::setVolumeName( const std::string& volume_name ) { mVolumeName = volume_name; }
 
 std::string GateGlobalActorHit::getVolumeName() const { return mVolumeName; }

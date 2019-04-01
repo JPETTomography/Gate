@@ -33,7 +33,6 @@ class GateGlobalActorHit
  public:
   GateGlobalActorHit();
   GateGlobalActorHit( const G4Step& step, const std::string& volume_name );
-  GateGlobalActorHit( const GateGlobalActorHit& hit );
   ~GateGlobalActorHit();
 
   //get and set methods
