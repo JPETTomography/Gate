@@ -118,51 +118,59 @@ class GateGlobalActorHit
   G4double keV( const G4double& energy ) const;
 
  private:
-  std::string mVolumeName;
+ //because this value is always positive in correct situation we can use negative value as indicator of improper initialization
+ /** About initialized values for listed below variables:
+  * variables with type G4int are always posiive in correct situation so we can use negative value as indicator of improper initialization
+  * std::string - should always have not empty string, so empty string indicates improper initialization
+  * TVector3 - mayor part of variables can't have zero vector, so zero vector indicates improper initialization
+  * G4double - only "Transposition" process has energy deposition equal zero, so zero value indicates improper initialization for other variables
+ **/
 
-  TVector3 mScintillatorPosition;
+  std::string mVolumeName = "";
 
-  G4int mEventID;
+  TVector3 mScintillatorPosition = TVector3( 0, 0, 0);
 
-  G4int mTrackID;
+  G4int mEventID = -1;
 
-  G4double mEnergyBeforeProcess;
+  G4int mTrackID = -1;
 
-  G4double mEnergyAfterProcess;
+  G4double mEnergyBeforeProcess = 0.0;
 
-  G4double mEnergyLossDuringProcess;
+  G4double mEnergyAfterProcess = 0.0;
 
-  TVector3 mMomentumDirectionBeforeProcess;
+  G4double mEnergyLossDuringProcess = 0.0;
 
-  TVector3 mMomentumDirectionAfterProcess;
+  TVector3 mMomentumDirectionBeforeProcess = TVector3( 0, 0, 0);
 
-  TVector3 mProcessPosition;
+  TVector3 mMomentumDirectionAfterProcess = TVector3( 0, 0, 0);
 
-  TVector3 mEmissionPointFromSource;
+  TVector3 mProcessPosition = TVector3( 0, 0, 0);
 
-  TVector3 mEmissionMomentumDirectionFromSource;
+  TVector3 mEmissionPointFromSource = TVector3( 0, 0, 0);
 
-  G4double mEmissionEnergyFromSource;
+  TVector3 mEmissionMomentumDirectionFromSource = TVector3( 0, 0, 0);
 
-  std::string mParticleName;
+  G4double mEmissionEnergyFromSource = 0.0;
 
-  G4int mParticlePGDCoding;
+  std::string mParticleName = "";
 
-  TVector3 mPolarizationBeforeProcess;
+  G4int mParticlePGDCoding = -1;
 
-  TVector3 mPolarizationAfterProcess;
+  TVector3 mPolarizationBeforeProcess = TVector3( 0, 0, 0);
 
-  std::string mProcessName;
+  TVector3 mPolarizationAfterProcess = TVector3( 0, 0, 0);
 
-  G4int mParentID;
+  std::string mProcessName = "";
 
-  G4double mInteractionTime;
+  G4int mParentID = -1; 
 
-  G4double mLocalTime;
+  G4double mInteractionTime = 0.0;
 
-  G4double mGlobalTime;
+  G4double mLocalTime = 0.0;
 
-  G4double mProperTime;
+  G4double mGlobalTime = 0.0;
+
+  G4double mProperTime = 0.0;
 };
 
 #endif
