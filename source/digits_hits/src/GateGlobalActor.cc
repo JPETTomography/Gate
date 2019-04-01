@@ -236,6 +236,7 @@ G4bool GateGlobalActor::CheckEmissionPoint( const GateGlobalActorHit& hit ) cons
 
 void GateGlobalActor::SetEnableVolumeName()
 {
+ TryAddUpdateMethod( "UpdateVolumeName", &GateGlobalActor::UpdateVolumeName );
  TryAddBranch( "VolumeName", mVolumeName );
 }
 
