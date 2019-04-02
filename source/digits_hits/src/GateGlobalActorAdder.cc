@@ -21,8 +21,18 @@ GateGlobalActorAdder::GateGlobalActorAdder() {}
 
 GateGlobalActorAdder::~GateGlobalActorAdder() {}
 
+/**
+This method takes a hit and if this hit represent signal from particle emitted from source ( parentID=0) a classification begins.
+Rules for classification:
+1.  first hit in the scintillator - add it to hits list
+2.  next hit in the scintillator but time interval betwean them is greater than mTimeInterval - add it to hits hits list
+3. otherwise : merge hit with last hits which happened in this scintillator ( merge here means update of energy deposition, post momemntum, polarization and final energy ).
+**/
 void GateGlobalActorAdder::processHit( const GateGlobalActorHit& hit )
 {
+ /**
+ We only accept energy deposition from particles emitted from source - any other always have parentID!=0
+ **/
  if ( hit.getParentID() != 0 ) { return; }
 
  mCurrentProcessedEvent = hit.getEventID();
