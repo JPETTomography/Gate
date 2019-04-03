@@ -20,489 +20,410 @@
 #include <cstring>
 #include "GateRunManager.hh"
 #include "G4Track.hh"
+#include<iostream>
 
 std::unique_ptr<GateGlobalActor> GateGlobalActor::upInstance;
 
-GateGlobalActor::GateGlobalActor()
-{
-	pTree = 0;
-	pFile = 0;
-	mFileName = "GateGlobalActorData.root";
-}
+GateGlobalActor::GateGlobalActor() {}
 
-GateGlobalActor::~GateGlobalActor()
-{
-
-}
+GateGlobalActor::~GateGlobalActor() {}
 
 GateGlobalActor* GateGlobalActor::Instance()
 {
-	if(upInstance.get() == nullptr)
-		upInstance.reset(new GateGlobalActor());
-	return upInstance.get();
+ if( upInstance.get() == nullptr ) { upInstance.reset( new GateGlobalActor() ); }
+ return upInstance.get();
 }
 
 void GateGlobalActor::Write()
 {
-	assert(pFile != nullptr);
-	if(pTree == nullptr)
-		return;
-	pFile = pTree->GetCurrentFile();
-	pFile->Write();
+ assert( pFile != nullptr);
+ assert( pTree != nullptr );
+
+ pFile = pTree->GetCurrentFile();
+ pFile->Write();
 }
 
 void GateGlobalActor::Reset()
 {
-	if(pTree == nullptr)
-		return;
-	pTree->Reset();
+ assert( pTree != nullptr );
+ pTree->Reset();
+ mAdder.reset();
 }
 
-void GateGlobalActor::NoticeStep(const G4String& volume_name, const G4Step* step)
+void GateGlobalActor::saveHitsFromAdder()
 {
-	if(SkipThisStep(step))
-		return;
-	mVolumeName = volume_name;
-	UpdateFromThisStep(step);
-	FillTree();
+   GateGlobalActorHits hits =  mAdder.getHits();
+   for ( GateGlobalActorHits::const_iterator ihit = hits.cbegin(); ihit != hits.cend(); ++ihit ) {  UpdateFromThisHit( *ihit ); }
+   mAdder.reset();
 }
 
-void GateGlobalActor::SetFileName(const G4String& file_name)
+void GateGlobalActor::NoticeStep( const G4String& volume_name, const G4Step* step )
 {
-	G4cout<<"SetFileName"<<G4endl;
+ GateGlobalActorHit hit( *step, volume_name );
 
-	assert(file_name.size() > 0);
-	if(file_name.rfind(".root") == std::string::npos)
-		mFileName = file_name + ".root";
-	else
-		mFileName = file_name;
+ if ( mUseAdder )
+ {
+  if ( mAdder.isReadyToMerge( hit ) ) { saveHitsFromAdder(); } 
+  if ( !SkipThisHit( hit ) ) { mAdder.processHit( hit ); }
+ }
+ else if ( !SkipThisHit( hit ) ) { UpdateFromThisHit( hit ); }
 }
 
-void GateGlobalActor::InitFile(const G4String& file_name)
+void GateGlobalActor::SetFileName( const G4String& file_name )
 {
-	assert(file_name.size() > 0);
+ assert( file_name.size() > 0 );
+ if( file_name.rfind( ".root" ) == std::string::npos ) { mFileName = file_name + ".root"; }
+ else { mFileName = file_name; }
+}
 
-	assert(pFile == nullptr);
+void GateGlobalActor::InitFile( const G4String& file_name )
+{
+ assert( file_name.size() > 0 );
+ assert( pFile == nullptr );
 
-	if(file_name.rfind(".root") == std::string::npos)
-		pFile = new TFile( (file_name + std::string(".root")).c_str(), "RECREATE");
-	else
-		pFile = new TFile( file_name.c_str(), "RECREATE");
+ if( file_name.rfind( ".root" ) == std::string::npos ) { pFile = new TFile( ( file_name + std::string( ".root" ) ).c_str(), "RECREATE" ); }
+ else { pFile = new TFile( file_name.c_str(), "RECREATE" ); }
 }
 
 void GateGlobalActor::GateGlobalActor::InitTree()
 {
-	assert(pTree == nullptr);
-	pTree = new TTree("GateGlobalActorTree", "Global data collection");
+ assert( pTree == nullptr );
+ pTree = new TTree( "GateGlobalActorTree", "Global data collection" );
 }
 
-G4bool GateGlobalActor::SkipThisStep(const G4Step* step)
+G4bool GateGlobalActor::SkipThisHit( const GateGlobalActorHit& hit )
 {
-	for(std::map<G4String, CheckFunction>::iterator checkIt = mCheckFunctionsPointersList.begin(); checkIt != mCheckFunctionsPointersList.end(); ++checkIt)
-		if(!((this->*(checkIt->second))(*step)))
-			return true;
-	return false;
+ for( std::map<G4String, CheckFunction>::iterator checkIt = mCheckFunctionsPointersList.begin(); checkIt != mCheckFunctionsPointersList.end(); ++checkIt )
+ {
+  if( !( ( this->*( checkIt->second ) )( hit ) ) ) { return true; }
+ }
+ return false;
 }
 
-void GateGlobalActor::UpdateFromThisStep(const G4Step* step)
+void GateGlobalActor::UpdateFromThisHit( const GateGlobalActorHit& hit )
 {
-	for(std::map<G4String, UpdateMethod>::iterator updateIt = mUpdateMethodsPointersList.begin(); updateIt != mUpdateMethodsPointersList.end(); ++updateIt)
-		(this->*(updateIt->second))(*step);
+ for (std::map<G4String, UpdateMethod>::iterator updateIt = mUpdateMethodsPointersList.begin(); updateIt != mUpdateMethodsPointersList.end(); ++updateIt )
+ {
+  ( this->*( updateIt->second ) )( hit );
+ }
+ FillTree();
 }
 
 void GateGlobalActor::FillTree()
 {
-	if(pTree == nullptr)
-		return;
-	pTree->Fill();
+ assert( pTree != nullptr );
+ pTree->Fill();
 }
 
-void GateGlobalActor::TryAddUpdateMethod(const G4String& update_method_name, const UpdateMethod& update_method)
+void GateGlobalActor::TryAddUpdateMethod( const G4String& update_method_name, const UpdateMethod& update_method )
 {
-	assert(update_method_name.size() > 0);
-	std::map<G4String, UpdateMethod>::iterator found = mUpdateMethodsPointersList.find(update_method_name);
-	if(found == mUpdateMethodsPointersList.end())
-		mUpdateMethodsPointersList.emplace(update_method_name, update_method);
-}
-template <class T>
-void GateGlobalActor::TryAddBranch(const G4String& branch_name, T& variable)
-{
-	//Branch name must be setted
-	assert(branch_name.size() > 0);
-
-	if(pFile == nullptr)
-	{
-		InitFile(mFileName);
-		InitTree();
-	}
-
-	if(pTree->FindBranch(branch_name.c_str()) == nullptr)
-		pTree->Branch(branch_name.c_str(), &variable);
-}
-
-void GateGlobalActor::TryAddCheckFunction(const G4String& check_function_name, const CheckFunction& check_function)
-{
-	//Function name must be setted
-	assert(check_function_name.size() > 0);
-
-	std::map<G4String, CheckFunction>::iterator found = mCheckFunctionsPointersList.find(check_function_name);
-	if(found == mCheckFunctionsPointersList.end())
-		mCheckFunctionsPointersList.emplace(check_function_name, check_function);
+ assert( update_method_name.size() > 0 );
+ std::map<G4String, UpdateMethod>::iterator found = mUpdateMethodsPointersList.find( update_method_name );
+ if( found == mUpdateMethodsPointersList.end() ) { mUpdateMethodsPointersList.emplace( update_method_name, update_method ); }
 }
 
 template <class T>
-void GateGlobalActor::TryAddToSet(std::set<T>& set, const T& value_to_add)
+void GateGlobalActor::TryAddBranch( const G4String& branch_name, T& variable )
 {
-	if(set.find(value_to_add) == set.cend())
-			set.insert(value_to_add);
+ //Branch name must be setted
+ assert( branch_name.size() > 0 );
+
+ if( pFile == nullptr )
+ {
+  InitFile( mFileName );
+  InitTree();
+ }
+
+ assert( pTree != nullptr );
+ if( pTree->FindBranch( branch_name.c_str() ) == nullptr ) { pTree->Branch(branch_name.c_str(), &variable); }
 }
 
-G4double GateGlobalActor::deg(const G4double& angle_radians) const
+void GateGlobalActor::TryAddCheckFunction( const G4String& check_function_name, const CheckFunction& check_function )
 {
-	return (180.0/M_PI) * angle_radians;
+ //Function name must be setted
+ assert( check_function_name.size() > 0 );
+
+ std::map<G4String, CheckFunction>::iterator found = mCheckFunctionsPointersList.find( check_function_name );
+ if ( found == mCheckFunctionsPointersList.end() ) { mCheckFunctionsPointersList.emplace( check_function_name, check_function ); }
 }
 
-G4double GateGlobalActor::keV(const G4double& energy_MeV) const
+template <class T>
+void GateGlobalActor::TryAddToSet( std::set<T>& set, const T& value_to_add )
 {
-	return energy_MeV * 1000.0; //Because Geant4 (and that's why Gate too) work with MeV
+ if ( set.find( value_to_add ) == set.cend() ) { set.insert( value_to_add ); }
 }
 
-void GateGlobalActor::ConvertToTVector3(const G4ThreeVector& from, TVector3& to)
+void GateGlobalActor::SetEnableAdder() { mUseAdder = true; }
+
+void GateGlobalActor::SetTimeIntervalBetweenHits( const G4double& time ) { mAdder.setTimeIntervalBetweenHits( time ); }
+
+void GateGlobalActor::NoticeEndOfEvent()
 {
-	to = TVector3(from.x(), from.y(), from.z());
+ if ( mUseAdder ) { saveHitsFromAdder(); }
 }
 
 /******************************************************************Add below you functions and methods**********************************************************************************************/
-void GateGlobalActor::SetFilterProcessName(const G4String& process_name)
+
+void GateGlobalActor::SetFilterProcessName( const G4String& process_name )
 {
-	TryAddCheckFunction("CheckProcessName", &GateGlobalActor::CheckProcessName);
-	TryAddToSet(mFilterProcessesNames, process_name);
+ TryAddCheckFunction( "CheckProcessName", &GateGlobalActor::CheckProcessName );
+ TryAddToSet( mFilterProcessesNames, process_name );
 }
 
-G4bool GateGlobalActor::CheckProcessName(const G4Step& step) const
+G4bool GateGlobalActor::CheckProcessName( const GateGlobalActorHit& hit ) const
 {
-	return mFilterProcessesNames.find(step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()) != mFilterProcessesNames.cend();
+ return mFilterProcessesNames.find( hit.getProcessName() ) != mFilterProcessesNames.cend();
 }
 
-void GateGlobalActor::SetFilterParticleName(const G4String& particle_name)
+void GateGlobalActor::SetFilterParticleName( const G4String& particle_name )
 {
-	TryAddCheckFunction("CheckParticleName", &GateGlobalActor::CheckParticleName);
-	TryAddToSet(mFilterParticleName, particle_name);
+ TryAddCheckFunction( "CheckParticleName", &GateGlobalActor::CheckParticleName );
+ TryAddToSet( mFilterParticleName, particle_name );
 }
 
-G4bool GateGlobalActor::CheckParticleName(const G4Step& step) const
+G4bool GateGlobalActor::CheckParticleName( const GateGlobalActorHit& hit ) const
 {
-	return mFilterParticleName.find(step.GetTrack()->GetDefinition()->GetParticleName()) != mFilterParticleName.cend();
+ return mFilterParticleName.find( hit.getParticleName() ) != mFilterParticleName.cend();
 }
 
-void GateGlobalActor::SetFilerParticlePDGCode(const G4int& pdg_code)
+void GateGlobalActor::SetFilerParticlePDGCode( const G4int& pdg_code )
 {
-	TryAddCheckFunction("CheckPDGCode", &GateGlobalActor::CheckPDGCode);
-	TryAddToSet(mFilterPDGCodes, pdg_code);
+ TryAddCheckFunction( "CheckPDGCode", &GateGlobalActor::CheckPDGCode );
+ TryAddToSet( mFilterPDGCodes, pdg_code );
 }
 
-G4bool GateGlobalActor::CheckPDGCode(const G4Step& step) const
+G4bool GateGlobalActor::CheckPDGCode( const GateGlobalActorHit& hit ) const
 {
-	return mFilterPDGCodes.find(step.GetTrack()->GetDefinition()->GetPDGEncoding()) != mFilterPDGCodes.cend();
+ return mFilterPDGCodes.find( hit.getParticlePGDCoding() ) != mFilterPDGCodes.cend();
 }
 
-void GateGlobalActor::SetFilerProcessAngle(const G4double& angle)
+void GateGlobalActor::SetFilerProcessAngle( const G4double& angle )
 {
-	TryAddCheckFunction("CheckProcessAngle", &GateGlobalActor::CheckProcessAngle);
-	mFilterProcessAngle = angle;
+ TryAddCheckFunction( "CheckProcessAngle", &GateGlobalActor::CheckProcessAngle );
+ mFilterProcessAngle = angle;
 }
 
-G4bool GateGlobalActor::CheckProcessAngle(const G4Step& step) const
+G4bool GateGlobalActor::CheckProcessAngle( const GateGlobalActorHit& hit ) const
 {
-	G4double angle = (step.GetPreStepPoint()->GetMomentumDirection()).angle(step.GetPostStepPoint()->GetMomentumDirection());
-	angle *= 180.0/M_PI;
-	if(std::fabs(angle - mFilterProcessAngle) < pow(10,-3))
-		return true;
-	return false;
+ G4double angle = ( hit.getMomentumDirectionBeforeProcess() ).Angle( hit.getMomentumDirectionAfterProcess() ) * TMath::RadToDeg();
+ if ( TMath::Abs( angle - mFilterProcessAngle ) < TMath::Power( 10.0 , -3.0) ) { return true; }
+ return false;
 }
 
-void GateGlobalActor::SetFilterEmissionPoint(const G4ThreeVector& emission_point)
+void GateGlobalActor::SetFilterEmissionPoint( const G4ThreeVector& emission_point )
 {
-	TryAddCheckFunction("CheckEmissionPoint", &GateGlobalActor::CheckEmissionPoint);
-	mFilterEmissionPoint = emission_point;
+ TryAddCheckFunction( "CheckEmissionPoint", &GateGlobalActor::CheckEmissionPoint );
+ mFilterEmissionPoint = TVector3( emission_point.x(), emission_point.y(), emission_point.z() );
 }
 
-G4bool GateGlobalActor::CheckEmissionPoint(const G4Step& step) const
+G4bool GateGlobalActor::CheckEmissionPoint( const GateGlobalActorHit& hit ) const
 {
-	G4ThreeVector distance = step.GetTrack()->GetVertexPosition() - mFilterEmissionPoint;
-	if(distance.dot(distance) < pow(10,-6))
-		return true;
-	return false;
+ TVector3 distance = hit.getEmissionPointFromSource() - mFilterEmissionPoint;
+ if ( distance.Mag() < TMath::Power( 10.0 , -6.0) ) { return true; }
+ return false;
 }
 
 void GateGlobalActor::SetEnableVolumeName()
 {
-	TryAddBranch("VolumeName", mVolumeName);
+ TryAddUpdateMethod( "UpdateVolumeName", &GateGlobalActor::UpdateVolumeName );
+ TryAddBranch( "VolumeName", mVolumeName );
 }
+
+void GateGlobalActor::UpdateVolumeName( const GateGlobalActorHit& hit ) { mVolumeName = hit.getVolumeName(); }
 
 void GateGlobalActor::SetEnableScintilatorPosition()
 {
-	TryAddUpdateMethod("UpdateScintilatorPosition", &GateGlobalActor::UpdateScintilatorPosition);
-	TryAddBranch("ScintilatorPosition", mScintilatorPosition);
+ TryAddUpdateMethod( "UpdateScintilatorPosition", &GateGlobalActor::UpdateScintilatorPosition );
+ TryAddBranch( "ScintilatorPosition", mScintilatorPosition );
 }
 
-void GateGlobalActor::UpdateScintilatorPosition(const G4Step& step)
-{
-	const G4TouchableHistory* touchable = dynamic_cast<const G4TouchableHistory*>(step.GetPostStepPoint()->GetTouchable());
-	ConvertToTVector3(touchable->GetTranslation(), mScintilatorPosition);
-}
+void GateGlobalActor::UpdateScintilatorPosition( const GateGlobalActorHit& hit ) { mScintilatorPosition = hit.getScintillatorPosition(); }
 
 void GateGlobalActor::SetEnableEventID()
 {
-	TryAddUpdateMethod("UpdateEventID", &GateGlobalActor::UpdateEventID);
-	TryAddBranch("EventID", mEventID);
+ TryAddUpdateMethod( "UpdateEventID", &GateGlobalActor::UpdateEventID );
+ TryAddBranch( "EventID", mEventID );
 }
 
-void GateGlobalActor::UpdateEventID(const G4Step&)
-{
-	mEventID = GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-}
+void GateGlobalActor::UpdateEventID( const GateGlobalActorHit& hit ) { mEventID = hit.getEventID(); }
 
 void GateGlobalActor::SetEnableTrackID()
 {
-	TryAddUpdateMethod("UpdateTrackID", &GateGlobalActor::UpdateTrackID);
-	TryAddBranch("TrackID", mTrackID);
+ TryAddUpdateMethod( "UpdateTrackID", &GateGlobalActor::UpdateTrackID );
+ TryAddBranch( "TrackID", mTrackID );
 }
 
-void GateGlobalActor::UpdateTrackID(const G4Step& step)
-{
-	mTrackID = step.GetTrack()->GetTrackID();
-}
+void GateGlobalActor::UpdateTrackID( const GateGlobalActorHit& hit ) { mTrackID = hit.getTrackID(); }
 
 void GateGlobalActor::SetEnableEnergyBeforeProcess()
 {
-	TryAddUpdateMethod("UpdateEnergyBeforeProcess", &GateGlobalActor::UpdateEnergyBeforeProcess);
-	TryAddBranch("EnergyBeforeProcess", mEnergyBeforeProcess);
+ TryAddUpdateMethod( "UpdateEnergyBeforeProcess", &GateGlobalActor::UpdateEnergyBeforeProcess );
+ TryAddBranch( "EnergyBeforeProcess", mEnergyBeforeProcess );
 }
 
-void GateGlobalActor::UpdateEnergyBeforeProcess(const G4Step& step)
-{
-	mEnergyBeforeProcess = keV(step.GetPreStepPoint()->GetTotalEnergy());
-}
+void GateGlobalActor::UpdateEnergyBeforeProcess( const GateGlobalActorHit& hit ) { mEnergyBeforeProcess = hit.getEnergyBeforeProcess(); }
 
 void GateGlobalActor::SetEnableEnergyAfterProcess()
 {
-	TryAddUpdateMethod("UpdateEnergyAfterProcess", &GateGlobalActor::UpdateEnergyAfterProcess);
-	TryAddBranch("EnergyAfterProcess", mEnergyAfterProcess);
+ TryAddUpdateMethod( "UpdateEnergyAfterProcess", &GateGlobalActor::UpdateEnergyAfterProcess );
+ TryAddBranch( "EnergyAfterProcess", mEnergyAfterProcess );
 }
 
-void GateGlobalActor::UpdateEnergyAfterProcess(const G4Step& step)
-{
-	mEnergyAfterProcess = keV(step.GetPostStepPoint()->GetTotalEnergy());
-}
+void GateGlobalActor::UpdateEnergyAfterProcess( const GateGlobalActorHit& hit ) { mEnergyAfterProcess = hit.getEnergyAfterProcess(); }
 
 void GateGlobalActor::SetEnableEnergyLossDuringProcess()
 {
-	TryAddUpdateMethod("UpdateEnergyLossDuringProcess", &GateGlobalActor::UpdateEnergyLossDuringProcess);
-	TryAddBranch("EnergyLossDuringProcess", mEnergyLossDuringProcess);
+ TryAddUpdateMethod( "UpdateEnergyLossDuringProcess", &GateGlobalActor::UpdateEnergyLossDuringProcess );
+ TryAddBranch( "EnergyLossDuringProcess", mEnergyLossDuringProcess );
 }
 
-void GateGlobalActor::UpdateEnergyLossDuringProcess(const G4Step& step)
-{
-	mEnergyLossDuringProcess = keV(step.GetPreStepPoint()->GetTotalEnergy() - step.GetPostStepPoint()->GetTotalEnergy());
-}
+void GateGlobalActor::UpdateEnergyLossDuringProcess( const GateGlobalActorHit& hit ) { mEnergyLossDuringProcess = hit.getEnergyLossDuringProcess(); }
 
 void GateGlobalActor::SetEnableMomentumDirectionBeforeProcess()
 {
-	TryAddUpdateMethod("UpdateMomentumDirectionBeforeProcess", &GateGlobalActor::UpdateMomentumDirectionBeforeProcess);
-	TryAddBranch("MomentumDirectionBeforeProcess", mMomentumDirectionBeforeProcess);
+ TryAddUpdateMethod( "UpdateMomentumDirectionBeforeProcess", &GateGlobalActor::UpdateMomentumDirectionBeforeProcess );
+ TryAddBranch( "MomentumDirectionBeforeProcess", mMomentumDirectionBeforeProcess );
 }
 
-void GateGlobalActor::UpdateMomentumDirectionBeforeProcess(const G4Step& step)
-{
-	ConvertToTVector3(step.GetPreStepPoint()->GetMomentumDirection().unit(), mMomentumDirectionBeforeProcess);
-}
+void GateGlobalActor::UpdateMomentumDirectionBeforeProcess( const GateGlobalActorHit& hit ) { mMomentumDirectionBeforeProcess = hit.getMomentumDirectionBeforeProcess(); }
 
 void GateGlobalActor::SetEnableMomentumDirectionAfterProcess()
 {
-	TryAddUpdateMethod("UpdateMomentumDirectionAfterProcess", &GateGlobalActor::UpdateMomentumDirectionAfterProcess);
-	TryAddBranch("MomentumDirectionAfterProcess", mMomentumDirectionAfterProcess);
+ TryAddUpdateMethod( "UpdateMomentumDirectionAfterProcess", &GateGlobalActor::UpdateMomentumDirectionAfterProcess );
+ TryAddBranch( "MomentumDirectionAfterProcess", mMomentumDirectionAfterProcess );
 }
 
-void GateGlobalActor::UpdateMomentumDirectionAfterProcess(const G4Step& step)
-{
-	ConvertToTVector3(step.GetPostStepPoint()->GetMomentumDirection().unit(), mMomentumDirectionAfterProcess);
-}
+void GateGlobalActor::UpdateMomentumDirectionAfterProcess(const GateGlobalActorHit& hit ) { mMomentumDirectionAfterProcess = hit.getMomentumDirectionAfterProcess(); }
+
 
 void GateGlobalActor::SetEnableProcessPosition()
 {
-	TryAddUpdateMethod("UpdateProcessPosition", &GateGlobalActor::UpdateProcessPosition);
-	TryAddBranch("ProcessPosition", mProcessPosition);
+ TryAddUpdateMethod( "UpdateProcessPosition", &GateGlobalActor::UpdateProcessPosition );
+ TryAddBranch( "ProcessPosition", mProcessPosition );
 }
 
-void GateGlobalActor::UpdateProcessPosition(const G4Step& step)
-{
-	ConvertToTVector3(step.GetTrack()->GetPosition(), mProcessPosition);
-}
+void GateGlobalActor::UpdateProcessPosition( const GateGlobalActorHit& hit ) { mProcessPosition = hit.getProcessPosition(); }
 
 void GateGlobalActor::SetEnableEmissionPointFromSource()
 {
-	TryAddUpdateMethod("UpdateEmissionPointFromSource", &GateGlobalActor::UpdateEmissionPointFromSource);
-	TryAddBranch("EmissionPointFromSource", mEmissionPointFromSource);
+ TryAddUpdateMethod( "UpdateEmissionPointFromSource", &GateGlobalActor::UpdateEmissionPointFromSource );
+ TryAddBranch( "EmissionPointFromSource", mEmissionPointFromSource );
 }
 
-void GateGlobalActor::UpdateEmissionPointFromSource(const G4Step& step)
-{
-	ConvertToTVector3(step.GetTrack()->GetVertexPosition(), mEmissionPointFromSource);
-}
+void GateGlobalActor::UpdateEmissionPointFromSource( const GateGlobalActorHit& hit ) { mEmissionPointFromSource = hit.getEmissionPointFromSource(); }
 
 void GateGlobalActor::SetEnableEmissionMomentumDirectionFromSource()
 {
-	TryAddUpdateMethod("UpdateEmissionMomentumDirectionFromSource", &GateGlobalActor::UpdateEmissionMomentumDirectionFromSource);
-	TryAddBranch("EmissionMomentumDirectionFromSource", mEmissionMomentumDirectionFromSource);
+ TryAddUpdateMethod( "UpdateEmissionMomentumDirectionFromSource", &GateGlobalActor::UpdateEmissionMomentumDirectionFromSource );
+ TryAddBranch( "EmissionMomentumDirectionFromSource", mEmissionMomentumDirectionFromSource );
 }
 
-void GateGlobalActor::UpdateEmissionMomentumDirectionFromSource(const G4Step& step)
-{
-	ConvertToTVector3(step.GetTrack()->GetVertexMomentumDirection(), mEmissionMomentumDirectionFromSource);
-}
+void GateGlobalActor::UpdateEmissionMomentumDirectionFromSource( const GateGlobalActorHit& hit ) { mEmissionMomentumDirectionFromSource = hit.getEmissionMomentumDirectionFromSource(); }
 
 void GateGlobalActor::SetEnableEmissionEnergyFromSource()
 {
-	TryAddUpdateMethod("UpdateEmissionEnergyFromSource", &GateGlobalActor::UpdateEmissionEnergyFromSource);
-	TryAddBranch("EmissionEnergyFromSource", mEmissionEnergyFromSource);
+ TryAddUpdateMethod( "UpdateEmissionEnergyFromSource", &GateGlobalActor::UpdateEmissionEnergyFromSource );
+ TryAddBranch( "EmissionEnergyFromSource", mEmissionEnergyFromSource );
 }
 
-void GateGlobalActor::UpdateEmissionEnergyFromSource(const G4Step& step)
-{
-	mEmissionEnergyFromSource = keV(step.GetTrack()->GetVertexKineticEnergy());
-}
+void GateGlobalActor::UpdateEmissionEnergyFromSource( const GateGlobalActorHit& hit ) { mEmissionEnergyFromSource = hit.getEmissionEnergyFromSource(); }
 
 void GateGlobalActor::SetEnableParticleName()
 {
-	TryAddUpdateMethod("UpdateParticleName", &GateGlobalActor::UpdateParticleName);
-	TryAddBranch("ParticleName", mParticleName);
+ TryAddUpdateMethod( "UpdateParticleName", &GateGlobalActor::UpdateParticleName );
+ TryAddBranch( "ParticleName", mParticleName );
 }
 
-void GateGlobalActor::UpdateParticleName(const G4Step& step)
-{
-	mParticleName = step.GetTrack()->GetDefinition()->GetParticleName();
-}
+void GateGlobalActor::UpdateParticleName( const GateGlobalActorHit& hit ) { mParticleName = hit.getParticleName(); }
 
 void GateGlobalActor::SetEnableParticlePGDCoding()
 {
-	TryAddUpdateMethod("UpdateParticlePGDCoding", &GateGlobalActor::UpdateParticlePGDCoding);
-	TryAddBranch("ParticlePGDCoding", mParticlePGDCoding);
+ TryAddUpdateMethod( "UpdateParticlePGDCoding", &GateGlobalActor::UpdateParticlePGDCoding );
+ TryAddBranch( "ParticlePGDCoding", mParticlePGDCoding );
 }
 
-void GateGlobalActor::UpdateParticlePGDCoding(const G4Step& step)
-{
-	mParticlePGDCoding = step.GetTrack()->GetDefinition()->GetPDGEncoding();
-}
+void GateGlobalActor::UpdateParticlePGDCoding( const GateGlobalActorHit& hit ) { mParticlePGDCoding = hit.getParticlePGDCoding(); }
 
 void GateGlobalActor::SetEnableProcessAngle()
 {
-	TryAddUpdateMethod("UpdateProcessAngle", &GateGlobalActor::UpdateProcessAngle);
-	TryAddBranch("ProcessAngle", mProcessAngle);
+ TryAddUpdateMethod( "UpdateProcessAngle", &GateGlobalActor::UpdateProcessAngle );
+ TryAddBranch( "ProcessAngle", mProcessAngle );
 }
 
-void GateGlobalActor::UpdateProcessAngle(const G4Step& step)
-{
-	G4ThreeVector mom_dir1= step.GetPreStepPoint()->GetMomentumDirection().unit();
-	G4ThreeVector mom_dir2= step.GetPostStepPoint()->GetMomentumDirection().unit();
-	mProcessAngle = mom_dir1.angle(mom_dir2);
-}
+void GateGlobalActor::UpdateProcessAngle( const GateGlobalActorHit& hit ) { mProcessAngle = hit.getMomentumDirectionBeforeProcess().Angle( hit.getMomentumDirectionAfterProcess() ) * TMath::RadToDeg(); }
 
 void GateGlobalActor::SetEnablePolarizationBeforeProcess()
 {
-	TryAddUpdateMethod("UpdatePolarizationBeforeProcess", &GateGlobalActor::UpdatePolarizationBeforeProcess);
-	TryAddBranch("PolarizationBeforeProcess", mPolarizationBeforeProcess);
+ TryAddUpdateMethod( "UpdatePolarizationBeforeProcess", &GateGlobalActor::UpdatePolarizationBeforeProcess );
+ TryAddBranch( "PolarizationBeforeProcess", mPolarizationBeforeProcess );
 }
 
-void GateGlobalActor::UpdatePolarizationBeforeProcess(const G4Step& step)
-{
-	ConvertToTVector3(step.GetPreStepPoint()->GetPolarization().unit(), mPolarizationBeforeProcess);
-}
+void GateGlobalActor::UpdatePolarizationBeforeProcess( const GateGlobalActorHit& hit ) { mPolarizationBeforeProcess = hit.getPolarizationBeforeProcess(); }
 
 void GateGlobalActor::SetEnablePolarizationAfterProcess()
 {
-	TryAddUpdateMethod("UpdatePolarizationAfterProcess", &GateGlobalActor::UpdatePolarizationAfterProcess);
-	TryAddBranch("PolarizationAfterProcess", mPolarizationAfterProcess);
+ TryAddUpdateMethod( "UpdatePolarizationAfterProcess", &GateGlobalActor::UpdatePolarizationAfterProcess );
+ TryAddBranch( "PolarizationAfterProcess", mPolarizationAfterProcess );
 }
 
-void GateGlobalActor::UpdatePolarizationAfterProcess(const G4Step& step)
-{
-	ConvertToTVector3(step.GetPostStepPoint()->GetPolarization().unit(), mPolarizationAfterProcess);
-}
+void GateGlobalActor::UpdatePolarizationAfterProcess( const GateGlobalActorHit& hit ) { mPolarizationAfterProcess = hit.getPolarizationAfterProcess(); }
 
 void GateGlobalActor::SetEnableProcessName()
 {
-	TryAddUpdateMethod("UpdateProcessName", &GateGlobalActor::UpdateProcessName);
-	TryAddBranch("ProcessName", mProcessName);
+ TryAddUpdateMethod( "UpdateProcessName", &GateGlobalActor::UpdateProcessName );
+ TryAddBranch( "ProcessName", mProcessName );
 }
 
-void GateGlobalActor::UpdateProcessName(const G4Step& step)
-{
-	mProcessName = step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-}
+void GateGlobalActor::UpdateProcessName( const GateGlobalActorHit& hit ) { mProcessName = hit.getProcessName(); }
 
 void GateGlobalActor::SetEnableParentID()
 {
-	TryAddUpdateMethod("UpdateParentID", &GateGlobalActor::UpdateParentID);
-	TryAddBranch("ParentID", mParentID);
+ TryAddUpdateMethod( "UpdateParentID", &GateGlobalActor::UpdateParentID );
+ TryAddBranch( "ParentID", mParentID );
 }
 
-void GateGlobalActor::UpdateParentID(const G4Step& step)
-{
-	mParentID = step.GetTrack()->GetParentID();
-}
+void GateGlobalActor::UpdateParentID( const GateGlobalActorHit& hit ) { mParentID = hit.getParentID(); }
 
 void GateGlobalActor::SetEnableInteractionTime()
 {
-	TryAddUpdateMethod("UpdateInteractionTime", &GateGlobalActor::UpdateInteractionTime);
-	TryAddBranch("InteractionTime", mInteractionTime);
+ TryAddUpdateMethod( "UpdateInteractionTime", &GateGlobalActor::UpdateInteractionTime );
+ TryAddBranch( "InteractionTime", mInteractionTime );
 }
 
-void GateGlobalActor::UpdateInteractionTime(const G4Step& step)
-{
-	mInteractionTime = step.GetDeltaTime();
-}
+void GateGlobalActor::UpdateInteractionTime( const GateGlobalActorHit& hit ) { mInteractionTime = hit.getInteractionTime(); }
 
 void GateGlobalActor::SetEnableLocalTime()
 {
-	TryAddUpdateMethod("UpdateLocalTime", &GateGlobalActor::UpdateLocalTime);
-	TryAddBranch("LocalTime", mLocalTime);
+ TryAddUpdateMethod( "UpdateLocalTime", &GateGlobalActor::UpdateLocalTime );
+ TryAddBranch( "LocalTime", mLocalTime );
 }
 
-void GateGlobalActor::UpdateLocalTime(const G4Step& step)
-{
-	mLocalTime = step.GetTrack()->GetLocalTime();
-}
+void GateGlobalActor::UpdateLocalTime( const GateGlobalActorHit& hit ) { mLocalTime = hit.getLocalTime(); }
 
 void GateGlobalActor::SetEnableGlobalTime()
 {
-	TryAddUpdateMethod("UpdateGlobalTime", &GateGlobalActor::UpdateGlobalTime);
-	TryAddBranch("GlobalTime", mGlobalTime);
+ TryAddUpdateMethod( "UpdateGlobalTime", &GateGlobalActor::UpdateGlobalTime );
+ TryAddBranch( "GlobalTime", mGlobalTime );
 }
 
-void GateGlobalActor::UpdateGlobalTime(const G4Step& step)
-{
-	mGlobalTime = step.GetTrack()->GetGlobalTime();
-}
+void GateGlobalActor::UpdateGlobalTime( const GateGlobalActorHit& hit ) { mGlobalTime = hit.getGlobalTime(); }
+
 
 void GateGlobalActor::SetEnableProperTime()
 {
-	TryAddUpdateMethod("UpdateProperTime", &GateGlobalActor::UpdateProperTime);
-	TryAddBranch("ProperTime", mProperTime);
+ TryAddUpdateMethod( "UpdateProperTime", &GateGlobalActor::UpdateProperTime );
+ TryAddBranch( "ProperTime", mProperTime );
 }
 
-void GateGlobalActor::UpdateProperTime(const G4Step& step)
+void GateGlobalActor::UpdateProperTime( const GateGlobalActorHit& hit ) { mProperTime = hit.getProperTime(); }
+
+void GateGlobalActor::SetFilterIgnoreProcessName( const G4String& process_name )
 {
-	mProperTime = step.GetTrack()->GetProperTime();
+ TryAddCheckFunction( "CheckIgnoreProcessName", &GateGlobalActor::CheckIgnoreProcessName );
+ TryAddToSet( mFilterIgnoreProcessesNames, process_name );
 }
 
-void GateGlobalActor::SetFilterIgnoreProcessName(const G4String& process_name)
+G4bool GateGlobalActor::CheckIgnoreProcessName( const GateGlobalActorHit& hit ) const
 {
-	TryAddCheckFunction("CheckIgnoreProcessName", &GateGlobalActor::CheckIgnoreProcessName);
-	TryAddToSet(mFilterIgnoreProcessesNames, process_name);
-}
-
-G4bool GateGlobalActor::CheckIgnoreProcessName(const G4Step& step) const
-{
-	return !(mFilterIgnoreProcessesNames.find(step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()) != mFilterIgnoreProcessesNames.cend());
+ return !( mFilterIgnoreProcessesNames.find( hit.getProcessName() ) != mFilterIgnoreProcessesNames.cend() );
 }

@@ -224,6 +224,7 @@ void GateGlobalActorMessenger::BuildBoolCmds()
 	AddSimpleCmd("enableLocalTime", "Save local time (time since the track was created)", &pEnableLocalTimeCmd);
 	AddSimpleCmd("enableGlobalTime", "Save global time (time since the event was created)", &pEnableGlobalTimeCmd);
 	AddSimpleCmd("enableProperTime", "Save proper time (time in its rest frame since the track was created)", &pEnableProperTimeCmd);
+	AddSimpleCmd("enableUseAdder", "Use Global Actor Adder", &pEnableUseAdderCmd );
 	
 }
 
@@ -245,6 +246,7 @@ void GateGlobalActorMessenger::BuildDoubleCmds()
 {
 	//Here add your G4double type command (use command AddDoubleCmdWithUnit or AddDoubleCmdWithoutUnit to add new one).
 	AddDoubleCmdWithUnit("filterProcessAngle", "Save data only for specific compton angle", "deg", "", "", &pFilterProcessAngleCmd);
+	AddDoubleCmdWithoutUnit("filterAdderTimeInterval", "Time interval (ns) between two hits in the same scintillator when we threat them as one hit", &pFilterAdderTimeInterval );
 }
 
 void GateGlobalActorMessenger::Build3VectorCmds()
@@ -304,6 +306,8 @@ G4bool GateGlobalActorMessenger::SetNewBoolValue(G4UIcommand* command, G4String 
 			GateGlobalActor::Instance()->SetEnableGlobalTime();
 	else if(command == pEnableProperTimeCmd)
 			GateGlobalActor::Instance()->SetEnableProperTime();
+	else if(command == pEnableUseAdderCmd)
+			GateGlobalActor::Instance()->SetEnableAdder();
 	else
 		return false;
 	return true;
@@ -340,6 +344,8 @@ G4bool GateGlobalActorMessenger::SetNewDoubleValue(G4UIcommand* command, G4Strin
 	//Here add your G4double type command handling.
 	if(command == pFilterProcessAngleCmd)
 		GateGlobalActor::Instance()->SetFilerProcessAngle(GetCommandValue(pFilterProcessAngleCmd, parameter));
+	else if(command == pFilterAdderTimeInterval )
+		GateGlobalActor::Instance()->SetTimeIntervalBetweenHits(GetCommandValue(pFilterAdderTimeInterval, parameter));
 	else
 		return false;
 	return true;

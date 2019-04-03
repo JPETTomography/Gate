@@ -279,6 +279,7 @@ private:
 	G4UIcmdWithoutParameter* pEnableLocalTimeCmd;
 	G4UIcmdWithoutParameter* pEnableGlobalTimeCmd;
 	G4UIcmdWithoutParameter* pEnableProperTimeCmd;
+        G4UIcmdWithoutParameter* pEnableUseAdderCmd;
 
 	//@CommandSection: G4UIcmdWithAString
 	G4UIcmdWithAString* pFileNameCmd;
@@ -290,6 +291,7 @@ private:
 	G4UIcmdWithAnInteger* pFilterParticlePDGCodeCmd;
 
 	//@CommandSection: G4UIcmdWithADouble
+        G4UIcmdWithADouble* pFilterAdderTimeInterval;
 
 	//@CommandSection: G4UIcmdWithADoubleAndUnit
 	G4UIcmdWithADoubleAndUnit* pFilterProcessAngleCmd;
