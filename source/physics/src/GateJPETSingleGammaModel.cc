@@ -25,6 +25,7 @@ GateJPETSingleGammaModel::GateJPETSingleGammaModel()
 {
 	G4cout <<"GateJPETSingleGammaModel initialization.\n";
 	SetParticlesNumber(1);
+	SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::Single );
 	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
@@ -45,6 +46,7 @@ void GateJPETSingleGammaModel::GetGammaParticles(std::vector<G4PrimaryParticle*>
  particles[ 0 ]->SetMass( 0.0 );
  particles[ 0 ]->SetKineticEnergy( kinetic_energy );
  particles[ 0 ]->SetPolarization( gamma_polarization );
+ particles[ 0 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaSingle, gamma_polarization ) );
 }
 
 G4String GateJPETSingleGammaModel::GetModelName()

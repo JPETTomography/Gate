@@ -23,6 +23,7 @@ GateJPETOrtoPlusPromptDecayModel::GateJPETOrtoPlusPromptDecayModel()
 {
  G4cout << "GateJPETOrtoPlusPromptDecayModel initialization.\n";
  SetParticlesNumber( 4 );
+ SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::OrthoPositroniumAndPrompt );
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel( this );
 }
 
@@ -75,6 +76,11 @@ void GateJPETOrtoPlusPromptDecayModel::AddGammasFromOrtoPositronium( std::vector
   particles[ i ]->SetMomentum( ( partDir.Px() ) * 1000.0, (partDir.Py() ) * 1000.0, ( partDir.Pz() ) * 1000.0 ); 
   particles[ i ]->SetPolarization( GetPolarization( particles[ i ]->GetMomentumDirection() ) );
  }
+
+ //Adding model info
+ particles[ 1 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[ 1 ]->GetPolarization() ) );
+ particles[ 2 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[ 2 ]->GetPolarization() ) );
+ particles[ 3 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[ 3 ]->GetPolarization() ) );
 }
 
 void GateJPETOrtoPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4PrimaryParticle*>& particles )
@@ -87,6 +93,9 @@ void GateJPETOrtoPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4P
  particles[ 0 ]->SetMass( 0.0 );
  particles[ 0 ]->SetKineticEnergy( kinetic_energy );
  particles[ 0 ]->SetPolarization( gamma_polarization );
+
+ //Adding model info
+ particles[ 0 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaPrompt, particles[ 0 ]->GetPolarization() ) );
 }
 
 

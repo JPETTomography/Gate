@@ -27,6 +27,7 @@ GateJPETFourGammasDecayModel::GateJPETFourGammasDecayModel()
 {
  G4cout <<"GateJPETFourGammasDecayModel initialization.\n";
  SetParticlesNumber(4);
+ SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::Other );
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
  fRandomGen.SetSeed(0);
 }
@@ -63,6 +64,7 @@ void GateJPETFourGammasDecayModel::GetGammaParticles(std::vector<G4PrimaryPartic
   particles[ i ]->SetMomentum( gamma_momentum.Px() * 1000.0, gamma_momentum.Py() * 1000.0, gamma_momentum.Pz() * 1000.0 );
   gamma_polarization = GetPolarization( particles[ i ]->GetMomentumDirection() );
   particles[ i ]->SetPolarization( gamma_polarization );
+  particles[ i ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOtherModel, gamma_polarization ) );
  }
 
 }

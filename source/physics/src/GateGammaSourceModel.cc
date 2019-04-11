@@ -134,3 +134,14 @@ TRandom3* GateGammaSourceModel::GetRandomGenerator()
   ptrRandomGenerator = new TRandom3( mSeedForRandomGenerator );
  return ptrRandomGenerator; 
 }
+
+GateGammaModelPrimaryParticleInformation* GateGammaSourceModel::GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind kind, const G4ThreeVector& polarization ) const
+{
+ GateGammaModelPrimaryParticleInformation* info = new GateGammaModelPrimaryParticleInformation();
+ info->setGammaSourceModel( mGammaSourceModel );
+ info->setGammaKind( kind );
+ info->setInitialPolarization( polarization );
+ return info;
+}
+
+void GateGammaSourceModel::SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel model ) { mGammaSourceModel = model; }

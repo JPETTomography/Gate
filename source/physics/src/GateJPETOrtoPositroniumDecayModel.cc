@@ -23,6 +23,7 @@ GateJPETOrtoPositroniumDecayModel::GateJPETOrtoPositroniumDecayModel()
 {
 	G4cout <<"GateJPETOrtoPositroniumDecayModel initialization.\n";
 	SetParticlesNumber(3);
+	SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::OrthoPositronium );
 	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
@@ -67,6 +68,11 @@ void GateJPETOrtoPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 		particles[i]->SetMomentum( (partDir.Px())*1000.0, (partDir.Py())*1000.0, (partDir.Pz())*1000.0 ); // "*1000.0" because GetDecay return momentum in GeV but Geant4 and Gate make calculation in MeV
 		particles[i]->SetPolarization(GetPolarization(particles[i]->GetMomentumDirection()));
 	}
+
+	//Adding model info
+	particles[0]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[0]->GetPolarization() ) );
+	particles[1]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[1]->GetPolarization() ) );
+	particles[2]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromOrthoPositronium, particles[2]->GetPolarization() ) );
 }
 
 G4String GateJPETOrtoPositroniumDecayModel::GetModelName()

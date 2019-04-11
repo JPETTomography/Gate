@@ -25,6 +25,7 @@ GateJPETParaPositroniumDecayModel::GateJPETParaPositroniumDecayModel()
 {
 	G4cout <<"GateJPETParaPositroniumDecayModel initialization.\n";
 	SetParticlesNumber(2);
+	SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::ParaPositronium );
 	GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
@@ -59,6 +60,10 @@ void GateJPETParaPositroniumDecayModel::GetGammaParticles(std::vector<G4PrimaryP
 	}
 
 	particles[1]->SetPolarization( GetPerpendicularPolarizationToItsMomentumAndOtherPolarization( particles[1]->GetMomentum(), particles[0]->GetPolarization() ) );
+
+	//Adding model info
+	particles[0]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromParaPositronium, particles[0]->GetPolarization() ) );
+	particles[1]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromParaPositronium, particles[1]->GetPolarization() ) );
 
 }
 
