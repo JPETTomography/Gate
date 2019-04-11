@@ -108,6 +108,8 @@ class GateGlobalActor
 
   TTree* pTreeEventPackage = nullptr;
 
+  G4int mLastSavedEventID = -1;
+
  private:
 
   /** Method create ROOT file basing on file name.

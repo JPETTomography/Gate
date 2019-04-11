@@ -40,9 +40,11 @@ GateGlobalActor* GateGlobalActor::Instance()
 void GateGlobalActor::Write()
 {
  assert( pFile != nullptr);
- assert( pTree != nullptr );
 
- pFile = pTree->GetCurrentFile();
+ if ( pTree != nullptr ) { pFile  = pTree->GetCurrentFile(); }
+ else if ( pTreeEventPackage != nullptr ) { pFile = pTreeEventPackage->GetCurrentFile(); }
+ else { assert( false ); }
+
  pFile->Write();
 }
 
@@ -122,8 +124,7 @@ void GateGlobalActor::UpdateFromThisHit( const GateGlobalActorHit& hit )
 
 void GateGlobalActor::FillTree()
 {
- if ( mUseEventPackageSavingMode ) { fillTreeEventPackage(); }
- assert( pTree != nullptr );
+ if ( pTree == nullptr ) { return; } //This is a correct situation - when we use EventPackage
  pTree->Fill();
 }
 
@@ -171,8 +172,13 @@ void GateGlobalActor::SetTimeIntervalBetweenHits( const G4double& time ) { mAdde
 
 void GateGlobalActor::NoticeEndOfEvent()
 {
- if ( mUseAdder ) { saveHitsFromAdder(); }
- if ( mUseEventPackageSavingMode ) { fillTreeEventPackage(); }
+ //Becouse this method can be called by many local actors we have to prevent multiply saving
+ if ( mLastSavedEventID != GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID() )
+ {
+  mLastSavedEventID = GateRunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  if ( mUseAdder ) { saveHitsFromAdder(); }
+  if ( mUseEventPackageSavingMode ) { fillTreeEventPackage(); }
+ }
 }
 
 void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
@@ -268,6 +274,7 @@ void GateGlobalActor::SetEnableEventPackageSavingMode()
 { 
  assert( !mUseEventPackageSavingMode );//Protect calling twice
  mUseEventPackageSavingMode = true;
+ if ( pFile == nullptr ) { InitFile( mFileName ); }
  pTreeEventPackage = new TTree( "GateGlobalActorEventPackageTree", "Global data collection with event package format" );
  assert( pTreeEventPackage != nullptr );
  pEventPackage = new GateGlobalActorDictionaryEvent();
@@ -276,12 +283,12 @@ void GateGlobalActor::SetEnableEventPackageSavingMode()
 
 void GateGlobalActor::NoticeBeginOfEvent( const G4int& eventID )
 {
- pEventPackage->fEventID = eventID;
+ if ( mUseEventPackageSavingMode &&  pEventPackage->fEventID != eventID ) { pEventPackage->fEventID = eventID; }
 }
 
 void GateGlobalActor::fillTreeEventPackage()
 {
- pTreeEventPackage->Fill();
+ if ( pEventPackage->getTracksNumber() != 0 ) { pTreeEventPackage->Fill(); }
  pEventPackage->clear();
 }
 
