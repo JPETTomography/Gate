@@ -85,6 +85,7 @@ void GateGlobalActorAdder::mergeHits( const GateGlobalActorHit& hit_source, Gate
  hit_to_update.setPolarizationAfterProcess( hit_source.getPolarizationAfterProcess() );
 
  hit_to_update.setInteractionTime( hit_to_update.getInteractionTime() + hit_source.getInteractionTime() );
+ hit_to_update.setIsMerged( true );
 }
 
 G4int GateGlobalActorAdder::getCurrentProcessedEventID() const { return mCurrentProcessedEvent; }

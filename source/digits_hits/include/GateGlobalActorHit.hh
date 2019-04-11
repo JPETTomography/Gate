@@ -118,6 +118,9 @@ class GateGlobalActorHit
 
   TVector3 getInitialPolarization() const;
 
+  void setIsMerged( bool merged );
+  bool getIsMerged() const;
+
   // comparing methods
   bool isTheSameScintillator( const GateGlobalActorHit& hit ) const;
   bool isTheSameEventID( const GateGlobalActorHit& hit ) const;
@@ -192,6 +195,8 @@ class GateGlobalActorHit
   G4int mGammaSourceModel = 0;
   G4int mGammaKind = 0;
   TVector3 mInitialPolarization = TVector3( 0, 0, 0);
+
+  bool mIsMerged = false;
 };
 
 #endif

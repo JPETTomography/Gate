@@ -195,12 +195,14 @@ void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
  hit.fLocalTime = gga_hit.getLocalTime();
  hit.fGlobalTime = gga_hit.getGlobalTime();
  hit.fProperTime = gga_hit.getProperTime();
+ hit.fHitKind = gga_hit.getIsMerged() ? GateGlobalActorDictionaryEnums::HitKind::HitMerged : GateGlobalActorDictionaryEnums::HitKind::HitNotMerged ;
 
  if ( pEventPackage->fTracks.empty() )
  {
   GateGlobalActorDictionaryTrack track = getTrack( gga_hit, hit );
   pEventPackage->fTracks.push_back( track );
   pEventPackage->fGammaSourceModel = GateGlobalActorDictionaryEnums::getGammaSourceModel( gga_hit.getGammaSourceModel() );
+  pEventPackage->fSourcePosition = gga_hit.getEmissionPointFromSource();
  }
  else
  {

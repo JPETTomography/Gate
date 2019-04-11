@@ -54,7 +54,7 @@ public:
    HitMerged = 2
   };
 
-  static HitKind getHitKind ( const int& value );
+  static HitKind getHitKind( const int& value );
 
   ClassDef(GateGlobalActorDictionaryEnums,1)
 };

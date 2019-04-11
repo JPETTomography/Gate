@@ -135,6 +135,10 @@ G4int GateGlobalActorHit::getGammaKind() const { return mGammaKind; }
 
 TVector3 GateGlobalActorHit::getInitialPolarization() const { return mInitialPolarization; }
 
+void GateGlobalActorHit::setIsMerged( bool merged ) { mIsMerged = merged; }
+
+bool GateGlobalActorHit::getIsMerged() const { return mIsMerged; }
+
 bool GateGlobalActorHit::isTheSameScintillator( const GateGlobalActorHit& hit ) const { return  mScintillatorPosition == hit.mScintillatorPosition; }
 
 bool GateGlobalActorHit::isTheSameEventID( const GateGlobalActorHit& hit ) const { return mEventID == hit.mEventID; }
