@@ -112,6 +112,12 @@ class GateGlobalActorHit
   void setScatteringIndex( const unsigned int& index );
   G4int getScatteringIndex() const;
 
+  G4int getGammaSourceModel() const;
+  
+  G4int getGammaKind() const;
+
+  TVector3 getInitialPolarization() const;
+
   // comparing methods
   bool isTheSameScintillator( const GateGlobalActorHit& hit ) const;
   bool isTheSameEventID( const GateGlobalActorHit& hit ) const;
@@ -182,6 +188,10 @@ class GateGlobalActorHit
 
   // This value descibes which scattering for trackID is represented by hit
   G4int mScatteringIndex = 0;
+
+  G4int mGammaSourceModel = 0;
+  G4int mGammaKind = 0;
+  TVector3 mInitialPolarization = TVector3( 0, 0, 0);
 };
 
 #endif

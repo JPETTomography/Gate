@@ -200,6 +200,7 @@ void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
  {
   GateGlobalActorDictionaryTrack track = getTrack( gga_hit, hit );
   pEventPackage->fTracks.push_back( track );
+  pEventPackage->fGammaSourceModel = GateGlobalActorDictionaryEnums::getGammaSourceModel( gga_hit.getGammaSourceModel() );
  }
  else
  {
@@ -240,13 +241,15 @@ GateGlobalActorDictionaryTrack GateGlobalActor::getTrack( const GateGlobalActorH
   track.fTrackID = gga_hit.getTrackID();
   track.fInitialEnergy = gga_hit.getEmissionEnergyFromSource();
   track.fInitialMomentumDirection = gga_hit.getEmissionMomentumDirectionFromSource();
-  //track.fInitialPolarization = //TODO
+  track.fInitialPolarization = gga_hit.getInitialPolarization();
   track.fParticleName = gga_hit.getParticleName();
   track.fParticlePGDCoding = gga_hit.getParticlePGDCoding();
   track.fParentID = gga_hit.getParentID();
   track.fScatteringsNumber = gga_hit.getScatteringIndex();
   track.fMultiplicityScatteringsInTheSameVolume = 0;
   track.fAllHitsWithoutMultiplicityScatterings = false;
+  track.fGammaKind = GateGlobalActorDictionaryEnums::getGammaKind( gga_hit.getGammaKind() );
+  track.fInitialPolarization = gga_hit.getInitialPolarization();
 
   if ( hit.fHitKind == GateGlobalActorDictionaryEnums::HitKind::HitMerged )
   {

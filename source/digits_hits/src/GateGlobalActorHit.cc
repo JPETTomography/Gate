@@ -17,6 +17,7 @@
 #include "G4VProcess.hh"
 #include "GateRunManager.hh"
 #include "G4Track.hh"
+#include <GateGammaModelPrimaryParticleInformation.hh>
 
 GateGlobalActorHit::GateGlobalActorHit() {}
 
@@ -128,6 +129,12 @@ void GateGlobalActorHit::setScatteringIndex( const unsigned int& index ) { mScat
  
 G4int GateGlobalActorHit::getScatteringIndex() const { return mScatteringIndex; }
 
+G4int GateGlobalActorHit::getGammaSourceModel() const { return mGammaSourceModel; }
+  
+G4int GateGlobalActorHit::getGammaKind() const { return mGammaKind; }
+
+TVector3 GateGlobalActorHit::getInitialPolarization() const { return mInitialPolarization; }
+
 bool GateGlobalActorHit::isTheSameScintillator( const GateGlobalActorHit& hit ) const { return  mScintillatorPosition == hit.mScintillatorPosition; }
 
 bool GateGlobalActorHit::isTheSameEventID( const GateGlobalActorHit& hit ) const { return mEventID == hit.mEventID; }
@@ -180,6 +187,15 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
  mGlobalTime = step.GetPostStepPoint()->GetGlobalTime();
 
  mProperTime = step.GetTrack()->GetProperTime();
+
+ GateGammaModelPrimaryParticleInformation* info = dynamic_cast<GateGammaModelPrimaryParticleInformation*>( step.GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation() );
+
+ mGammaSourceModel = info->getGammaSourceModel();
+
+ mGammaKind = info->getGammaKind();
+
+ mInitialPolarization = getTVector3( info->getInitialPolarization() );
+ 
 }
 
 TVector3 GateGlobalActorHit::getTVector3( const G4ThreeVector& input_vector ) const
