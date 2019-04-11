@@ -39,6 +39,8 @@ public:
 
 	virtual void UserSteppingAction(const GateVVolume *, const G4Step*) override;
 
+	virtual void BeginOfEventAction(const G4Event* event ) override;
+
 	virtual void EndOfEventAction(const G4Event*) override;
 
 	/** Saves the data collections to the file

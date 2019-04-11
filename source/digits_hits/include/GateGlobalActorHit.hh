@@ -106,6 +106,12 @@ class GateGlobalActorHit
   void setProperTime( const G4double& time );
   G4double getProperTime() const;  
 
+  void setMultipleScatteringNumber( const G4int& multiplicity );
+  G4int getMultipleScatteringNumber() const;
+
+  void setScatteringIndex( const unsigned int& index );
+  G4int getScatteringIndex() const;
+
   // comparing methods
   bool isTheSameScintillator( const GateGlobalActorHit& hit ) const;
   bool isTheSameEventID( const GateGlobalActorHit& hit ) const;
@@ -170,6 +176,12 @@ class GateGlobalActorHit
   G4double mGlobalTime = 0.0;
 
   G4double mProperTime = 0.0;
+
+  //This value descibes how many times hit scattered in the same volume
+  G4int mMultipleScatteringNumber = 0;
+
+  // This value descibes which scattering for trackID is represented by hit
+  G4int mScatteringIndex = 0;
 };
 
 #endif

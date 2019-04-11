@@ -225,6 +225,7 @@ void GateGlobalActorMessenger::BuildBoolCmds()
 	AddSimpleCmd("enableGlobalTime", "Save global time (time since the event was created)", &pEnableGlobalTimeCmd);
 	AddSimpleCmd("enableProperTime", "Save proper time (time in its rest frame since the track was created)", &pEnableProperTimeCmd);
 	AddSimpleCmd("enableUseAdder", "Use Global Actor Adder", &pEnableUseAdderCmd );
+	AddSimpleCmd("enebaleUseEventPackageMode", "", &pEnebaleUseEventPackageModeCmd );
 	
 }
 
@@ -308,6 +309,8 @@ G4bool GateGlobalActorMessenger::SetNewBoolValue(G4UIcommand* command, G4String 
 			GateGlobalActor::Instance()->SetEnableProperTime();
 	else if(command == pEnableUseAdderCmd)
 			GateGlobalActor::Instance()->SetEnableAdder();
+	else if(command == pEnebaleUseEventPackageModeCmd)
+			GateGlobalActor::Instance()->SetEnableEventPackageSavingMode();
 	else
 		return false;
 	return true;

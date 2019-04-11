@@ -21,6 +21,9 @@
 #include "GateRunManager.hh"
 #include "G4Track.hh"
 #include<iostream>
+#include "GateGlobalActorDictionaryEvent.hh"
+#include "GateGlobalActorDictionaryTrack.hh"
+#include "GateGlobalActorDictionaryHit.hh"
 
 std::unique_ptr<GateGlobalActor> GateGlobalActor::upInstance;
 
@@ -47,6 +50,11 @@ void GateGlobalActor::Reset()
 {
  assert( pTree != nullptr );
  pTree->Reset();
+ if ( pTreeEventPackage != nullptr ) 
+ { 
+  pTreeEventPackage->Reset(); 
+  pEventPackage->clear();
+ }
  mAdder.reset();
 }
 
@@ -102,15 +110,19 @@ G4bool GateGlobalActor::SkipThisHit( const GateGlobalActorHit& hit )
 
 void GateGlobalActor::UpdateFromThisHit( const GateGlobalActorHit& hit )
 {
+ if ( mUseEventPackageSavingMode ) { saveHitEventTree( hit ); }
+
  for (std::map<G4String, UpdateMethod>::iterator updateIt = mUpdateMethodsPointersList.begin(); updateIt != mUpdateMethodsPointersList.end(); ++updateIt )
  {
   ( this->*( updateIt->second ) )( hit );
  }
+
  FillTree();
 }
 
 void GateGlobalActor::FillTree()
 {
+ if ( mUseEventPackageSavingMode ) { fillTreeEventPackage(); }
  assert( pTree != nullptr );
  pTree->Fill();
 }
@@ -160,6 +172,112 @@ void GateGlobalActor::SetTimeIntervalBetweenHits( const G4double& time ) { mAdde
 void GateGlobalActor::NoticeEndOfEvent()
 {
  if ( mUseAdder ) { saveHitsFromAdder(); }
+ if ( mUseEventPackageSavingMode ) { fillTreeEventPackage(); }
+}
+
+void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
+{
+
+ GateGlobalActorDictionaryHit hit;
+
+ hit.fVolumeName = gga_hit.getVolumeName();
+ hit.fScintillatorPosition = gga_hit.getScintillatorPosition();
+ hit.fEnergyBeforeProcess = gga_hit.getEnergyBeforeProcess();
+ hit.fEnergyAfterProcess = gga_hit.getEnergyAfterProcess();
+ hit.fEnergyLossDuringProcess = gga_hit.getEnergyLossDuringProcess();
+ hit.fMomentumDirectionBeforeProcess = gga_hit.getMomentumDirectionBeforeProcess();
+ hit.fMomentumDirectionAfterProcess = gga_hit.getMomentumDirectionAfterProcess();
+ hit.fProcessPosition = gga_hit.getProcessPosition();
+ hit.fPolarizationBeforeProcess = gga_hit.getPolarizationBeforeProcess();
+ hit.fPolarizationAfterProcess = gga_hit.getPolarizationAfterProcess();
+ hit.fProcessName = gga_hit.getProcessName();
+ hit.fInteractionTime = gga_hit.getInteractionTime();
+ hit.fLocalTime = gga_hit.getLocalTime();
+ hit.fGlobalTime = gga_hit.getGlobalTime();
+ hit.fProperTime = gga_hit.getProperTime();
+
+ if ( pEventPackage->fTracks.empty() )
+ {
+  GateGlobalActorDictionaryTrack track = getTrack( gga_hit, hit );
+  pEventPackage->fTracks.push_back( track );
+ }
+ else
+ {
+  auto &lastTrack = pEventPackage->fTracks.back();
+  if ( lastTrack.fTrackID == gga_hit.getTrackID() )
+  {
+   lastTrack.fHits.push_back( hit );
+   updateTrack( lastTrack, hit );
+  }
+  else
+  {
+   GateGlobalActorDictionaryTrack track = getTrack( gga_hit, hit );
+   pEventPackage->fTracks.push_back( track );
+  }
+ }
+}
+
+void GateGlobalActor::updateTrack( GateGlobalActorDictionaryTrack& track, GateGlobalActorDictionaryHit& hit )
+{
+  auto &lastHit = track.fHits.back();
+  hit.fHitID = lastHit.fHitID + 1;
+
+  ++track.fScatteringsNumber;
+
+  if ( hit.fHitKind == GateGlobalActorDictionaryEnums::HitKind::HitMerged )
+  {
+   track.fAllHitsWithoutMultiplicityScatterings = false;
+   ++track.fMultiplicityScatteringsInTheSameVolume;
+  }
+  track.fTotalEnergyDeposition += hit.fEnergyLossDuringProcess;
+}
+
+GateGlobalActorDictionaryTrack GateGlobalActor::getTrack( const GateGlobalActorHit& gga_hit, GateGlobalActorDictionaryHit& hit )
+{
+  hit.fHitID = 1;
+
+  GateGlobalActorDictionaryTrack track;
+  track.fTrackID = gga_hit.getTrackID();
+  track.fInitialEnergy = gga_hit.getEmissionEnergyFromSource();
+  track.fInitialMomentumDirection = gga_hit.getEmissionMomentumDirectionFromSource();
+  //track.fInitialPolarization = //TODO
+  track.fParticleName = gga_hit.getParticleName();
+  track.fParticlePGDCoding = gga_hit.getParticlePGDCoding();
+  track.fParentID = gga_hit.getParentID();
+  track.fScatteringsNumber = gga_hit.getScatteringIndex();
+  track.fMultiplicityScatteringsInTheSameVolume = 0;
+  track.fAllHitsWithoutMultiplicityScatterings = false;
+
+  if ( hit.fHitKind == GateGlobalActorDictionaryEnums::HitKind::HitMerged )
+  {
+   track.fMultiplicityScatteringsInTheSameVolume = 1;
+   track.fAllHitsWithoutMultiplicityScatterings = true;
+  }
+
+  track.fTotalEnergyDeposition = gga_hit.getEnergyLossDuringProcess();
+  track.fHits.push_back( hit );
+  return track;
+}
+
+void GateGlobalActor::SetEnableEventPackageSavingMode() 
+{ 
+ assert( !mUseEventPackageSavingMode );//Protect calling twice
+ mUseEventPackageSavingMode = true;
+ pTreeEventPackage = new TTree( "GateGlobalActorEventPackageTree", "Global data collection with event package format" );
+ assert( pTreeEventPackage != nullptr );
+ pEventPackage = new GateGlobalActorDictionaryEvent();
+ pTreeEventPackage->Branch( "GGAEvent", &pEventPackage );
+}
+
+void GateGlobalActor::NoticeBeginOfEvent( const G4int& eventID )
+{
+ pEventPackage->fEventID = eventID;
+}
+
+void GateGlobalActor::fillTreeEventPackage()
+{
+ pTreeEventPackage->Fill();
+ pEventPackage->clear();
 }
 
 /******************************************************************Add below you functions and methods**********************************************************************************************/

@@ -30,12 +30,18 @@ void GateLocalActor::Construct()
 {
 	GateVActor::Construct();
 	EnableUserSteppingAction(true);
+	EnableBeginOfEventAction(true);
 	EnableEndOfEventAction(true);
 }
 
 void GateLocalActor::UserSteppingAction(const GateVVolume *, const G4Step* step)
 {
 	GateGlobalActor::Instance()->NoticeStep(GetVolumeName(), step);
+}
+
+void GateLocalActor::BeginOfEventAction(const G4Event* event )
+{
+ GateGlobalActor::Instance()->NoticeBeginOfEvent(event->GetEventID());
 }
 
 void GateLocalActor::EndOfEventAction(const G4Event*)

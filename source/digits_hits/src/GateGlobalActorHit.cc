@@ -120,6 +120,14 @@ void GateGlobalActorHit::setProperTime( const G4double& time ) { mProperTime = t
 
 G4double GateGlobalActorHit::getProperTime() const { return mProperTime; }
 
+void GateGlobalActorHit::setMultipleScatteringNumber( const G4int& multiplicity ) { mMultipleScatteringNumber = multiplicity; }
+
+G4int GateGlobalActorHit::getMultipleScatteringNumber() const { return mMultipleScatteringNumber; }
+
+void GateGlobalActorHit::setScatteringIndex( const unsigned int& index ) { mScatteringIndex = index; }
+ 
+G4int GateGlobalActorHit::getScatteringIndex() const { return mScatteringIndex; }
+
 bool GateGlobalActorHit::isTheSameScintillator( const GateGlobalActorHit& hit ) const { return  mScintillatorPosition == hit.mScintillatorPosition; }
 
 bool GateGlobalActorHit::isTheSameEventID( const GateGlobalActorHit& hit ) const { return mEventID == hit.mEventID; }
