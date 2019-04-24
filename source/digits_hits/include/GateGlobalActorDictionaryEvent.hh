@@ -21,7 +21,11 @@
 #include "GateGlobalActorDictionaryEnums.hh"
 #include "TVector3.h"
 
-
+/**
+ * @About class: This class represents single event.
+ * @author: Mateusz Bała
+ * @email: bala.mateusz@gmail.com
+ */
 class GateGlobalActorDictionaryEvent: public TObject {
 public:
   GateGlobalActorDictionaryEvent();

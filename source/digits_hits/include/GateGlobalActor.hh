@@ -30,7 +30,7 @@
 #include "GateGlobalActorDictionaryHit.hh"
 
 /**
- * @About class: This class represent global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
+ * @About class: This class represents global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
  * Compared to cristalSD and phantomSD this actor provide method to filtering and saving data - you can what save and when.
  * Class GateLocalActor is node of GateGlobalActor.
  * @author: Mateusz Bała

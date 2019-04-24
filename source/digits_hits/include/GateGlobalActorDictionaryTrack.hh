@@ -21,7 +21,15 @@
 #include "GateGlobalActorDictionaryEnums.hh"
 #include "TVector3.h"
 
-
+/**
+ * @About class: This class represents signle track. Information saved in this class include:
+ * - list of hits ( each one track interaction with materials in simulation )
+ * - information about particle's initial parameters: energy, momentum, polarization, name, PDG code, parentID
+ * - gamma kind ( for example: is from pPs decay or is prompt gamma )
+ * - information about compton scatterings: number of them, how many ( and they happened ) multiply sactterings in the same volume
+ * @author: Mateusz Bała
+ * @email: bala.mateusz@gmail.com
+ */
 class GateGlobalActorDictionaryTrack: public TObject {
 public:
   GateGlobalActorDictionaryTrack();

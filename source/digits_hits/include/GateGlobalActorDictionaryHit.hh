@@ -21,7 +21,11 @@
 
 #include "GateGlobalActorDictionaryEnums.hh"
 
-
+/**
+ * @About class: This class represents single particle interaction with the matter. Information saved to this file include all particles parameters changes during process and other useful varaibles.
+ * @author: Mateusz Bała
+ * @email: bala.mateusz@gmail.com
+ */
 class GateGlobalActorDictionaryHit: public TObject {
 public:
   GateGlobalActorDictionaryHit();
