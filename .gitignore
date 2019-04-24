@@ -1,1 +1,8 @@
 /JPET_GATE_Use_Examples/Example_6/*.root
+/actors_tools/GlobalActorEventPackageReader/Dictionaries/*.hh
+/actors_tools/GlobalActorEventPackageReader/Dictionaries/*.cc
+/actors_tools/GlobalActorEventPackageReader/build/
+/actors_tools/GlobalActorEventPackageReader/UserAnalysisClasses/*
+!/actors_tools/GlobalActorEventPackageReader/UserAnalysisClasses/GammaPairsAnalysis.*
+
+
