@@ -199,8 +199,6 @@ void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
  hit.fProcessName = gga_hit.getProcessName();
  hit.fInteractionTime = gga_hit.getInteractionTime();
  hit.fLocalTime = gga_hit.getLocalTime();
- hit.fGlobalTime = gga_hit.getGlobalTime();
- hit.fProperTime = gga_hit.getProperTime();
  hit.fHitKind = gga_hit.getIsMerged() ? GateGlobalActorDictionaryEnums::HitKind::HitMerged : GateGlobalActorDictionaryEnums::HitKind::HitNotMerged ;
 
  if ( pEventPackage->fTracks.empty() )
@@ -215,8 +213,8 @@ void GateGlobalActor::saveHitEventTree( const GateGlobalActorHit& gga_hit )
   auto &lastTrack = pEventPackage->fTracks.back();
   if ( lastTrack.fTrackID == gga_hit.getTrackID() )
   {
-   lastTrack.fHits.push_back( hit );
    updateTrack( lastTrack, hit );
+   lastTrack.fHits.push_back( hit );
   }
   else
   {

@@ -55,10 +55,6 @@ public:
 
   double fLocalTime = 0.0;
 
-  double fGlobalTime = 0.0;
-
-  double fProperTime = 0.0;
-
   ClassDef(GateGlobalActorDictionaryHit,1)
 };
 #endif /*  !GateGlobalActorTrack_hh */

@@ -192,14 +192,21 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
 
  mProperTime = step.GetTrack()->GetProperTime();
 
+ /** If particle is secondary ( like e- from gamma propagation in material ) then it has not primary particle information.
+     In this case variables mGammaSourceModel and mGammaKind are with value ::Undefined ( this default value for this variables ).
+     This particle polarization is zero vector in this situation.
+ **/
+ if ( step.GetTrack()->GetDynamicParticle()->GetPrimaryParticle() == nullptr ) { return; }
+
  GateGammaModelPrimaryParticleInformation* info = dynamic_cast<GateGammaModelPrimaryParticleInformation*>( step.GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation() );
 
+ if ( info == nullptr ) { return; }
+ 
  mGammaSourceModel = info->getGammaSourceModel();
 
  mGammaKind = info->getGammaKind();
 
  mInitialPolarization = getTVector3( info->getInitialPolarization() );
- 
 }
 
 TVector3 GateGlobalActorHit::getTVector3( const G4ThreeVector& input_vector ) const
