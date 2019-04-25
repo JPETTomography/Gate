@@ -31,8 +31,8 @@ class AnalysisClassesManager
   virtual ~AnalysisClassesManager();
   static AnalysisClassesManager* getInstance();
 
-  AnalysisClass* getAnalysisClass( std::string analysis_class_name );
-  void registerClass( std::string name, AnalysisClass* analysis_class );
+  AnalysisClass* getAnalysisClass( const std::string& analysis_class_name );
+  void registerClass( const std::string& name, AnalysisClass* analysis_class );
 
  protected:
   AnalysisClassesManager();

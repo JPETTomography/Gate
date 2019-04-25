@@ -31,7 +31,7 @@ AnalysisClassesManager* AnalysisClassesManager::getInstance()
  return upInstance.get();
 }
 
-AnalysisClass* AnalysisClassesManager::getAnalysisClass( std::string analysis_class_name )
+AnalysisClass* AnalysisClassesManager::getAnalysisClass( const std::string& analysis_class_name )
 {
  std::map< std::string, AnalysisClass* >::iterator found = mAnalysisClasses.find( analysis_class_name );
  if ( found == mAnalysisClasses.end() ) { return nullptr; }
@@ -39,7 +39,7 @@ AnalysisClass* AnalysisClassesManager::getAnalysisClass( std::string analysis_cl
 }
 
 
-void AnalysisClassesManager::registerClass( std::string name, AnalysisClass* analysis_class )
+void AnalysisClassesManager::registerClass( const std::string& name, AnalysisClass* analysis_class )
 {
  mAnalysisClasses.emplace( name, analysis_class );
 }

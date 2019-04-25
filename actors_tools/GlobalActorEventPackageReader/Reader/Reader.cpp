@@ -22,23 +22,36 @@ Reader::~Reader() {}
 bool Reader::startWorkFor( std::string file_name , AnalysisClass* analysis_class )
 {
  if ( analysis_class == nullptr ) { return finishWithError( "Analysis class null pointer" ); }
- if ( !openFile( file_name ) ) { return false; }
+
+ if ( !openFile( file_name ) ) { return finishWithError( "Opening file failed." ); }
+
  while ( readNextEvent() ) { analysis_class->noticeEvent( getEvent() ); }
+
  return closeFile();
 }
 
 bool Reader::openFile( std::string fileName )
 {
  if ( fileName.size() == 0 ) { return finishWithError( "File name not provided" ); }
+
  if ( fileName.rfind(".root") == std::string::npos) { fileName += ".root"; }
+
  pFile = new TFile( fileName.c_str(), "READ" );
+
  if ( !pFile->IsOpen() ) { return finishWithError( "Opening file " + fileName + " failed" ); }
+
  pTree = dynamic_cast<TTree*>( pFile->Get( mTreeName.c_str() ) );
+
  if ( !pTree ) { return finishWithError( "Loading tree failed" ); }
+
  mNumberOfEvents = pTree->GetEntries();
+
  if ( mNumberOfEvents == 0 ) { return finishWithError( "File is empty" ); }
+
  if ( pTree->FindBranch( mBranchName.c_str() ) == nullptr ) { return finishWithError( "Loading branch with events failed" ); }
+
  pTree->SetBranchAddress( mBranchName.c_str(), &pEvent, &pBranch );
+
  return true;
 }
 

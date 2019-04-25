@@ -33,7 +33,7 @@ class GammaPairsAnalysis : public AnalysisClass //always remember to inherit fro
    unsigned int nTotal = 0;// how many scattering of this kind is in data
    unsigned int nFalse = 0;// how many of this scatterings is false - this means they are from the hits merging
    std::string getStatus() const; //return status inf form "nTotal [ FALSE = 100.0 * nFalse/nTotal % ]"
-   void count( bool is_true ); //increase nTotal and if is_true = false additioanly a nFalse counter
+   void increment( bool is_true ); //increase nTotal and if is_true = false additioanly a nFalse counter
   };
 
   GammaPairsAnalysis();
@@ -42,7 +42,7 @@ class GammaPairsAnalysis : public AnalysisClass //always remember to inherit fro
   virtual void noticeEvent( const Dictionaries::Event& event ); //place in this method your analysis  - reader will call this method each time for next event
   virtual void displayStatus() const; //this is not mandatory but is useful: at the end of program work you can display analysis status
 
-  private: //some private methods used or this analysis noticeEvent method
+  private: //some private methods used for this analysis noticeEvent method
 
   void countThis( unsigned int track_1_hits_number, unsigned int track_2_hits_number, bool is_true );
   bool isNotMergedTrack( const Dictionaries::Track& track ) const;

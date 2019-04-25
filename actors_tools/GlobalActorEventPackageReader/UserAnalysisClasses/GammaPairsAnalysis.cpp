@@ -32,8 +32,10 @@ void GammaPairsAnalysis::countThis( unsigned int track_1_hits_number, unsigned i
 
  std::string kind = "g" + std::to_string( i1 ) + ":g" + std::to_string( i2 );
  std::map<std::string, ScatterindKind>::iterator found = mKinds.find( kind );
+
  if ( found == mKinds.end() ) { mKinds.emplace( kind, ScatterindKind() ); }
- mKinds[kind].count( is_true );
+
+ mKinds[kind].increment( is_true );
 }
 
 std::string GammaPairsAnalysis::ScatterindKind::getStatus() const
@@ -43,7 +45,7 @@ std::string GammaPairsAnalysis::ScatterindKind::getStatus() const
  return status;
 }
 
-void GammaPairsAnalysis::ScatterindKind::count( bool is_true )
+void GammaPairsAnalysis::ScatterindKind::increment( bool is_true )
 {
  ++nTotal;
  if ( !is_true ) { ++nFalse; }
