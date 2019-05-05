@@ -898,38 +898,12 @@ void GateMacfileParser::SearchForActors(G4int splitNumber,ofstream& output, ofst
   }
   else if (macline.contains("/gate/actor") && (macline.contains("/save ") || macline.contains("/save\t")))
   {
-    // We get first the name of the actor in the macro command
-    G4String tmp = macline;
-    tmp.erase(0,12);
-    G4int pos_slash = tmp.find_first_of("/");
-    G4String actorName = tmp.substr(0,pos_slash);
-    // Then we search if this actor has previously been detected in using the addActor command
-    bool findInList = false;
-    for (size_t i=0; i<listOfActorName.size(); i++)
-    {
-      if (actorName == listOfActorName[i])
-      {
-        listOfEnabledActorName.push_back(actorName);
-        listOfEnabledActorType.push_back(listOfActorType[i]);
-	listOfActorName.erase(listOfActorName.begin()+i);
-	listOfActorType.erase(listOfActorType.begin()+i);
-        findInList=true;
-        break;
-      }
-    }
-    // If it is the case we registered this actor as enabled and we split its filename
-    if (findInList)
-    {
-      AddSplitNumberWithExtension(splitNumber);
-      AddPWD("/gate/actor/"+actorName+"/save");
-    }
-    // Else, it is an error, this actor does not exist !
-    else
-    {
-      cerr << "Found the 'save' command on an actor that has not previously been declared !" << endl;
-      CleanAbort(output,splitfile);
-      exit(1);
-    }
+   HadnleActorSavingCommand( splitNumber, output, splitfile, "save" );
+  }
+  else if (macline.contains("/gate/actor") && (macline.contains("/global/saveTo ") || macline.contains("/global/saveTo\t")))
+  {
+   //Support for Global Actor saving mode
+   HadnleActorSavingCommand( splitNumber, output, splitfile, "global/saveTo" );
   }
 
 }
@@ -1086,4 +1060,38 @@ bool GateMacfileParser::ReadColNameAndUnit(istream & is, string name, string & u
   return true;
 }
 
-
+void GateMacfileParser::HadnleActorSavingCommand(G4int splitNumber,ofstream& output, ofstream& splitfile, G4String save_command_form )
+{ 
+    // We get first the name of the actor in the macro command
+    G4String tmp = macline;
+    tmp.erase(0,12); // erasing /gate/actor/
+    G4int pos_slash = tmp.find_first_of("/");
+    G4String actorName = tmp.substr(0,pos_slash);
+    // Then we search if this actor has previously been detected in using the addActor command
+    bool findInList = false;
+    for (size_t i=0; i<listOfActorName.size(); i++)
+    {
+      if (actorName == listOfActorName[i])
+      {
+        listOfEnabledActorName.push_back(actorName);
+        listOfEnabledActorType.push_back(listOfActorType[i]);
+	listOfActorName.erase(listOfActorName.begin()+i);
+	listOfActorType.erase(listOfActorType.begin()+i);
+        findInList=true;
+        break;
+      }
+    }
+    // If it is the case we registered this actor as enabled and we split its filename
+    if (findInList)
+    {
+      AddSplitNumberWithExtension(splitNumber);
+      AddPWD("/gate/actor/"+actorName+"/"+save_command_form);
+    }
+    // Else, it is an error, this actor does not exist !
+    else
+    {
+      cerr << "Found the '"<<save_command_form<<"' command on an actor that has not previously been declared !" << endl;
+      CleanAbort(output,splitfile);
+      exit(1);
+    }
+}
