@@ -24,6 +24,7 @@
 #include "GateGlobalActorDictionaryEvent.hh"
 #include "GateGlobalActorDictionaryTrack.hh"
 #include "GateGlobalActorDictionaryHit.hh"
+#include "TMath.h"
 
 std::unique_ptr<GateGlobalActor> GateGlobalActor::upInstance;
 
