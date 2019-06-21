@@ -236,6 +236,7 @@ void GateGlobalActorMessenger::BuildStringCmds()
 	AddStringCmd("filterProcessName", "Save data only for process with this name. You can call this command more then once to add more processes names.", &pFilterProcessNameCmd);
 	AddStringCmd("filterParticleName", "Save data only for particle with this name. You can call this command more then once to add more particle names.", &pFilterParticleNameCmd);
 	AddStringCmd("filterIgnoreProcessName", "Save data only for process without this name. You can call this command more then once to add more processes names.", &pFilterIgnoreProcessNameCmd);
+	AddStringCmd("userTreeName", "Set name of Global Atcor tree", &pUserTreeNameCmd );
 }
 void GateGlobalActorMessenger::BuildIntegerCmds()
 {
@@ -327,6 +328,8 @@ G4bool GateGlobalActorMessenger::SetNewStringValue(G4UIcommand* command, G4Strin
 		GateGlobalActor::Instance()->SetFilterParticleName(GetCommandValue(pFilterParticleNameCmd, parameter));
 	else if(command == pFilterIgnoreProcessNameCmd)
 		GateGlobalActor::Instance()->SetFilterIgnoreProcessName(GetCommandValue(pFilterIgnoreProcessNameCmd, parameter));
+	else if(command == pUserTreeNameCmd )
+		GateGlobalActor::Instance()->SetUserTreeName(GetCommandValue(pUserTreeNameCmd, parameter));
 	else
 		return false;
 	return true;

@@ -82,6 +82,8 @@ class GateGlobalActor
 
   void NoticeBeginOfEvent( const G4int& eventID );
 
+  void SetUserTreeName( const G4String& name );
+
  private:
   /** Constructor
    * */
@@ -109,6 +111,10 @@ class GateGlobalActor
   TTree* pTreeEventPackage = nullptr;
 
   G4int mLastSavedEventID = -1;
+
+  const G4String kDefaultTreeEventPackageName  = "GateGlobalActorEventPackageTree";
+  const G4String kDefaultStandardGlobalActorTreeName = "GateGlobalActorTree";
+  G4String mUserTreeName = "";
 
  private:
 

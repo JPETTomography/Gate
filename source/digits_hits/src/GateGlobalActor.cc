@@ -99,7 +99,11 @@ void GateGlobalActor::InitFile( const G4String& file_name )
 void GateGlobalActor::GateGlobalActor::InitTree()
 {
  assert( pTree == nullptr );
- pTree = new TTree( "GateGlobalActorTree", "Global data collection" );
+
+ if ( mUserTreeName.size() > 0 ) { pTree = new TTree( mUserTreeName.c_str(), "Global data collection" ); }
+ else { pTree = new TTree( kDefaultStandardGlobalActorTreeName.c_str(), "Global data collection" ); }
+ 
+ assert( pTree != nullptr );
 }
 
 G4bool GateGlobalActor::SkipThisHit( const GateGlobalActorHit& hit )
@@ -274,7 +278,10 @@ void GateGlobalActor::SetEnableEventPackageSavingMode()
  assert( !mUseEventPackageSavingMode );//Protect calling twice
  mUseEventPackageSavingMode = true;
  if ( pFile == nullptr ) { InitFile( mFileName ); }
- pTreeEventPackage = new TTree( "GateGlobalActorEventPackageTree", "Global data collection with event package format" );
+
+ if ( mUserTreeName.size() > 0 ) { pTreeEventPackage = new TTree( mUserTreeName.c_str(), "Global data collection with event package format" ); }
+ else { pTreeEventPackage = new TTree( kDefaultTreeEventPackageName.c_str(), "Global data collection with event package format" ); }
+
  assert( pTreeEventPackage != nullptr );
  pEventPackage = new GateGlobalActorDictionaryEvent();
  pTreeEventPackage->Branch( "GGAEvent", &pEventPackage );
@@ -290,6 +297,8 @@ void GateGlobalActor::fillTreeEventPackage()
  if ( pEventPackage->getTracksNumber() != 0 ) { pTreeEventPackage->Fill(); }
  pEventPackage->clear();
 }
+
+void GateGlobalActor::SetUserTreeName( const G4String& name ) { mUserTreeName = name; } 
 
 /******************************************************************Add below you functions and methods**********************************************************************************************/
 

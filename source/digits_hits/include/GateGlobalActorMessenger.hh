@@ -287,6 +287,7 @@ private:
 	G4UIcmdWithAString* pFilterProcessNameCmd;
 	G4UIcmdWithAString* pFilterParticleNameCmd;
 	G4UIcmdWithAString* pFilterIgnoreProcessNameCmd;
+	G4UIcmdWithAString* pUserTreeNameCmd;
 
 	//@CommandSection: G4UIcmdWithAnInteger
 	G4UIcmdWithAnInteger* pFilterParticlePDGCodeCmd;

@@ -158,7 +158,7 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
 
  mEnergyAfterProcess = keV( step.GetPostStepPoint()->GetTotalEnergy() );
 
- mEnergyLossDuringProcess = keV( step.GetTotalEnergyDeposit() );
+ mEnergyLossDuringProcess = mEnergyBeforeProcess - mEnergyAfterProcess;//keV( step.GetTotalEnergyDeposit() );
 
  mMomentumDirectionBeforeProcess = getTVector3( step.GetPreStepPoint()->GetMomentumDirection() );
 

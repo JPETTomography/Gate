@@ -89,9 +89,9 @@ void GateJPETOrtoPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4P
  G4double kinetic_energy = GetPromptGammaEnergy();
  G4ThreeVector gamma_polarization = GetPolarization( momentum_direction );
 
- particles[ 0 ]->SetMomentumDirection( momentum_direction );
- particles[ 0 ]->SetMass( 0.0 );
- particles[ 0 ]->SetKineticEnergy( kinetic_energy );
+ G4ThreeVector momentum = kinetic_energy * momentum_direction;
+
+ particles[ 0 ]->Set4Momentum( momentum.x(), momentum.y(), momentum.z(), kinetic_energy );
  particles[ 0 ]->SetPolarization( gamma_polarization );
 
  //Adding model info
