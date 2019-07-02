@@ -280,12 +280,14 @@ private:
 	G4UIcmdWithoutParameter* pEnableGlobalTimeCmd;
 	G4UIcmdWithoutParameter* pEnableProperTimeCmd;
         G4UIcmdWithoutParameter* pEnableUseAdderCmd;
+	G4UIcmdWithoutParameter* pEnebaleUseEventPackageModeCmd;
 
 	//@CommandSection: G4UIcmdWithAString
 	G4UIcmdWithAString* pFileNameCmd;
 	G4UIcmdWithAString* pFilterProcessNameCmd;
 	G4UIcmdWithAString* pFilterParticleNameCmd;
 	G4UIcmdWithAString* pFilterIgnoreProcessNameCmd;
+	G4UIcmdWithAString* pUserTreeNameCmd;
 
 	//@CommandSection: G4UIcmdWithAnInteger
 	G4UIcmdWithAnInteger* pFilterParticlePDGCodeCmd;

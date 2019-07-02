@@ -17,6 +17,7 @@
 #include "G4VProcess.hh"
 #include "GateRunManager.hh"
 #include "G4Track.hh"
+#include <GateGammaModelPrimaryParticleInformation.hh>
 
 GateGlobalActorHit::GateGlobalActorHit() {}
 
@@ -120,6 +121,24 @@ void GateGlobalActorHit::setProperTime( const G4double& time ) { mProperTime = t
 
 G4double GateGlobalActorHit::getProperTime() const { return mProperTime; }
 
+void GateGlobalActorHit::setMultipleScatteringNumber( const G4int& multiplicity ) { mMultipleScatteringNumber = multiplicity; }
+
+G4int GateGlobalActorHit::getMultipleScatteringNumber() const { return mMultipleScatteringNumber; }
+
+void GateGlobalActorHit::setScatteringIndex( const unsigned int& index ) { mScatteringIndex = index; }
+ 
+G4int GateGlobalActorHit::getScatteringIndex() const { return mScatteringIndex; }
+
+G4int GateGlobalActorHit::getGammaSourceModel() const { return mGammaSourceModel; }
+  
+G4int GateGlobalActorHit::getGammaKind() const { return mGammaKind; }
+
+TVector3 GateGlobalActorHit::getInitialPolarization() const { return mInitialPolarization; }
+
+void GateGlobalActorHit::setIsMerged( bool merged ) { mIsMerged = merged; }
+
+bool GateGlobalActorHit::getIsMerged() const { return mIsMerged; }
+
 bool GateGlobalActorHit::isTheSameScintillator( const GateGlobalActorHit& hit ) const { return  mScintillatorPosition == hit.mScintillatorPosition; }
 
 bool GateGlobalActorHit::isTheSameEventID( const GateGlobalActorHit& hit ) const { return mEventID == hit.mEventID; }
@@ -139,7 +158,7 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
 
  mEnergyAfterProcess = keV( step.GetPostStepPoint()->GetTotalEnergy() );
 
- mEnergyLossDuringProcess = keV( step.GetTotalEnergyDeposit() );
+ mEnergyLossDuringProcess = mEnergyBeforeProcess - mEnergyAfterProcess;//keV( step.GetTotalEnergyDeposit() );
 
  mMomentumDirectionBeforeProcess = getTVector3( step.GetPreStepPoint()->GetMomentumDirection() );
 
@@ -172,6 +191,22 @@ void GateGlobalActorHit::extractDataFromStep( const G4Step& step )
  mGlobalTime = step.GetPostStepPoint()->GetGlobalTime();
 
  mProperTime = step.GetTrack()->GetProperTime();
+
+ /** If particle is secondary ( like e- from gamma propagation in material ) then it has not primary particle information.
+     In this case variables mGammaSourceModel and mGammaKind are with value ::Undefined ( this default value for this variables ).
+     This particle polarization is zero vector in this situation.
+ **/
+ if ( step.GetTrack()->GetDynamicParticle()->GetPrimaryParticle() == nullptr ) { return; }
+
+ GateGammaModelPrimaryParticleInformation* info = dynamic_cast<GateGammaModelPrimaryParticleInformation*>( step.GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation() );
+
+ if ( info == nullptr ) { return; }
+ 
+ mGammaSourceModel = info->getGammaSourceModel();
+
+ mGammaKind = info->getGammaKind();
+
+ mInitialPolarization = getTVector3( info->getInitialPolarization() );
 }
 
 TVector3 GateGlobalActorHit::getTVector3( const G4ThreeVector& input_vector ) const

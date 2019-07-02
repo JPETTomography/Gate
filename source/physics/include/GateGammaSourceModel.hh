@@ -22,6 +22,7 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TRandom3.h"
+#include <GateGammaModelPrimaryParticleInformation.hh>
 //#include "GateJPETSourceManager.hh"
 //#include "GateJPETSource.hh"
 
@@ -102,6 +103,10 @@ class GateGammaSourceModel
 
   TRandom3* GetRandomGenerator();
 
+  GateGammaModelPrimaryParticleInformation* GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind kind, const G4ThreeVector& polarization ) const;
+
+  void SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel model );
+
  private:
   G4ThreeVector calcPolarization( G4ThreeVector& d0, double angle_radians );
 
@@ -119,6 +124,8 @@ class GateGammaSourceModel
   unsigned int mSeedForRandomGenerator;
   TRandom3* ptrRandomGenerator = nullptr;
   double mPromptGammaEnergy;
+
+  GateGammaModelPrimaryParticleInformation::GammaSourceModel mGammaSourceModel;
 };
 
 #endif

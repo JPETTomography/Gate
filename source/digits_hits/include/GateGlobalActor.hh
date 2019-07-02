@@ -26,9 +26,11 @@
 #include "TVector3.h"
 #include "GateGlobalActorHit.hh"
 #include "GateGlobalActorAdder.hh"
+#include "GateGlobalActorDictionaryEvent.hh"
+#include "GateGlobalActorDictionaryHit.hh"
 
 /**
- * @About class: This class represent global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
+ * @About class: This class represents global data acquisition actor. This actor is substitute for sensitive detectors - crystalSD and phantomSD.
  * Compared to cristalSD and phantomSD this actor provide method to filtering and saving data - you can what save and when.
  * Class GateLocalActor is node of GateGlobalActor.
  * @author: Mateusz Bała
@@ -76,6 +78,12 @@ class GateGlobalActor
 
   void NoticeEndOfEvent();
 
+  void SetEnableEventPackageSavingMode();
+
+  void NoticeBeginOfEvent( const G4int& eventID );
+
+  void SetUserTreeName( const G4String& name );
+
  private:
   /** Constructor
    * */
@@ -95,6 +103,18 @@ class GateGlobalActor
 
   bool mUseAdder = false;
   GateGlobalActorAdder mAdder;
+
+  GateGlobalActorDictionaryEvent* pEventPackage = nullptr;
+
+  bool mUseEventPackageSavingMode = false;
+
+  TTree* pTreeEventPackage = nullptr;
+
+  G4int mLastSavedEventID = -1;
+
+  const G4String kDefaultTreeEventPackageName  = "GateGlobalActorEventPackageTree";
+  const G4String kDefaultStandardGlobalActorTreeName = "GateGlobalActorTree";
+  G4String mUserTreeName = "";
 
  private:
 
@@ -149,6 +169,14 @@ class GateGlobalActor
   void TryAddToSet( std::set<T>& set, const T& value_to_add );
 
   void saveHitsFromAdder();
+
+  void saveHitEventTree( const GateGlobalActorHit& gga_hit );
+
+  void updateTrack( GateGlobalActorDictionaryTrack& track, GateGlobalActorDictionaryHit& hit );
+
+  GateGlobalActorDictionaryTrack getTrack( const GateGlobalActorHit& gga_hit, GateGlobalActorDictionaryHit& hit );
+
+  void fillTreeEventPackage();
 
  //@Section: Control of saving data
  public:

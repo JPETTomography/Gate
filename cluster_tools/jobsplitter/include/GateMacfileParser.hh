@@ -104,6 +104,7 @@ public:
   void CalculateTimeSplit(G4int splitNumber);
   void skipComment(std::istream & is);
   bool ReadColNameAndUnit(std::istream & is, std::string name, std::string & unit);
+  void HadnleActorSavingCommand(G4int splitNumber,std::ofstream& output, std::ofstream& splitfile, G4String save_command_form );
 
 };
 #endif

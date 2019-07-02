@@ -27,6 +27,7 @@ GateJPETParaPlusPromptDecayModel::GateJPETParaPlusPromptDecayModel()
 {
  G4cout <<"GateJPETParaPlusPromptDecayModel initialization.\n";
  SetParticlesNumber(3);
+ SetGammaSourceModel( GateGammaModelPrimaryParticleInformation::GammaSourceModel::ParaPositroniumAndPrompt );
  GateJPETSourceManager::GetInstance()->AddGammaSourceModel(this);
 }
 
@@ -59,10 +60,14 @@ void GateJPETParaPlusPromptDecayModel::AddGammaFromDeexcitation( std::vector<G4P
  G4double kinetic_energy = GetPromptGammaEnergy();
  G4ThreeVector gamma_polarization = GetPolarization( momentum_direction );
 
- particles[ 0 ]->SetMomentumDirection( momentum_direction );
- particles[ 0 ]->SetMass( 0.0 );
- particles[ 0 ]->SetKineticEnergy( kinetic_energy );
+ G4ThreeVector momentum = kinetic_energy * momentum_direction;
+
+ particles[ 0 ]->Set4Momentum( momentum.x(), momentum.y(), momentum.z(), kinetic_energy );
  particles[ 0 ]->SetPolarization( gamma_polarization );
+
+ //Adding model info
+ particles[ 0 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaPrompt, particles[ 0 ]->GetPolarization() ) );
+
 }
 
 void GateJPETParaPlusPromptDecayModel::AddGammasFromParaPositronium( std::vector<G4PrimaryParticle*>& particles )
@@ -86,6 +91,10 @@ void GateJPETParaPlusPromptDecayModel::AddGammasFromParaPositronium( std::vector
 
  G4ThreeVector gamma_2_polarization = GetPerpendicularPolarizationToItsMomentumAndOtherPolarization( particles[ 2 ]->GetMomentum(), gamma_1_polarization );
  particles[ 2 ]->SetPolarization( gamma_2_polarization );
+
+ //Adding model info
+ particles[ 1 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromParaPositronium, particles[ 1 ]->GetPolarization() ) );
+ particles[ 2 ]->SetUserInformation( GetModelInfoForGamma( GateGammaModelPrimaryParticleInformation::GammaKind::GammaFromParaPositronium, particles[ 2 ]->GetPolarization() ) );
 }
 
 G4ThreeVector GateJPETParaPlusPromptDecayModel::GetRandomVectorOnSphere()

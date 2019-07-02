@@ -246,6 +246,15 @@ ELSE()
 ENDIF()
 
 #=========================================================
+# Adding ROOT dictionaries for Global Actor
+SET(gga_s ${PROJECT_SOURCE_DIR}/source/digits_hits/src)
+SET(gga_i ${PROJECT_SOURCE_DIR}/source/digits_hits/include)
+ROOT_GENERATE_DICTIONARY(GlobalActorEventPackageDict ${gga_i}/GateGlobalActorDictionaryEvent.hh ${gga_i}/GateGlobalActorDictionaryTrack.hh ${gga_i}/GateGlobalActorDictionaryHit.hh ${gga_i}/GateGlobalActorDictionaryEnums.hh LINKDEF ${gga_i}/GateGlobalActorDictionariesLinkDef.hh)
+# Create a shared library with geneated dictionary
+add_library(GlobalActorEventPackageDict SHARED ${gga_s}/GateGlobalActorDictionaryEvent.cc ${gga_s}/GateGlobalActorDictionaryTrack.cc ${gga_s}/GateGlobalActorDictionaryHit.cc ${gga_s}/GateGlobalActorDictionaryEnums.cc GlobalActorEventPackageDict.cxx)
+target_link_libraries(GlobalActorEventPackageDict ${ROOT_LIBRARIES})
+
+#=========================================================
 # Add the executable, and link it to the Geant4/ROOT/CLHEP/ITK libraries
 IF(GATE_USE_GPU AND CUDA_FOUND)
   SET(CUDA_NVCC_FLAGS "-G;-gencode arch=compute_30,code=sm_30;-gencode arch=compute_32,code=sm_32;-gencode arch=compute_35,code=sm_35;-gencode arch=compute_37,code=sm_37;-gencode arch=compute_50,code=sm_50;-gencode arch=compute_52,code=sm_52;-gencode arch=compute_53,code=sm_53;-gencode arch=compute_60,code=sm_60;-gencode arch=compute_61,code=sm_61;--use_fast_math;-w;--ptxas-options=-v")
@@ -254,10 +263,12 @@ ELSE(GATE_USE_GPU AND CUDA_FOUND)
   ADD_EXECUTABLE(Gate Gate.cc ${sources} ${headers})
 ENDIF(GATE_USE_GPU AND CUDA_FOUND)
 
-TARGET_LINK_LIBRARIES(Gate ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${ITK_LIBRARIES} ${RTK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(Gate ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${ITK_LIBRARIES} ${RTK_LIBRARIES} pthread GlobalActorEventPackageDict)
 
 #=========================================================
-INSTALL(TARGETS Gate DESTINATION bin)
+# Install program and shared libraries with necessary files for them
+INSTALL(TARGETS Gate GlobalActorEventPackageDict RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
+INSTALL(FILES ${CMAKE_BINARY_DIR}/GlobalActorEventPackageDict_rdict.pcm DESTINATION lib)
 
 #=========================================================
 option(GATE_DOWNLOAD_BENCHMARKS_DATA "Download the missing binary data to run gate benchmarks" OFF)

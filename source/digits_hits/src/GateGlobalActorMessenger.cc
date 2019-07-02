@@ -225,6 +225,7 @@ void GateGlobalActorMessenger::BuildBoolCmds()
 	AddSimpleCmd("enableGlobalTime", "Save global time (time since the event was created)", &pEnableGlobalTimeCmd);
 	AddSimpleCmd("enableProperTime", "Save proper time (time in its rest frame since the track was created)", &pEnableProperTimeCmd);
 	AddSimpleCmd("enableUseAdder", "Use Global Actor Adder", &pEnableUseAdderCmd );
+	AddSimpleCmd("enebaleUseEventPackageMode", "", &pEnebaleUseEventPackageModeCmd );
 	
 }
 
@@ -235,6 +236,7 @@ void GateGlobalActorMessenger::BuildStringCmds()
 	AddStringCmd("filterProcessName", "Save data only for process with this name. You can call this command more then once to add more processes names.", &pFilterProcessNameCmd);
 	AddStringCmd("filterParticleName", "Save data only for particle with this name. You can call this command more then once to add more particle names.", &pFilterParticleNameCmd);
 	AddStringCmd("filterIgnoreProcessName", "Save data only for process without this name. You can call this command more then once to add more processes names.", &pFilterIgnoreProcessNameCmd);
+	AddStringCmd("userTreeName", "Set name of Global Atcor tree", &pUserTreeNameCmd );
 }
 void GateGlobalActorMessenger::BuildIntegerCmds()
 {
@@ -308,6 +310,8 @@ G4bool GateGlobalActorMessenger::SetNewBoolValue(G4UIcommand* command, G4String 
 			GateGlobalActor::Instance()->SetEnableProperTime();
 	else if(command == pEnableUseAdderCmd)
 			GateGlobalActor::Instance()->SetEnableAdder();
+	else if(command == pEnebaleUseEventPackageModeCmd)
+			GateGlobalActor::Instance()->SetEnableEventPackageSavingMode();
 	else
 		return false;
 	return true;
@@ -324,6 +328,8 @@ G4bool GateGlobalActorMessenger::SetNewStringValue(G4UIcommand* command, G4Strin
 		GateGlobalActor::Instance()->SetFilterParticleName(GetCommandValue(pFilterParticleNameCmd, parameter));
 	else if(command == pFilterIgnoreProcessNameCmd)
 		GateGlobalActor::Instance()->SetFilterIgnoreProcessName(GetCommandValue(pFilterIgnoreProcessNameCmd, parameter));
+	else if(command == pUserTreeNameCmd )
+		GateGlobalActor::Instance()->SetUserTreeName(GetCommandValue(pUserTreeNameCmd, parameter));
 	else
 		return false;
 	return true;
