@@ -40,16 +40,11 @@ void GateRejectedVolume::ProcessOnePulse(const GatePulse* inputPulse,GatePulseLi
       	G4cout << "[GateRejectedVolume::ProcessOnePulse]: input pulse was null -> nothing to do\n\n";
     return;
   }
-  //TODO
-  // Compare strings I
   if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == "") {
     if (nVerboseLevel>1)
       	G4cout << "[GateRejectedVolume::ProcessOneHit]: volume is null for " << inputPulse << " -> pulse ignored\n\n";
     return;
   }
-  
-  //TODO
-  // Compare strings II
   if ( ((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() != m_rejectedVolume )
   {
     GatePulse* outputPulse = new GatePulse(*inputPulse);
