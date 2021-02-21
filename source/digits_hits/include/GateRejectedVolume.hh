@@ -21,10 +21,10 @@ class GateRejectedVolumeMessenger;
 
 
 /*! \class  GateRejectedVolume
-    \brief  Pulse-processor modelling a simple threshold discriminator.
+    \brief  Pulse-processor modelling a simple volume discriminator.
 
     - The method ProcessOnePulse of this class models a simple
-      threshold discriminator: any input pulse whose name is not as
+      volume discriminator: any input pulse whose volume name is not as
       defined is copied into the output pulse-list.
       On the contrary, any input pulse whose name is the same as 
       specified is discarded.
@@ -41,14 +41,14 @@ class GateRejectedVolume : public GateVPulseProcessor
     //! Destructor
     virtual ~GateRejectedVolume() ;
 
-    //! Returns the threshold
+    //! Returns the rejected volume
     G4String GetRejectedVolume()   	      { return m_rejectedVolume; }
 
     //! Set the threshold
     void SetRejectedVolume(G4String val)   { m_rejectedVolume = val;  }
 
     //! Implementation of the pure virtual method declared by the base class GateClockDependent
-    //! print-out the attributes specific of the thresholder
+    //! print-out the attributes specific of the module
     virtual void DescribeMyself(size_t indent);
 
   protected:

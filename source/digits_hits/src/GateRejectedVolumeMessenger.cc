@@ -22,7 +22,6 @@ GateRejectedVolumeMessenger::GateRejectedVolumeMessenger(GateRejectedVolume* its
   cmdName = GetDirectoryName() + "setRejectedVolume";
   rejectVolCmd = new G4UIcmdWithAString(cmdName,this);
   rejectVolCmd->SetGuidance("Set rejected volume for pulse-discrimination");
-  
 }
 
 
