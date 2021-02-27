@@ -15,8 +15,8 @@ See LICENSE.md for further details
 #include "GateTools.hh"
 
 GateRejectedVolume::GateRejectedVolume(GatePulseProcessorChain* itsChain,
-			       const G4String& itsName,
-      	      	      	      	 G4String rejectedVolume)
+			                const G4String& itsName,
+      	      	      	      	        G4String rejectedVolume)
   : GateVPulseProcessor(itsChain,itsName),
     m_rejectedVolume(rejectedVolume)
 {
@@ -24,13 +24,10 @@ GateRejectedVolume::GateRejectedVolume(GatePulseProcessorChain* itsChain,
 }
 
 
-
-
 GateRejectedVolume::~GateRejectedVolume()
 {
   delete m_messenger;
 }
-
 
 
 void GateRejectedVolume::ProcessOnePulse(const GatePulse* inputPulse,GatePulseList& outputPulseList)
@@ -56,7 +53,6 @@ void GateRejectedVolume::ProcessOnePulse(const GatePulse* inputPulse,GatePulseLi
       G4cout << "Ignored pulse:\n" << inputPulse << Gateendl << Gateendl ;
   }
 }
-
 
 
 void GateRejectedVolume::DescribeMyself(size_t indent)
