@@ -33,8 +33,6 @@ GateRejectedVolumeMessenger::~GateRejectedVolumeMessenger()
 
 void GateRejectedVolumeMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if ( command==rejectVolCmd )
-    { GetRejectedVolume()->SetRejectedVolume(newValue); }
-  else
-    GatePulseProcessorMessenger::SetNewValue(command,newValue);
+  if (command==rejectVolCmd) { GetRejectedVolume()->SetRejectedVolume(newValue); }
+  else GatePulseProcessorMessenger::SetNewValue(command,newValue);
 }

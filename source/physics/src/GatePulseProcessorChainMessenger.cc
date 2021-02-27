@@ -190,13 +190,13 @@ void GatePulseProcessorChainMessenger::DoInsertion(const G4String& childTypeName
   else if (childTypeName=="localTimeResolution")
     newProcessor = new GateLocalTimeResolution(GetProcessorChain(),newInsertionName);
   else if (childTypeName=="systemFilter")
-     newProcessor = new GateSystemFilter(GetProcessorChain(),newInsertionName);
+    newProcessor = new GateSystemFilter(GetProcessorChain(),newInsertionName);
  // else if (childTypeName=="stripSpDiscretization")
   //   newProcessor = new GateStripSpatialDiscretization(GetProcessorChain(),newInsertionName);
-else if (childTypeName=="gridDiscretization")
-     newProcessor = new GateGridDiscretization(GetProcessorChain(),newInsertionName);
-else if (childTypeName=="localMultipleRejection")
-     newProcessor = new GateLocalMultipleRejection(GetProcessorChain(),newInsertionName);
+  else if (childTypeName=="gridDiscretization")
+    newProcessor = new GateGridDiscretization(GetProcessorChain(),newInsertionName);
+  else if (childTypeName=="localMultipleRejection")
+    newProcessor = new GateLocalMultipleRejection(GetProcessorChain(),newInsertionName);
   else if (childTypeName=="rejectVolume")
     newProcessor = new GateRejectedVolume(GetProcessorChain(),newInsertionName,G4String("world"));
 
