@@ -37,26 +37,23 @@ void GateRejectedVolume::ProcessOnePulse(const GatePulse* inputPulse,GatePulseLi
 {
   if (!inputPulse) {
     if (nVerboseLevel>1)
-      	G4cout << "[GateRejectedVolume::ProcessOnePulse]: input pulse was null -> nothing to do\n\n";
+      G4cout << "[GateRejectedVolume::ProcessOnePulse]: input pulse was null -> nothing to do\n\n";
     return;
   }
   if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == "") {
     if (nVerboseLevel>1)
-      	G4cout << "[GateRejectedVolume::ProcessOneHit]: volume is null for " << inputPulse << " -> pulse ignored\n\n";
+      G4cout << "[GateRejectedVolume::ProcessOneHit]: volume is null for " << inputPulse << " -> pulse ignored\n\n";
     return;
   }
-  if ( ((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() != m_rejectedVolume )
+  if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() != m_rejectedVolume )
   {
-    GatePulse* outputPulse = new GatePulse(*inputPulse);
-    outputPulseList.push_back(outputPulse);
+    outputPulseList.push_back(const_cast<GatePulse*>(inputPulse));
     if (nVerboseLevel>1)
-      	G4cout << "Copied pulse to output:\n"
-      	       << *outputPulse << Gateendl << Gateendl ;
+      G4cout << "Copied pulse to output:\n" << inputPulse << Gateendl << Gateendl ;
   }
   else {
-      if (nVerboseLevel>1)
-      	G4cout << "Ignored pulse:\n"
-      	       << *inputPulse << Gateendl << Gateendl ;
+    if (nVerboseLevel>1)
+      G4cout << "Ignored pulse:\n" << inputPulse << Gateendl << Gateendl ;
   }
 }
 

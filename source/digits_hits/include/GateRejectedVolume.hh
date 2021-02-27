@@ -12,8 +12,6 @@ See LICENSE.md for further details
 
 #include "globals.hh"
 #include <iostream>
-#include <vector>
-#include "G4ThreeVector.hh"
 
 #include "GateVPulseProcessor.hh"
 
@@ -36,16 +34,15 @@ class GateRejectedVolume : public GateVPulseProcessor
   public:
 
     //! Constructs a new module attached to a GateDigitizer
-    GateRejectedVolume(GatePulseProcessorChain* itsChain,
-			       const G4String& itsName, G4String rejectedVolume) ;
+    GateRejectedVolume(GatePulseProcessorChain* itsChain, const G4String& itsName, G4String rejectedVolume);
     //! Destructor
     virtual ~GateRejectedVolume() ;
 
     //! Returns the rejected volume
-    G4String GetRejectedVolume()   	      { return m_rejectedVolume; }
+    G4String GetRejectedVolume()   	    { return m_rejectedVolume; }
 
     //! Set the threshold
-    void SetRejectedVolume(G4String val)   { m_rejectedVolume = val;  }
+    void SetRejectedVolume(G4String val)   { m_rejectedVolume = val; }
 
     //! Implementation of the pure virtual method declared by the base class GateClockDependent
     //! print-out the attributes specific of the module
@@ -60,7 +57,7 @@ class GateRejectedVolume : public GateVPulseProcessor
 
   private:
     G4String m_rejectedVolume;     	        //!< Rejected volume
-    GateRejectedVolumeMessenger *m_messenger;    //!< Messenger
+    GateRejectedVolumeMessenger *m_messenger = nullptr;    //!< Messenger
 };
 
 
