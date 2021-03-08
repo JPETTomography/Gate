@@ -58,6 +58,7 @@ See LICENSE.md for further details
 #include "GateGridDiscretization.hh"
 #include "GateLocalMultipleRejection.hh"
 #include "GateLocalTimeResolution.hh"
+#include "GateRejectedVolume.hh"
 
 #ifdef GATE_USE_OPTICAL
 #include "GateOpticalAdder.hh"
@@ -101,7 +102,7 @@ void GatePulseProcessorChainMessenger::SetNewValue(G4UIcommand* command,G4String
 
 const G4String& GatePulseProcessorChainMessenger::DumpMap()
 {
-   static G4String theList = "readout pileup thresholder energyThresholder localEnergyThresholder DoImodel upholder blurring localBlurring localTimeDelay localEfficiency energyEfficiency noise discretizer buffer transferEfficiency crosstalk lightYield quantumEfficiency intrinsicResolutionBlurring sigmoidalThresholder calibration spblurring sp3Dlocalblurring adder adderCompton adderComptPhotIdeal adderComptPhotIdealLocal localClustering  clustering deadtime crystalblurring timeResolution localTimeResolution opticaladder systemFilter gridDiscretization  localMultipleRejection";
+   static G4String theList = "readout pileup thresholder energyThresholder localEnergyThresholder DoImodel upholder blurring localBlurring localTimeDelay localEfficiency energyEfficiency noise discretizer buffer transferEfficiency crosstalk lightYield quantumEfficiency intrinsicResolutionBlurring sigmoidalThresholder calibration spblurring sp3Dlocalblurring adder adderCompton adderComptPhotIdeal adderComptPhotIdealLocal localClustering  clustering deadtime crystalblurring timeResolution localTimeResolution opticaladder systemFilter gridDiscretization  localMultipleRejection rejectVolume";
   return theList;
 }
 
@@ -189,13 +190,16 @@ void GatePulseProcessorChainMessenger::DoInsertion(const G4String& childTypeName
   else if (childTypeName=="localTimeResolution")
     newProcessor = new GateLocalTimeResolution(GetProcessorChain(),newInsertionName);
   else if (childTypeName=="systemFilter")
-     newProcessor = new GateSystemFilter(GetProcessorChain(),newInsertionName);
+    newProcessor = new GateSystemFilter(GetProcessorChain(),newInsertionName);
  // else if (childTypeName=="stripSpDiscretization")
   //   newProcessor = new GateStripSpatialDiscretization(GetProcessorChain(),newInsertionName);
-else if (childTypeName=="gridDiscretization")
-     newProcessor = new GateGridDiscretization(GetProcessorChain(),newInsertionName);
-else if (childTypeName=="localMultipleRejection")
-     newProcessor = new GateLocalMultipleRejection(GetProcessorChain(),newInsertionName);
+  else if (childTypeName=="gridDiscretization")
+    newProcessor = new GateGridDiscretization(GetProcessorChain(),newInsertionName);
+  else if (childTypeName=="localMultipleRejection")
+    newProcessor = new GateLocalMultipleRejection(GetProcessorChain(),newInsertionName);
+  else if (childTypeName=="rejectVolume")
+    newProcessor = new GateRejectedVolume(GetProcessorChain(),newInsertionName,G4String("world"));
+
 #ifdef GATE_USE_OPTICAL
   else if (childTypeName=="opticaladder")
     newProcessor = new GateOpticalAdder(GetProcessorChain(), newInsertionName);
