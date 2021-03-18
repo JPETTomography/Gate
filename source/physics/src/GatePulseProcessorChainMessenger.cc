@@ -58,7 +58,7 @@ See LICENSE.md for further details
 #include "GateGridDiscretization.hh"
 #include "GateLocalMultipleRejection.hh"
 #include "GateLocalTimeResolution.hh"
-#include "GateRejectedVolume.hh"
+#include "GateRestrictedVolume.hh"
 
 #ifdef GATE_USE_OPTICAL
 #include "GateOpticalAdder.hh"
@@ -102,7 +102,7 @@ void GatePulseProcessorChainMessenger::SetNewValue(G4UIcommand* command,G4String
 
 const G4String& GatePulseProcessorChainMessenger::DumpMap()
 {
-   static G4String theList = "readout pileup thresholder energyThresholder localEnergyThresholder DoImodel upholder blurring localBlurring localTimeDelay localEfficiency energyEfficiency noise discretizer buffer transferEfficiency crosstalk lightYield quantumEfficiency intrinsicResolutionBlurring sigmoidalThresholder calibration spblurring sp3Dlocalblurring adder adderCompton adderComptPhotIdeal adderComptPhotIdealLocal localClustering  clustering deadtime crystalblurring timeResolution localTimeResolution opticaladder systemFilter gridDiscretization  localMultipleRejection rejectVolume";
+   static G4String theList = "readout pileup thresholder energyThresholder localEnergyThresholder DoImodel upholder blurring localBlurring localTimeDelay localEfficiency energyEfficiency noise discretizer buffer transferEfficiency crosstalk lightYield quantumEfficiency intrinsicResolutionBlurring sigmoidalThresholder calibration spblurring sp3Dlocalblurring adder adderCompton adderComptPhotIdeal adderComptPhotIdealLocal localClustering  clustering deadtime crystalblurring timeResolution localTimeResolution opticaladder systemFilter gridDiscretization  localMultipleRejection restrictVolume";
   return theList;
 }
 
@@ -197,8 +197,8 @@ void GatePulseProcessorChainMessenger::DoInsertion(const G4String& childTypeName
     newProcessor = new GateGridDiscretization(GetProcessorChain(),newInsertionName);
   else if (childTypeName=="localMultipleRejection")
     newProcessor = new GateLocalMultipleRejection(GetProcessorChain(),newInsertionName);
-  else if (childTypeName=="rejectVolume")
-    newProcessor = new GateRejectedVolume(GetProcessorChain(),newInsertionName,G4String("world"));
+  else if (childTypeName=="restrictVolume")
+    newProcessor = new GateRestrictedVolume(GetProcessorChain(),newInsertionName);
 
 #ifdef GATE_USE_OPTICAL
   else if (childTypeName=="opticaladder")
