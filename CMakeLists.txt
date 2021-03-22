@@ -1,9 +1,10 @@
 #=========================================================
-CMAKE_MINIMUM_REQUIRED(VERSION 3.12.0 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
 CMAKE_POLICY(SET CMP0012 NEW)
 CMAKE_POLICY(SET CMP0025 NEW)
-CMAKE_POLICY(SET CMP0057 NEW)
-CMAKE_POLICY(SET CMP0072 NEW)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0")
+    CMAKE_POLICY(SET CMP0072 NEW)
+endif()
 
 #=========================================================
 PROJECT(Gate)
@@ -30,12 +31,6 @@ MACRO (DD in)
 ENDMACRO(DD)
 
 #=========================================================
-# Do not use RPATH for Mac, it fails to run Gate when install it
-IF (APPLE)
-  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-ENDIF()
-
-#=========================================================
 # Default build type
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -45,6 +40,9 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 #=========================================================
 # Native compilation
+SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_CXX_EXTENSIONS OFF)
 OPTION(GATE_COMPILE_WITH_NATIVE "Build with -march=native (works if build type is Release)" OFF)
 IF(UNIX AND GATE_COMPILE_WITH_NATIVE)
   string(FIND ${CMAKE_CXX_FLAGS_RELEASE} -march=native pos_march_cxx)
@@ -97,8 +95,8 @@ STRING(REGEX REPLACE "(.*)[.](.*)[.](.*)" "\\3" G4VERSION_PATCH ${Geant4_VERSION
 #MESSAGE(${G4VERSION_MAJOR})
 #MESSAGE(${G4VERSION_MINOR})
 #MESSAGE(${G4VERSION_PATCH})
-IF(NOT ${G4VERSION_MAJOR}.${G4VERSION_MINOR} EQUAL 10.6 AND NOT ${G4VERSION_MAJOR}.${G4VERSION_MINOR} EQUAL 10.7)
-  MESSAGE("Warning! GATE version 9.0 is not validated for Geant4 ${G4VERSION_MAJOR}.${G4VERSION_MINOR} distribution. Please use Geant4 10.7 distribution instead.")
+IF(NOT ${G4VERSION_MAJOR}.${G4VERSION_MINOR} EQUAL 10.5 AND NOT ${G4VERSION_MAJOR}.${G4VERSION_MINOR} EQUAL 10.6)
+  MESSAGE("Warning! GATE version 9.0 is not validated for Geant4 ${G4VERSION_MAJOR}.${G4VERSION_MINOR} distribution. Please use Geant4 10.6 distribution instead.")
 ENDIF()
 
 #=========================================================
@@ -141,7 +139,7 @@ ENDIF()
 #=========================================================
 # Option for Optical Photon use
 IF(GATE_USE_OPTICAL)
-  FIND_PACKAGE(LibXml2 REQUIRED)
+  FIND_PACKAGE(LIBXML2 REQUIRED)
   INCLUDE_DIRECTORIES(${LIBXML2_INCLUDE_DIR})
   SET(LINK_DIRECTORIES ${LIBXML2_LIBRARIES})
 ENDIF(GATE_USE_OPTICAL)
@@ -241,8 +239,8 @@ ENDIF()
 #=========================================================
 # RTK
 IF(GATE_USE_RTK OR GATE_USE_ITK)
-  SET(ITK_MINIMAL_VERSION 5.1)
-  SET(ITK_COMPONENTS ITKIOImageBase;ITKGDCM;ITKIOGDCM;ITKThresholding;ITKFFT;ITKImageCompose;ITKSmoothing)
+  SET(ITK_MINIMAL_VERSION 4.9)
+  SET(ITK_COMPONENTS ITKIOImageBase;ITKIOGDCM;ITKThresholding;ITKFFT;ITKImageCompose;ITKSmoothing)
   IF(GATE_USE_RTK)
     LIST(APPEND ITK_COMPONENTS RTK)
     SET(ITK_MINIMAL_VERSION 4.12)
@@ -267,28 +265,24 @@ ENDIF()
 #=========================================================
 # Add the executable, and link it to the Geant4/ROOT/CLHEP/ITK libraries
 ADD_LIBRARY(GateLib OBJECT ${sources} ${headers})
-TARGET_LINK_LIBRARIES(GateLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+#TARGET_LINK_LIBRARIES(GateLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
 ADD_EXECUTABLE(Gate Gate.cc $<TARGET_OBJECTS:GateLib> )
-TARGET_LINK_LIBRARIES(Gate GateLib)
+ADD_EXECUTABLE(GateDigit_singles_sorter ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_singles_sorter.cc $<TARGET_OBJECTS:GateLib> )
+ADD_EXECUTABLE(GateDigit_hits_digitizer ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_hits_digitizer.cc  $<TARGET_OBJECTS:GateLib>)
+ADD_EXECUTABLE(GateDigit_coincidence_processor ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_coincidence_processor.cc $<TARGET_OBJECTS:GateLib>)
+ADD_EXECUTABLE(GateDigit_seqCoinc2Cones ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_seqCoinc2Cones.cc $<TARGET_OBJECTS:GateLib>)
+TARGET_LINK_LIBRARIES(Gate ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_singles_sorter ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_hits_digitizer ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_coincidence_processor ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_seqCoinc2Cones ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
 
 #=========================================================
 INSTALL(TARGETS Gate DESTINATION bin)
-
-OPTION(GATE_COMPILE_GATEDIGIT "Build GateDigit tools" OFF)
-IF(GATE_COMPILE_GATEDIGIT)
-    ADD_EXECUTABLE(GateDigit_singles_sorter ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_singles_sorter.cc $<TARGET_OBJECTS:GateLib> )
-    ADD_EXECUTABLE(GateDigit_hits_digitizer ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_hits_digitizer.cc  $<TARGET_OBJECTS:GateLib>)
-    ADD_EXECUTABLE(GateDigit_coincidence_processor ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_coincidence_processor.cc $<TARGET_OBJECTS:GateLib>)
-    ADD_EXECUTABLE(GateDigit_seqCoinc2Cones ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_seqCoinc2Cones.cc $<TARGET_OBJECTS:GateLib>)
-    TARGET_LINK_LIBRARIES(GateDigit_singles_sorter GateLib)
-    TARGET_LINK_LIBRARIES(GateDigit_hits_digitizer GateLib)
-    TARGET_LINK_LIBRARIES(GateDigit_coincidence_processor GateLib)
-    TARGET_LINK_LIBRARIES(GateDigit_seqCoinc2Cones GateLib)
-    INSTALL(TARGETS GateDigit_singles_sorter DESTINATION bin)
-    INSTALL(TARGETS GateDigit_hits_digitizer DESTINATION bin)
-    INSTALL(TARGETS GateDigit_coincidence_processor DESTINATION bin)
-    INSTALL(TARGETS GateDigit_seqCoinc2Cones DESTINATION bin)
-ENDIF(GATE_COMPILE_GATEDIGIT)
+INSTALL(TARGETS GateDigit_singles_sorter DESTINATION bin)
+INSTALL(TARGETS GateDigit_hits_digitizer DESTINATION bin)
+INSTALL(TARGETS GateDigit_coincidence_processor DESTINATION bin)
+INSTALL(TARGETS GateDigit_seqCoinc2Cones DESTINATION bin)
 
 #=========================================================
 option(GATE_DOWNLOAD_BENCHMARKS_DATA "Download the missing binary data to run gate benchmarks" OFF)

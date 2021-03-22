@@ -9,57 +9,50 @@
 
 #include "G4UnitsTable.hh"
 
-#include "GateRestrictedVolumeMessenger.hh"
 #include "GateTools.hh"
+#include <memory>
 
-GateRestrictedVolume::GateRestrictedVolume(GatePulseProcessorChain* itsChain,
-                                       const G4String& itsName)
-  : GateVPulseProcessor(itsChain, itsName)
+GateRestrictedVolume::GateRestrictedVolume(GatePulseProcessorChain* itsChain, const G4String& itsName) : GateVPulseProcessor(itsChain, itsName)
 {
-  m_messenger = new GateRestrictedVolumeMessenger(this);
-}
-
-GateRestrictedVolume::~GateRestrictedVolume()
-{
-  delete m_messenger;
+  m_messenger = std::unique_ptr<GateRestrictedVolumeMessenger>(new GateRestrictedVolumeMessenger(this));
 }
 
 void GateRestrictedVolume::ProcessOnePulse(const GatePulse* inputPulse, GatePulseList& outputPulseList)
 {
-  if (!inputPulse) {
-    if (nVerboseLevel>1)
+  if (!inputPulse)
+  {
+    if (nVerboseLevel > 1)
       G4cout << "[GateRestrictedVolume::ProcessOnePulse]: input pulse was null -> nothing to do\n\n";
     return;
   }
-  
-  if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == "") {
-    if (nVerboseLevel>1)
+
+  if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == "")
+  {
+    if (nVerboseLevel > 1)
       G4cout << "[GateRestrictedVolume::ProcessOneHit]: volume is null for " << inputPulse << " -> pulse ignored\n\n";
     return;
   }
-  // Reject mode and the volume is the one specified
-  if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() != m_restrictedVolume && m_restrictionMode == "reject")
+  GatePulse* outputPulse = new GatePulse(*inputPulse);
+  // Reject restriction mode -> Process Hits/Singles from all volumes belonds to the defined system excluding m_restrictedVolume
+  if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() != m_restrictedVolume && m_restrictionMode == kReject)
   {
-    G4cout << Gateendl << Gateendl << "DUPA3\n" << Gateendl << Gateendl ;
-    outputPulseList.push_back(const_cast<GatePulse*>(inputPulse));
-    if (nVerboseLevel>1)
-      G4cout << "Copied pulse to output:\n" << inputPulse << Gateendl << Gateendl ;
+    outputPulseList.push_back(outputPulse);
+    if (nVerboseLevel > 1)
+      G4cout << "Copied pulse to output:\n" << inputPulse << Gateendl << Gateendl;
   }
-  // Accept mode and the volume is the one specified  
-  else if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == m_restrictedVolume && m_restrictionMode == "accept")
+  // Accept restriction mode -> Process Hits/Singles only from indicated volume (m_restrictedVolume) from the defined system
+  else if (((inputPulse->GetVolumeID()).GetBottomCreator())->GetObjectName() == m_restrictedVolume && m_restrictionMode == kAccept)
   {
-    G4cout << Gateendl << Gateendl << "DUPA4\n" << Gateendl << Gateendl ;
-    outputPulseList.push_back(const_cast<GatePulse*>(inputPulse));
-    if (nVerboseLevel>1)
-      G4cout << "Copied pulse to output:\n" << inputPulse << Gateendl << Gateendl ;
-  }
-  
-  else {
-    G4cout << Gateendl << Gateendl << "DUPA5\n" << Gateendl << Gateendl ;
-    if (nVerboseLevel>1)
-      G4cout << "Ignored pulse:\n" << inputPulse << Gateendl << Gateendl ;
+    outputPulseList.push_back(outputPulse);
+    if (nVerboseLevel > 1)
+      G4cout << "Copied pulse to output:\n" << inputPulse << Gateendl << Gateendl;
   }
 
+  else
+  {
+    if (nVerboseLevel > 1)
+      G4cout << "Ignored pulse:\n" << inputPulse << Gateendl << Gateendl;
+  }
 }
 
 void GateRestrictedVolume::DescribeMyself(size_t indent)
