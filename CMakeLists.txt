@@ -30,12 +30,6 @@ MACRO (DD in)
 ENDMACRO(DD)
 
 #=========================================================
-# Do not use RPATH for Mac, it fails to run Gate when install it
-IF (APPLE)
-  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-ENDIF()
-
-#=========================================================
 # Default build type
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -45,6 +39,9 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 #=========================================================
 # Native compilation
+SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_CXX_EXTENSIONS OFF)
 OPTION(GATE_COMPILE_WITH_NATIVE "Build with -march=native (works if build type is Release)" OFF)
 IF(UNIX AND GATE_COMPILE_WITH_NATIVE)
   string(FIND ${CMAKE_CXX_FLAGS_RELEASE} -march=native pos_march_cxx)
@@ -138,7 +135,7 @@ ENDIF()
 #=========================================================
 # Option for Optical Photon use
 IF(GATE_USE_OPTICAL)
-  FIND_PACKAGE(LibXml2 REQUIRED)
+  FIND_PACKAGE(LIBXML2 REQUIRED)
   INCLUDE_DIRECTORIES(${LIBXML2_INCLUDE_DIR})
   SET(LINK_DIRECTORIES ${LIBXML2_LIBRARIES})
 ENDIF(GATE_USE_OPTICAL)
@@ -248,8 +245,8 @@ ENDIF()
 #=========================================================
 # RTK
 IF(GATE_USE_RTK OR GATE_USE_ITK)
-  SET(ITK_MINIMAL_VERSION 5.1)
-  SET(ITK_COMPONENTS ITKIOImageBase;ITKGDCM;ITKIOGDCM;ITKThresholding;ITKFFT;ITKImageCompose;ITKSmoothing)
+  SET(ITK_MINIMAL_VERSION 4.9)
+  SET(ITK_COMPONENTS ITKIOImageBase;ITKIOGDCM;ITKThresholding;ITKFFT;ITKImageCompose;ITKSmoothing)
   IF(GATE_USE_RTK)
     LIST(APPEND ITK_COMPONENTS RTK)
     SET(ITK_MINIMAL_VERSION 4.12)
@@ -274,9 +271,17 @@ ENDIF()
 #=========================================================
 # Add the executable, and link it to the Geant4/ROOT/CLHEP/ITK libraries
 ADD_LIBRARY(GateLib OBJECT ${sources} ${headers})
-TARGET_LINK_LIBRARIES(GateLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+#TARGET_LINK_LIBRARIES(GateLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
 ADD_EXECUTABLE(Gate Gate.cc $<TARGET_OBJECTS:GateLib> )
-TARGET_LINK_LIBRARIES(Gate GateLib)
+ADD_EXECUTABLE(GateDigit_singles_sorter ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_singles_sorter.cc $<TARGET_OBJECTS:GateLib> )
+ADD_EXECUTABLE(GateDigit_hits_digitizer ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_hits_digitizer.cc  $<TARGET_OBJECTS:GateLib>)
+ADD_EXECUTABLE(GateDigit_coincidence_processor ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_coincidence_processor.cc $<TARGET_OBJECTS:GateLib>)
+ADD_EXECUTABLE(GateDigit_seqCoinc2Cones ${PROJECT_SOURCE_DIR}/source/bin/GateDigit_seqCoinc2Cones.cc $<TARGET_OBJECTS:GateLib>)
+TARGET_LINK_LIBRARIES(Gate ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_singles_sorter ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_hits_digitizer ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_coincidence_processor ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(GateDigit_seqCoinc2Cones ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBXRL_LIBRARIES} ${LMF_LIBRARY} ${ECAT7_LIBRARY} ${TORCH_LIBRARIES} ${ITK_LIBRARIES} pthread)
 
 #=========================================================
 INSTALL(TARGETS Gate DESTINATION bin)

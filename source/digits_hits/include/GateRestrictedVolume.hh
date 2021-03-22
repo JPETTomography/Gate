@@ -5,67 +5,62 @@
   See LICENSE.md for further details
   ----------------------*/
 
-
 #ifndef GateRestrictedVolume_h
 #define GateRestrictedVolume_h 1
 
 #include "globals.hh"
 #include <iostream>
+#include <memory>
 
+#include "GateRestrictedVolumeMessenger.hh"
 #include "GateVPulseProcessor.hh"
 
 class GateRestrictedVolumeMessenger;
 
+/** Author: Jakub Baran
+ *  Email: jakubbaran92@gmail.com
+ *  Organization: J-PET (http://koza.if.uj.edu.pl/pet/)
+ *  About class: Module enabled to either accept Hits/Singles
+ *  from one specified volume (accept mode) or from all volumes
+ *  belongs to the defined system exlucluding indicated volume
+ *  (reject mode)
+ **/
 
-/*! \class  GateRestrictedVolume
-    \brief  Pulse-processor modelling a simple volume discriminator.
-
-    - The method ProcessOnePulse of this class models a simple
-      volume discriminator: any input pulse whose volume name is not as
-      defined is copied into the output pulse-list.
-      On the contrary, any input pulse whose name is the same as 
-      specified is discarded.
-
-      \sa GateVPulseProcessor
-*/
 class GateRestrictedVolume : public GateVPulseProcessor
 {
-  public:
+public:
+  //! Constructs a new module attached to a GateDigitizer
+  GateRestrictedVolume(GatePulseProcessorChain* itsChain, const G4String& itsName);
 
-    //! Constructs a new module attached to a GateDigitizer
-    GateRestrictedVolume(GatePulseProcessorChain* itsChain, const G4String& itsName);
-    //! Destructor
-    virtual ~GateRestrictedVolume();
+  //! Returns the restricted volume
+  G4String GetRestrictedVolume() const { return m_restrictedVolume; }
 
-    //! Returns the restricted volume
-    G4String GetRestrictedVolume() { return m_restrictedVolume; }
+  //! Set the restricted volume
+  void SetRestrictedVolume(G4String val) { m_restrictedVolume = val; }
 
-    //! Set the trestricted volume
-    void SetRestrictedVolume(G4String val) { m_restrictedVolume = val; }
+  //! Returns the restricted mode
+  G4String GetRestrictionMode() const { return m_restrictionMode; }
 
-    //! Returns the restricted volume
-    G4String GetRestrictionMode() { return m_restrictionMode; }
+  //! Set the restriction mode
+  void SetRestrictionMode(G4String val) { m_restrictionMode = val; }
 
-    //! Set the restriction mode
-    void SetRestrictionMode(G4String val) { m_restrictionMode = val; }
+  //! Implementation of the pure virtual method declared by the base class GateClockDependent
+  //! print-out the attributes specific of the module
+  virtual void DescribeMyself(size_t indent);
 
+protected:
+  //! Implementation of the pure virtual method declared by the base class GateVPulseProcessor
+  //! This methods processes one input-pulse
+  //! It is is called by ProcessPulseList() for each of the input pulses
+  //! The result of the pulse-processing is incorporated into the output pulse-list
+  void ProcessOnePulse(const GatePulse* inputPulse, GatePulseList& outputPulseList) override;
 
-    //! Implementation of the pure virtual method declared by the base class GateClockDependent
-    //! print-out the attributes specific of the module
-    virtual void DescribeMyself(size_t indent);
-    
-  protected:
-    //! Implementation of the pure virtual method declared by the base class GateVPulseProcessor
-    //! This methods processes one input-pulse
-    //! It is is called by ProcessPulseList() for each of the input pulses
-    //! The result of the pulse-processing is incorporated into the output pulse-list
-    void ProcessOnePulse(const GatePulse* inputPulse,GatePulseList&  outputPulseList);
-
-  private:
-    G4String m_restrictedVolume;                             //!< Rejected volume
-    G4String m_restrictionMode;
-    GateRestrictedVolumeMessenger *m_messenger = nullptr;    //!< Messenger
+private:
+  G4String m_restrictedVolume;                                //!< Restricted volume
+  G4String m_restrictionMode;                                 //!< Restriction mode
+  G4String kAccept = "accept";                                //!< Accept restriction mode
+  G4String kReject = "reject";                                //!< Reject restriction mode
+  std::unique_ptr<GateRestrictedVolumeMessenger> m_messenger; //!< Messenger
 };
-
 
 #endif
