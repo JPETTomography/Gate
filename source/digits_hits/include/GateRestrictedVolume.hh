@@ -20,9 +20,9 @@ class GateRestrictedVolumeMessenger;
 /** Author: Jakub Baran
  *  Email: jakubbaran92@gmail.com
  *  Organization: J-PET (http://koza.if.uj.edu.pl/pet/)
- *  About class: Module enabled to either accept Hits/Singles
- *  from one specified volume (accept mode) or from all volumes
- *  belongs to the defined system exlucluding indicated volume
+ *  About class: This class allows to either accept Hits/Singles
+ *  only from one specified volume (accept mode) or from all volumes
+ *  belongs to the defined system except indicated volume
  *  (reject mode)
  **/
 

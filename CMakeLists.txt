@@ -1,5 +1,5 @@
 #=========================================================
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.11 FATAL_ERROR)
 CMAKE_POLICY(SET CMP0012 NEW)
 CMAKE_POLICY(SET CMP0025 NEW)
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0")
@@ -40,9 +40,6 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 #=========================================================
 # Native compilation
-SET(CMAKE_CXX_STANDARD 14)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-SET(CMAKE_CXX_EXTENSIONS OFF)
 OPTION(GATE_COMPILE_WITH_NATIVE "Build with -march=native (works if build type is Release)" OFF)
 IF(UNIX AND GATE_COMPILE_WITH_NATIVE)
   string(FIND ${CMAKE_CXX_FLAGS_RELEASE} -march=native pos_march_cxx)
