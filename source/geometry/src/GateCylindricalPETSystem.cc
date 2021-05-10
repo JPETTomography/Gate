@@ -49,6 +49,11 @@ GateCylindricalPETSystem::GateCylindricalPETSystem(const G4String& itsName)
   new GateBoxComponent("layer1",crystalComponent,this);
   new GateBoxComponent("layer2",crystalComponent,this);
   new GateBoxComponent("layer3",crystalComponent,this);
+  new GateBoxComponent("layer4",crystalComponent,this);
+  new GateBoxComponent("layer5",crystalComponent,this);
+  new GateBoxComponent("layer6",crystalComponent,this);
+  new GateBoxComponent("layer7",crystalComponent,this);
+  new GateBoxComponent("layer8",crystalComponent,this);
 
   // Integrate a coincidence sorter into the digitizer
   G4double coincidenceWindow = 10.* ns;
@@ -228,6 +233,11 @@ void GateCylindricalPETSystem::AddNewRSECTOR( G4String aName )
   new GateBoxComponent( layername+"1",crystalComponent,this);
   new GateBoxComponent( layername+"2",crystalComponent,this);
   new GateBoxComponent( layername+"3",crystalComponent,this);
+  new GateBoxComponent( layername+"4",crystalComponent,this);
+  new GateBoxComponent( layername+"5",crystalComponent,this);
+  new GateBoxComponent( layername+"6",crystalComponent,this);
+  new GateBoxComponent( layername+"7",crystalComponent,this);
+  new GateBoxComponent( layername+"8",crystalComponent,this);
   char nameID[30];
   memset( nameID , '\0', 30 );
   G4String s = aName+"ID";
