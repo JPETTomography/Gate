@@ -191,16 +191,16 @@ std::vector<G4int> GateTrajectoryNavigator::FindAnnihilationGammasTrackID()
     for(G4int j3=j2+1; j3<nPh; j3++){
 	  i1 = photonIndices[j1];
 	  i2 = photonIndices[j2];
-    i3 = photonIndices[j3];
+      i3 = photonIndices[j3];
 	  if ((i1 >= 0) && (i2 >= 0) && (i3 >= 0)) {
 	    // both gammas were not already taken
 	    G4Trajectory* trj1 = (G4Trajectory*)((*m_trajectoryContainer)[i1]);
 	    G4Trajectory* trj2 = (G4Trajectory*)((*m_trajectoryContainer)[i2]);
-      G4Trajectory* trj3 = (G4Trajectory*)((*m_trajectoryContainer)[i3]);
+        G4Trajectory* trj3 = (G4Trajectory*)((*m_trajectoryContainer)[i3]);
 
 	    G4ThreeVector vert1 = ((G4TrajectoryPoint*)(trj1->GetPoint(0)))->GetPosition();
 	    G4ThreeVector vert2 = ((G4TrajectoryPoint*)(trj2->GetPoint(0)))->GetPosition();
-      G4ThreeVector vert3 = ((G4TrajectoryPoint*)(trj3->GetPoint(0)))->GetPosition();
+        G4ThreeVector vert3 = ((G4TrajectoryPoint*)(trj3->GetPoint(0)))->GetPosition();
 	    // in detector mode the vertex position is stored at the last trajectory point
 	    // not the first one
 	    if (  theMode == TrackingMode::kDetector ) // in tracker mode we store the infos about the number of compton and rayleigh
@@ -267,7 +267,7 @@ std::vector<G4int> GateTrajectoryNavigator::FindAnnihilationGammasTrackID()
       G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : distance between gammas vertices : dist (mm) " << dist/mm << Gateendl;
       if (dist/mm < 1E-7) {
        if (nVerboseLevel > 1) {
-    G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : Found common vertex for the two annihilation gammas :"
+        G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : Found common vertex for the two annihilation gammas :"
            << " tracks " << trj1->GetTrackID() << " and " << trj2->GetTrackID() << Gateendl;
        }
         // we add both photons to the vertex
