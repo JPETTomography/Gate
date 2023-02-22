@@ -124,9 +124,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
   G4int eventID = event->GetEventID();
   G4int runID   = GateRunManager::GetRunManager()->GetCurrentRun()->GetRunID();
-  //G4cout << "GateAnalysis::EventID et RunID :  " <<eventID<<" - "<<runID<< Gateendl;
-
-  //G4int i;
 
   if (!trajectoryContainer)
     {
@@ -143,10 +140,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
       if (CHC)
         {
           NbHits = CHC->entries();
-          //G4cout << "     " << NbHits << " hits are stored in essaiCrystalHitsCollection.\n";
 
-          //G4int ionID      = 1; // the primary vertex particle
-          //G4int positronID = 0; // no more needed
           G4int photon1ID  = 0;
           G4int photon2ID  = 0;
           G4int photon3ID  = 0;
@@ -172,20 +166,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
           G4int septalNb = 0; // HDS : septal penetration
 
-	  ////////////
-          // search the positron
-          //positronID = // No more needed
           m_trajectoryNavigator->FindPositronTrackID();
-
-          /*if (positronID == 0)
-            {
-            if (nVerboseLevel > 0) G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : positronID == 0\n";
-            }
-
-            if (nVerboseLevel > 1) G4cout << "GateAnalysis::RecordEndOfEvent : positronID : " << positronID << Gateendl;
-          */
-
-	  ////////////
 	  //search the two gammas
 
           std::vector<G4int> photonIDVec = m_trajectoryNavigator->FindAnnihilationGammasTrackID();
@@ -348,7 +329,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
 
           if (  theMode == TrackingMode::kTracker ) // in tracker mode we store the infos about the number of compton and rayleigh
-            { // G4cout << " GateAnalysis eventID "<<eventID<< Gateendl;
+            {
               GateToRoot* gateToRoot = (GateToRoot*) (GateOutputMgr::GetInstance()->GetModule("root"));
               ComptonRayleighData aCRData;
               aCRData.photon1_phantom_Rayleigh = photon1_phantom_Rayleigh;
@@ -364,7 +345,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               strcpy(aCRData.theRayleighVolumeName2 , theRayleighVolumeName2.c_str() );
               strcpy(aCRData.theRayleighVolumeName3 , theRayleighVolumeName3.c_str() );
               gateToRoot->RecordPHData( aCRData );
-              // return;
             }
 
           if (  theMode == TrackingMode::kDetector ) // in tracker mode we store the infos about the number of compton and rayleigh
@@ -380,12 +360,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               photon1_phantom_compton  += aCRData.photon1_phantom_compton;
               photon2_phantom_compton  += aCRData.photon2_phantom_compton;
               photon3_phantom_compton  += aCRData.photon3_phantom_compton;
-              /*
-                if( theComptonVolumeName1 == G4String("NULL") ) {theComptonVolumeName1    = aCRData.theComptonVolumeName1;}
-                if( theComptonVolumeName2 == G4String("NULL") ) {theComptonVolumeName2    = aCRData.theComptonVolumeName2;}
-                if( theRayleighVolumeName1 == G4String("NULL") ) {theRayleighVolumeName1   = aCRData.theRayleighVolumeName1;}
-                if( theRayleighVolumeName2 == G4String("NULL") ){theRayleighVolumeName2   = aCRData.theRayleighVolumeName2;}
-              */
+
               theComptonVolumeName1    = aCRData.theComptonVolumeName1;
               theComptonVolumeName2    = aCRData.theComptonVolumeName2;
               theComptonVolumeName3    = aCRData.theComptonVolumeName3;
@@ -411,7 +386,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
               G4int    crystalTrackID = (*CHC)[iHit]->GetTrackID();
               G4String processName = (*CHC)[iHit]->GetProcess();
               // Counting Compton in the Crystal
-              //      if (processName.find("ompt") != G4String::npos || processName.find("Rayleigh") != G4String::npos) {
               if (processName.find("ompt") != G4String::npos)
                 {
 
@@ -438,7 +412,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                   // fill in values with the branch with C struct
 
                   G4int trackID  = (*CHC)[iHit]->GetTrackID();
-                  //G4int parentID = (*CHC)[iHit]->GetParentID();
 
                   G4int photonID = 0;
                   G4int nPhantomCompton = 0;
@@ -447,7 +420,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
                   G4int nPhantomRayleigh = 0;
                   G4int nCrystalRayleigh = 0;
 
-                  //	  if ((photon1ID != 0) && (photon2ID != 0)) {
                   if (photon1ID != 0)
                     { // this means that at least 1 photon has been found, requiring 2 is wrong for SPECT
                       // search the gamma from which this hit comes --> photonID
