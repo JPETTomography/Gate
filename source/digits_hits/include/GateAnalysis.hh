@@ -67,6 +67,8 @@ public:
   inline G4bool GetRecordSeptalFlag() const { return m_recordSeptalFlag; }
   inline void SetSeptalPhysVolumeName(const G4String& name) { m_septalPhysVolumeName = name; }
   inline void SetRecordSeptalFlag(G4bool flag) { m_recordSeptalFlag = flag; }
+  
+  void CollectPhantomScatterings(std::vector<PhotonScatterings>& photon_scatterings, G4int& septalNb);
 
 private:
 

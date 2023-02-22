@@ -110,7 +110,54 @@ void GateAnalysis::RecordBeginOfEvent(const G4Event* )
 }
 //--------------------------------------------------------------------------------------------------
 
+void GateAnalysis::CollectPhantomScatterings(std::vector<PhotonScatterings>& photon_scatterings, G4int& septalNb) {
+  GatePhantomHitsCollection* PHC = GetOutputMgr()->GetPhantomHitCollection();
+  G4int NpHits = PHC->entries();
+  G4String theComptonVolumeName("NULL");
+  G4String theRayleighVolumeName("NULL");
 
+  for (G4int iPHit=0;iPHit<NpHits;iPHit++) {
+    // HDS : septal penetration record
+    if ( m_recordSeptalFlag ) {
+      if ((*PHC)[iPHit]->GetPhysVolName() == m_septalPhysVolumeName) {
+        ++septalNb;
+      }
+    }
+    G4int phantomTrackID = (*PHC)[iPHit]->GetTrackID();
+    G4String processName = (*PHC)[iPHit]->GetProcess();
+    G4int PDGcode = (*PHC)[iPHit]->GetPDGEncoding();
+    G4ThreeVector hitPos = (*PHC)[iPHit]->GetPos();
+
+    if (nVerboseLevel > 2) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : GatePhantomHitsCollection : trackID : " << std::setw(5) << phantomTrackID;
+      G4cout << "    PDG code : " << std::setw(5) << PDGcode << "  processName : <" << processName << G4endl;
+    }
+    
+    if ((phantomTrackID == photon_scatterings[0].photonID)||(phantomTrackID == photon_scatterings[1].photonID)) {
+      //Modif by DS and LS on Oct 4, 2002: we need to be able to recognise both 'compt'
+      //and 'LowEnCompt", hence the find on 'ompt' modif. by CJG to separate Compton and Rayleigh photons
+      const bool isComptonInPhantom = processName.find("ompt") != G4String::npos;
+      const bool isRayleighInPhantom = processName.find("Rayl") != G4String::npos;
+      if (isComptonInPhantom || isRayleighInPhantom) {
+        G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+        G4ThreeVector zero_vector(0.,0.,0.);
+        G4String volume_name = gNavigator->LocateGlobalPointAndSetup(hitPos,&zero_vector,false)->GetName();
+        theComptonVolumeName = isComptonInPhantom ? volume_name : theComptonVolumeName;
+        theRayleighVolumeName = isRayleighInPhantom ? volume_name : theRayleighVolumeName;
+      }
+      auto found_photon_scatterings = find_if(photon_scatterings.begin(),photon_scatterings.end(), [&phantomTrackID](PhotonScatterings& ps) { return ps.photonID == phantomTrackID;});
+      if (found_photon_scatterings != photon_scatterings.end()) {
+        if (isComptonInPhantom) {
+          found_photon_scatterings->nPhantomCompton += 1;
+          found_photon_scatterings->theComptonVolumeName = theComptonVolumeName;
+        } else {
+          found_photon_scatterings->nPhantomRayleigh += 1;
+          found_photon_scatterings->theRayleighVolumeName = theComptonVolumeName;
+        }
+      }
+    }
+  }
+}
 //--------------------------------------------------------------------------------------------------
 void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 {
@@ -133,7 +180,6 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
   } else {
     GateCrystalHitsCollection* CHC = GetOutputMgr()->GetCrystalHitCollection();
     G4int NbHits = 0;
-    G4int NpHits = 0;
 
     if (CHC) {
       NbHits = CHC->entries();
@@ -177,53 +223,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
       }
 
       // analysis of the phantom hits to count the comptons, etc.
-
-      GatePhantomHitsCollection* PHC = GetOutputMgr()->GetPhantomHitCollection();
-      NpHits = PHC->entries();
-      G4String theComptonVolumeName("NULL");
-      G4String theRayleighVolumeName("NULL");
-
-      for (G4int iPHit=0;iPHit<NpHits;iPHit++) {
-        // HDS : septal penetration record
-        if ( m_recordSeptalFlag ) {
-          if ((*PHC)[iPHit]->GetPhysVolName() == m_septalPhysVolumeName) {
-            ++septalNb;
-          }
-        }
-        G4int phantomTrackID = (*PHC)[iPHit]->GetTrackID();
-        G4String processName = (*PHC)[iPHit]->GetProcess();
-        G4int PDGcode = (*PHC)[iPHit]->GetPDGEncoding();
-        G4ThreeVector hitPos = (*PHC)[iPHit]->GetPos();
-
-        if (nVerboseLevel > 2) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : GatePhantomHitsCollection : trackID : " << std::setw(5) << phantomTrackID;
-          G4cout << "    PDG code : " << std::setw(5) << PDGcode << "  processName : <" << processName << G4endl;
-        }
-        
-        if ((phantomTrackID == photon_scatterings[0].photonID)||(phantomTrackID == photon_scatterings[1].photonID)) {
-          //Modif by DS and LS on Oct 4, 2002: we need to be able to recognise both 'compt'
-          //and 'LowEnCompt", hence the find on 'ompt' modif. by CJG to separate Compton and Rayleigh photons
-          const bool isComptonInPhantom = processName.find("ompt") != G4String::npos;
-          const bool isRayleighInPhantom = processName.find("Rayl") != G4String::npos;
-          if (isComptonInPhantom || isRayleighInPhantom) {
-            G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-            G4ThreeVector zero_vector(0.,0.,0.);
-            G4String volume_name = gNavigator->LocateGlobalPointAndSetup(hitPos,&zero_vector,false)->GetName();
-            theComptonVolumeName = isComptonInPhantom ? volume_name : theComptonVolumeName;
-            theRayleighVolumeName = isRayleighInPhantom ? volume_name : theRayleighVolumeName;
-          }
-          auto found_photon_scatterings = find_if(photon_scatterings.begin(),photon_scatterings.end(), [&phantomTrackID](PhotonScatterings& ps) { return ps.photonID == phantomTrackID;});
-          if (found_photon_scatterings != photon_scatterings.end()) {
-            if (isComptonInPhantom) {
-              found_photon_scatterings->nPhantomCompton += 1;
-              found_photon_scatterings->theComptonVolumeName = theComptonVolumeName;
-            } else {
-              found_photon_scatterings->nPhantomRayleigh += 1;
-              found_photon_scatterings->theRayleighVolumeName = theComptonVolumeName;
-            }
-          }
-        }
-      } // end loop NpHits
+      CollectPhantomScatterings(photon_scatterings, septalNb);
 
       TrackingMode theMode =( (GateSteppingAction *)(GateRunManager::GetRunManager()->GetUserSteppingAction() ) )->GetMode();
 
@@ -301,6 +301,8 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
           G4int nCrystalCompton = 0;
           G4int nPhantomRayleigh = 0;
           G4int nCrystalRayleigh = 0;
+          G4String theComptonVolumeName("NULL");
+          G4String theRayleighVolumeName("NULL");
 
           if (photon_scatterings[0].photonID != 0) { 
             // this means that at least 1 photon has been found, requiring 2 is wrong for SPECT
