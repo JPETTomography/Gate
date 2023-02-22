@@ -33,6 +33,7 @@
 #include "GateVVolume.hh"
 #include "GateActions.hh"
 #include "GateToRoot.hh"
+#include "GateActions.hh"
 //--------------------------------------------------------------------------------------------------
 GateAnalysis::GateAnalysis(const G4String& name, GateOutputMgr* outputMgr,DigiMode digiMode)
   : GateVOutputModule(name,outputMgr,digiMode)
@@ -158,6 +159,55 @@ void GateAnalysis::CollectPhantomScatterings(std::vector<PhotonScatterings>& pho
     }
   }
 }
+
+void GateAnalysis::UpdateComptonRayleighDataFromScatterings(const std::vector<PhotonScatterings>& photon_scatterings) {
+  GateToRoot* gateToRoot = (GateToRoot*) (GateOutputMgr::GetInstance()->GetModule("root"));
+  ComptonRayleighData aCRData;
+  aCRData.photon1_phantom_Rayleigh = photon_scatterings.at(0).nPhantomRayleigh;
+  aCRData.photon2_phantom_Rayleigh = photon_scatterings.at(1).nPhantomRayleigh;
+  aCRData.photon3_phantom_Rayleigh = photon_scatterings.at(2).nPhantomRayleigh;
+  aCRData.photon1_phantom_compton  = photon_scatterings.at(0).nPhantomCompton;
+  aCRData.photon2_phantom_compton  = photon_scatterings.at(1).nPhantomCompton;
+  aCRData.photon3_phantom_compton  = photon_scatterings.at(2).nPhantomCompton;
+  strcpy(aCRData.theComptonVolumeName1 , photon_scatterings.at(0).theComptonVolumeName.c_str() );
+  strcpy(aCRData.theComptonVolumeName2 , photon_scatterings.at(1).theComptonVolumeName.c_str() );
+  strcpy(aCRData.theComptonVolumeName3 , photon_scatterings.at(2).theComptonVolumeName.c_str() );
+  strcpy(aCRData.theRayleighVolumeName1 , photon_scatterings.at(0).theRayleighVolumeName.c_str() );
+  strcpy(aCRData.theRayleighVolumeName2 , photon_scatterings.at(1).theRayleighVolumeName.c_str() );
+  strcpy(aCRData.theRayleighVolumeName3 , photon_scatterings.at(2).theRayleighVolumeName.c_str() );
+  gateToRoot->RecordPHData( aCRData );
+}
+
+void GateAnalysis::UpdateScatteringsFromComptonRayleighData(std::vector<PhotonScatterings>& photon_scatterings) {
+  GateToRoot* gateToRoot = (GateToRoot*) (GateOutputMgr::GetInstance()->GetModule("root"));
+  ComptonRayleighData aCRData;
+  gateToRoot->GetPHData( aCRData);
+  photon_scatterings[0].nPhantomRayleigh += aCRData.photon1_phantom_Rayleigh;
+  photon_scatterings[1].nPhantomRayleigh += aCRData.photon2_phantom_Rayleigh;
+  photon_scatterings[2].nPhantomRayleigh += aCRData.photon3_phantom_Rayleigh;
+  photon_scatterings[0].nPhantomCompton += aCRData.photon1_phantom_compton;
+  photon_scatterings[1].nPhantomCompton += aCRData.photon2_phantom_compton;
+  photon_scatterings[2].nPhantomCompton += aCRData.photon3_phantom_compton;
+
+  photon_scatterings[0].theComptonVolumeName = aCRData.theComptonVolumeName1;
+  photon_scatterings[1].theComptonVolumeName = aCRData.theComptonVolumeName2;
+  photon_scatterings[2].theComptonVolumeName = aCRData.theComptonVolumeName3;
+  photon_scatterings[0].theRayleighVolumeName = aCRData.theRayleighVolumeName1;
+  photon_scatterings[1].theRayleighVolumeName = aCRData.theRayleighVolumeName2;
+  photon_scatterings[2].theRayleighVolumeName = aCRData.theRayleighVolumeName3;
+}
+
+void GateAnalysis::MakeComptonRayleighDataUpdates(std::vector<PhotonScatterings>& photon_scatterings) {
+  auto action = dynamic_cast<const GateSteppingAction*>(GateRunManager::GetRunManager()->GetUserSteppingAction());
+  TrackingMode theMode = action->GetMode();
+  if (theMode == TrackingMode::kTracker) {
+    // in tracker mode we store the infos about the number of compton and rayleigh
+    UpdateComptonRayleighDataFromScatterings(photon_scatterings);
+  } else if ( theMode == TrackingMode::kDetector ) {
+    // in tracker mode we store the infos about the number of compton and rayleigh - we are in detector mode
+    UpdateScatteringsFromComptonRayleighData(photon_scatterings);
+  }
+}
 //--------------------------------------------------------------------------------------------------
 void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 {
@@ -224,45 +274,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 
       // analysis of the phantom hits to count the comptons, etc.
       CollectPhantomScatterings(photon_scatterings, septalNb);
-
-      TrackingMode theMode =( (GateSteppingAction *)(GateRunManager::GetRunManager()->GetUserSteppingAction() ) )->GetMode();
-
-      if (theMode == TrackingMode::kTracker) {
-        // in tracker mode we store the infos about the number of compton and rayleigh
-        GateToRoot* gateToRoot = (GateToRoot*) (GateOutputMgr::GetInstance()->GetModule("root"));
-        ComptonRayleighData aCRData;
-        aCRData.photon1_phantom_Rayleigh = photon_scatterings[0].nPhantomRayleigh;
-        aCRData.photon2_phantom_Rayleigh = photon_scatterings[1].nPhantomRayleigh;
-        aCRData.photon3_phantom_Rayleigh = photon_scatterings[2].nPhantomRayleigh;
-        aCRData.photon1_phantom_compton  = photon_scatterings[0].nPhantomCompton;
-        aCRData.photon2_phantom_compton  = photon_scatterings[1].nPhantomCompton;
-        aCRData.photon3_phantom_compton  = photon_scatterings[2].nPhantomCompton;
-        strcpy(aCRData.theComptonVolumeName1 , photon_scatterings[0].theComptonVolumeName.c_str() );
-        strcpy(aCRData.theComptonVolumeName2 , photon_scatterings[1].theComptonVolumeName.c_str() );
-        strcpy(aCRData.theComptonVolumeName3 , photon_scatterings[2].theComptonVolumeName.c_str() );
-        strcpy(aCRData.theRayleighVolumeName1 , photon_scatterings[0].theRayleighVolumeName.c_str() );
-        strcpy(aCRData.theRayleighVolumeName2 , photon_scatterings[1].theRayleighVolumeName.c_str() );
-        strcpy(aCRData.theRayleighVolumeName3 , photon_scatterings[2].theRayleighVolumeName.c_str() );
-        gateToRoot->RecordPHData( aCRData );
-      } else if ( theMode == TrackingMode::kDetector ) {
-        // in tracker mode we store the infos about the number of compton and rayleigh - we are in detector mode
-        GateToRoot* gateToRoot = (GateToRoot*) (GateOutputMgr::GetInstance()->GetModule("root"));
-        ComptonRayleighData aCRData;
-        gateToRoot->GetPHData( aCRData);
-        photon_scatterings[0].nPhantomRayleigh += aCRData.photon1_phantom_Rayleigh;
-        photon_scatterings[1].nPhantomRayleigh += aCRData.photon2_phantom_Rayleigh;
-        photon_scatterings[2].nPhantomRayleigh += aCRData.photon3_phantom_Rayleigh;
-        photon_scatterings[0].nPhantomCompton += aCRData.photon1_phantom_compton;
-        photon_scatterings[1].nPhantomCompton += aCRData.photon2_phantom_compton;
-        photon_scatterings[2].nPhantomCompton += aCRData.photon3_phantom_compton;
-
-        photon_scatterings[0].theComptonVolumeName = aCRData.theComptonVolumeName1;
-        photon_scatterings[1].theComptonVolumeName = aCRData.theComptonVolumeName2;
-        photon_scatterings[2].theComptonVolumeName = aCRData.theComptonVolumeName3;
-        photon_scatterings[0].theRayleighVolumeName = aCRData.theRayleighVolumeName1;
-        photon_scatterings[1].theRayleighVolumeName = aCRData.theRayleighVolumeName2;
-        photon_scatterings[2].theRayleighVolumeName = aCRData.theRayleighVolumeName3;
-      }
+      MakeComptonRayleighDataUpdates(photon_scatterings);
 
       // Source info
       // DS : if gate source is not used (with /gate/EnableGeneralParticleSource) there are no GateSource, so skip

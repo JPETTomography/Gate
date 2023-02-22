@@ -69,6 +69,9 @@ public:
   inline void SetRecordSeptalFlag(G4bool flag) { m_recordSeptalFlag = flag; }
   
   void CollectPhantomScatterings(std::vector<PhotonScatterings>& photon_scatterings, G4int& septalNb);
+  void UpdateComptonRayleighDataFromScatterings(const std::vector<PhotonScatterings>& photon_scatterings);
+  void UpdateScatteringsFromComptonRayleighData(std::vector<PhotonScatterings>& photon_scatterings);
+  void MakeComptonRayleighDataUpdates(std::vector<PhotonScatterings>& photon_scatterings);
 
 private:
 
