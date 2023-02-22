@@ -298,6 +298,42 @@ void GateAnalysis::CollectCrystalScatterings(std::vector<PhotonScatterings>& pho
   }
 }
 
+void GateAnalysis::SetPhotonIDs(std::vector<PhotonScatterings>& photon_scatterings) {
+  m_trajectoryNavigator->FindPositronTrackID();
+  //search the two gammas
+  std::vector<G4int> photonIDVec = m_trajectoryNavigator->FindAnnihilationGammasTrackID();
+  if (photonIDVec.size() == 0) {
+    // no gamma coming from a positron or an ion, or shooted as primary
+    if (nVerboseLevel > 0) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photonIDs not found" << G4endl;
+    }
+  } else {
+    //  This warning is somewhat irrelevant with 124I
+    if (nVerboseLevel > 0 && photonIDVec.size() > 2) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photonID vector size > 2" << G4endl;
+    }
+    photon_scatterings[0].photonID = photonIDVec[0];
+    photon_scatterings[1].photonID = (photonIDVec.size() >= 2) ? photonIDVec[1] : 0;
+    photon_scatterings[2].photonID = (photonIDVec.size() >= 3) ? photonIDVec[2] : 0;
+  }
+
+  if (nVerboseLevel > 0) {
+    if (photon_scatterings[0].photonID == 0) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon1ID == 0" << G4endl;
+    }
+    if (photon_scatterings[1].photonID == 0) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon2ID == 0" << G4endl;
+    }
+    if (photon_scatterings[2].photonID == 0) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon3ID == 0" << G4endl;
+    }
+    if (nVerboseLevel > 1) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : photon1ID : " << photon_scatterings[0].photonID;
+      G4cout << "     photon2ID : " << photon_scatterings[1].photonID << G4endl;
+    }
+  }
+}
+
 //--------------------------------------------------------------------------------------------------
 void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 {
@@ -319,46 +355,11 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
     GateCrystalHitsCollection* CHC = GetOutputMgr()->GetCrystalHitCollection();
     if (CHC) {
       std::vector<PhotonScatterings> photon_scatterings(3);
-      G4int septalNb = 0; // HDS : septal penetration
-
-      m_trajectoryNavigator->FindPositronTrackID();
-	    //search the two gammas
-      std::vector<G4int> photonIDVec = m_trajectoryNavigator->FindAnnihilationGammasTrackID();
-      if (photonIDVec.size() == 0) {
-        // no gamma coming from a positron or an ion, or shooted as primary
-        if (nVerboseLevel > 0) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photonIDs not found" << G4endl;
-        }
-      } else {
-        //  This warning is somewhat irrelevant with 124I
-        if (nVerboseLevel > 0 && photonIDVec.size() > 2) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photonID vector size > 2" << G4endl;
-        }
-        photon_scatterings[0].photonID = photonIDVec[0];
-        photon_scatterings[1].photonID = (photonIDVec.size() >= 2) ? photonIDVec[1] : 0;
-        photon_scatterings[2].photonID = (photonIDVec.size() >= 3) ? photonIDVec[2] : 0;
-      }
-
-      if (nVerboseLevel > 0) {
-        if (photon_scatterings[0].photonID == 0) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon1ID == 0" << G4endl;
-        }
-        if (photon_scatterings[1].photonID == 0) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon2ID == 0" << G4endl;
-        }
-        if (photon_scatterings[2].photonID == 0) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : photon3ID == 0" << G4endl;
-        }
-        if (nVerboseLevel > 1) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : photon1ID : " << photon_scatterings[0].photonID;
-          G4cout << "     photon2ID : " << photon_scatterings[1].photonID << G4endl;
-        }
-      }
-
+      SetPhotonIDs(photon_scatterings);
       // analysis of the phantom hits to count the comptons, etc.
+      G4int septalNb = 0; // HDS : septal penetration
       CollectPhantomScatterings(photon_scatterings, septalNb);
       MakeComptonRayleighDataUpdates(photon_scatterings);
-
       // Source info
       // DS : if gate source is not used (with /gate/EnableGeneralParticleSource) there are no GateSource, so skip
       if ((GateSourceMgr::GetInstance())->GetSourcesForThisEvent().size() == 0) {

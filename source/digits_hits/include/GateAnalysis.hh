@@ -83,6 +83,7 @@ public:
     const G4ThreeVector& sourceVertex
   );
   void CollectCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, const G4int septalNb, GateCrystalHitsCollection* CHC, const G4int eventID);
+  void SetPhotonIDs(std::vector<PhotonScatterings>& photon_scatterings);
 
 private:
 
