@@ -142,7 +142,7 @@ public :
   void StopOnBoundary(G4int aI);
   void StopAndKill(G4String aString);
   void SetMode( TrackingMode aMode);
-  TrackingMode GetMode();
+  TrackingMode GetMode() const;
   void SetTxtOut(G4String aString);
   G4int GetTxtOn() { return TxtOn;};
   void SetEnergyThreshold(G4double);
