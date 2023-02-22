@@ -26,6 +26,16 @@ class GateAnalysis :  public GateVOutputModule
 {
 public:
 
+  struct PhotonScatterings {
+    G4int nPhantomCompton = 0;
+    G4int nPhantomRayleigh = 0;
+    G4int nCrystalCompton = 0;
+    G4int nCrystalRayleigh = 0;
+    G4int photonID = 0;
+    G4String theComptonVolumeName = G4String("NULL");
+    G4String theRayleighVolumeName = G4String("NULL");
+  };
+
   GateAnalysis(const G4String& name, GateOutputMgr* outputMgr,DigiMode digiMode);
   virtual ~GateAnalysis();
   const G4String& GiveNameOfFile();
