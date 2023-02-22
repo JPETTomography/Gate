@@ -208,9 +208,100 @@ void GateAnalysis::MakeComptonRayleighDataUpdates(std::vector<PhotonScatterings>
     UpdateScatteringsFromComptonRayleighData(photon_scatterings);
   }
 }
+
+void GateAnalysis::SetCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit) {
+  G4int crystalTrackID = hit->GetTrackID();
+  G4String processName = hit->GetProcess();
+  auto found_photon_scatterings_crystal = find_if(photon_scatterings.begin(),photon_scatterings.end(), [&crystalTrackID](PhotonScatterings& ps) { return ps.photonID == crystalTrackID;});
+  if (found_photon_scatterings_crystal != photon_scatterings.end()) {
+    if (processName.find("ompt") != G4String::npos) {
+      // Counting Compton in the Crystal
+      found_photon_scatterings_crystal->nCrystalCompton += 1;
+    } else if (processName.find("Rayl") != G4String::npos) {
+      // Counting Rayleigh scatter in crystal
+      found_photon_scatterings_crystal->nCrystalRayleigh += 1;
+    }
+  }
+}
+
+void GateAnalysis::UpdateHitDataForAnalysis(
+  std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit, 
+  const G4int septalNb, 
+  const G4int sourceID, 
+  const G4int eventID,
+  const G4int runID, 
+  const G4ThreeVector& sourceVertex
+) {
+  // fill in values with the branch with C struct
+  G4int trackID  = hit->GetTrackID();
+  G4int primaryID = m_trajectoryNavigator->FindPrimaryID(trackID);
+  G4int photonID = 0;
+  G4int nPhantomCompton = 0;
+  G4int nCrystalCompton = 0;
+  G4int nPhantomRayleigh = 0;
+  G4int nCrystalRayleigh = 0;
+  G4String theComptonVolumeName("NULL");
+  G4String theRayleighVolumeName("NULL");
+  const G4int rootID  = 0;
+
+  if (photon_scatterings[0].photonID != 0) { 
+    // this means that at least 1 photon has been found, requiring 2 is wrong for SPECT
+    // search the gamma from which this hit comes --> photonID
+    photonID = m_trajectoryNavigator->FindPhotonID(trackID);
+    if (nVerboseLevel > 2 && photonID == rootID) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : trackID: " << trackID << " photonID = " << rootID << G4endl;
+    }
+  }
+  
+  if (photonID > 0 && photonID < 4) {
+    const G4int index = photonID - 1;
+    nPhantomCompton = photon_scatterings[index].nPhantomCompton;
+    nPhantomRayleigh = photon_scatterings[index].nPhantomRayleigh;
+    theComptonVolumeName = photon_scatterings[index].theComptonVolumeName;
+    theRayleighVolumeName = photon_scatterings[index].theRayleighVolumeName;
+    nCrystalCompton = photon_scatterings[index].nCrystalCompton;
+    nCrystalRayleigh = photon_scatterings[index].nCrystalRayleigh;
+  }
+
+  // search the primary that originated the track
+  hit->SetSourceID(sourceID);
+  hit->SetSourcePosition(sourceVertex);
+  hit->SetNPhantomCompton(nPhantomCompton);
+  hit->SetNPhantomRayleigh(nPhantomRayleigh);
+  hit->SetComptonVolumeName(theComptonVolumeName);
+  hit->SetRayleighVolumeName(theRayleighVolumeName);
+  hit->SetPhotonID(photonID);
+  hit->SetPrimaryID(primaryID);
+  hit->SetEventID(eventID);
+  hit->SetRunID(runID);
+  hit->SetNCrystalCompton(nCrystalCompton);
+  hit->SetNCrystalRayleigh(nCrystalRayleigh);
+  hit->SetNSeptal(septalNb); // HDS : septal penetration
+}
+
+void GateAnalysis::CollectCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, const G4int septalNb, GateCrystalHitsCollection* CHC, const G4int eventID) {
+  G4int NbHits = CHC->entries();;
+  G4int sourceID = (((GateSourceMgr::GetInstance())->GetSourcesForThisEvent())[0])->GetSourceID();
+  G4int runID   = GateRunManager::GetRunManager()->GetCurrentRun()->GetRunID();
+  G4ThreeVector sourceVertex = m_trajectoryNavigator->FindSourcePosition();
+  // Hits loop
+  for (G4int iHit=0;iHit<NbHits;iHit++) {
+    GateCrystalHit* hit = (*CHC)[iHit];
+    SetCrystalScatterings(photon_scatterings, hit);
+    if (nVerboseLevel > 2) {
+      G4cout << "GateAnalysis::RecordEndOfEvent : CrystalHitsCollection: processName : <" << hit->GetProcess() << G4endl;
+      G4cout << ">    Particls PDG code : " << hit->GetPDGEncoding() << G4endl;
+    }
+    if (hit->GoodForAnalysis()) {
+      UpdateHitDataForAnalysis(photon_scatterings,hit, septalNb, sourceID, eventID,runID,sourceVertex);
+    }
+  }
+}
+
 //--------------------------------------------------------------------------------------------------
 void GateAnalysis::RecordEndOfEvent(const G4Event* event)
 {
+  const G4int eventID = event->GetEventID();
   if (nVerboseLevel > 2)
     G4cout << "GateAnalysis::RecordEndOfEvent" << G4endl;
 
@@ -220,22 +311,14 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
     m_trajectoryNavigator->SetTrajectoryContainer(trajectoryContainer);
   }
 
-  G4int eventID = event->GetEventID();
-  G4int runID   = GateRunManager::GetRunManager()->GetCurrentRun()->GetRunID();
-
   if (!trajectoryContainer) {
     if (nVerboseLevel > 0) {
       G4cout << "GateAnalysis::RecordEndOfEvent : WARNING : G4TrajectoryContainer not found" << G4endl;
     }
   } else {
     GateCrystalHitsCollection* CHC = GetOutputMgr()->GetCrystalHitCollection();
-    G4int NbHits = 0;
-
     if (CHC) {
-      NbHits = CHC->entries();
       std::vector<PhotonScatterings> photon_scatterings(3);
-      G4int rootID     = 0;
-      G4int primaryID  = 0;
       G4int septalNb = 0; // HDS : septal penetration
 
       m_trajectoryNavigator->FindPositronTrackID();
@@ -281,77 +364,7 @@ void GateAnalysis::RecordEndOfEvent(const G4Event* event)
       if ((GateSourceMgr::GetInstance())->GetSourcesForThisEvent().size() == 0) {
         return;
       }
-
-      G4int sourceID = (((GateSourceMgr::GetInstance())->GetSourcesForThisEvent())[0])->GetSourceID();
-      G4ThreeVector sourceVertex = m_trajectoryNavigator->FindSourcePosition();
-
-      // Hits loop
-      for (G4int iHit=0;iHit<NbHits;iHit++) {
-        G4int    crystalTrackID = (*CHC)[iHit]->GetTrackID();
-        G4String processName = (*CHC)[iHit]->GetProcess();
-        auto found_photon_scatterings_crystal = find_if(photon_scatterings.begin(),photon_scatterings.end(), [&crystalTrackID](PhotonScatterings& ps) { return ps.photonID == crystalTrackID;});
-        if (found_photon_scatterings_crystal != photon_scatterings.end()) {
-          if (processName.find("ompt") != G4String::npos) {
-            // Counting Compton in the Crystal
-            found_photon_scatterings_crystal->nCrystalCompton += 1;
-          } else if (processName.find("Rayl") != G4String::npos) {
-            // Counting Rayleigh scatter in crystal
-            found_photon_scatterings_crystal->nCrystalRayleigh += 1;
-          }
-        }
-
-        G4int PDGEncoding  = (*CHC)[iHit]->GetPDGEncoding();
-        if (nVerboseLevel > 2) {
-          G4cout << "GateAnalysis::RecordEndOfEvent : CrystalHitsCollection: processName : <" << processName << G4endl;
-          G4cout << ">    Particls PDG code : " << PDGEncoding << G4endl;
-        }
-        if ((*CHC)[iHit]->GoodForAnalysis()) {
-          // fill in values with the branch with C struct
-          G4int trackID  = (*CHC)[iHit]->GetTrackID();
-          G4int photonID = 0;
-          G4int nPhantomCompton = 0;
-          G4int nCrystalCompton = 0;
-          G4int nPhantomRayleigh = 0;
-          G4int nCrystalRayleigh = 0;
-          G4String theComptonVolumeName("NULL");
-          G4String theRayleighVolumeName("NULL");
-
-          if (photon_scatterings[0].photonID != 0) { 
-            // this means that at least 1 photon has been found, requiring 2 is wrong for SPECT
-            // search the gamma from which this hit comes --> photonID
-            photonID = m_trajectoryNavigator->FindPhotonID(trackID);
-            if (nVerboseLevel > 2 && photonID == rootID) {
-              G4cout << "GateAnalysis::RecordEndOfEvent : trackID: " << trackID << " photonID = " << rootID << G4endl;
-            }
-          }
-          
-          if (photonID > 0 && photonID < 4) {
-            const G4int index = photonID - 1;
-            nPhantomCompton = photon_scatterings[index].nPhantomCompton;
-            nPhantomRayleigh = photon_scatterings[index].nPhantomRayleigh;
-            theComptonVolumeName = photon_scatterings[index].theComptonVolumeName;
-            theRayleighVolumeName = photon_scatterings[index].theRayleighVolumeName;
-            nCrystalCompton = photon_scatterings[index].nCrystalCompton;
-            nCrystalRayleigh = photon_scatterings[index].nCrystalRayleigh;
-          }
-
-          // search the primary that originated the track
-          primaryID = m_trajectoryNavigator->FindPrimaryID(trackID);
-          (*CHC)[iHit]->SetSourceID(sourceID);
-          (*CHC)[iHit]->SetSourcePosition(sourceVertex);
-          (*CHC)[iHit]->SetNPhantomCompton(nPhantomCompton);
-          (*CHC)[iHit]->SetNPhantomRayleigh(nPhantomRayleigh);
-          (*CHC)[iHit]->SetComptonVolumeName(theComptonVolumeName);
-          (*CHC)[iHit]->SetRayleighVolumeName(theRayleighVolumeName);
-          (*CHC)[iHit]->SetPhotonID(photonID);
-          (*CHC)[iHit]->SetPrimaryID(primaryID);
-          (*CHC)[iHit]->SetEventID(eventID);
-          (*CHC)[iHit]->SetRunID(runID);
-          (*CHC)[iHit]->SetNCrystalCompton(nCrystalCompton);
-          (*CHC)[iHit]->SetNCrystalRayleigh(nCrystalRayleigh);
-          (*CHC)[iHit]->SetNSeptal(septalNb); // HDS : septal penetration
-        }
-      }
+      CollectCrystalScatterings(photon_scatterings,septalNb,CHC,eventID);
     } // end if (CHC)
   } // end if (!trajectoryContainer)
 } // end function

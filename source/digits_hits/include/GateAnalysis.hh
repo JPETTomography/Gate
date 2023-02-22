@@ -14,6 +14,7 @@ See LICENSE.md for further details
 #define GateAnalysis_H
 
 #include "GateVOutputModule.hh"
+#include "GateCrystalHit.hh"
 
 
 class GateTrajectoryNavigator;
@@ -72,6 +73,16 @@ public:
   void UpdateComptonRayleighDataFromScatterings(const std::vector<PhotonScatterings>& photon_scatterings);
   void UpdateScatteringsFromComptonRayleighData(std::vector<PhotonScatterings>& photon_scatterings);
   void MakeComptonRayleighDataUpdates(std::vector<PhotonScatterings>& photon_scatterings);
+  void SetCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit);
+  void UpdateHitDataForAnalysis(
+    std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit, 
+    const G4int septalNb, 
+    const G4int sourceID, 
+    const G4int eventID,
+    const G4int runID, 
+    const G4ThreeVector& sourceVertex
+  );
+  void CollectCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, const G4int septalNb, GateCrystalHitsCollection* CHC, const G4int eventID);
 
 private:
 
