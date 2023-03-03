@@ -54,6 +54,10 @@ public:
   void SetVerboseLevel(G4int val) { nVerboseLevel = val; };
 
 protected:
+  
+  std::vector<G4int> GetPhotonIndices();
+  void FillPhotonIDsForThreePhotons(std::vector<G4int>& photonIndices, bool& only2gamma);
+  void FillPhotonIDsForTwoPhotons(std::vector<G4int>& photonIndices);
 
 private:
   G4TrajectoryContainer* m_trajectoryContainer = NULL;
