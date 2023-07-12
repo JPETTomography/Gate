@@ -169,6 +169,7 @@ void GateTrajectoryNavigator::FillPhotonIDsForThreePhotons(std::vector<G4int>& p
             // we add both photons to the vertex
             m_photonIDVec.push_back(trj1->GetTrackID());
             m_photonIDVec.push_back(trj2->GetTrackID());
+            
             if ((vert2-vert3).mag()/mm < 1E-7) {
               m_photonIDVec.push_back(trj3->GetTrackID());
               photonIndices[j3] = -1;
@@ -312,7 +313,7 @@ G4int GateTrajectoryNavigator::FindPhotonID(G4int trackID)
       } else if (photonID == photon2ID) {
         photonID = 2;
       } else if (photonID == photon3ID) {
-        photonID = 0;
+        photonID = 3;
       }
     }
   }

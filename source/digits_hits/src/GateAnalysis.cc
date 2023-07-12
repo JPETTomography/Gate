@@ -230,7 +230,8 @@ void GateAnalysis::UpdateHitDataForAnalysis(
   const G4int sourceID, 
   const G4int eventID,
   const G4int runID, 
-  const G4ThreeVector& sourceVertex
+  const G4ThreeVector& sourceVertex,
+  const G4int gammaType
 ) {
   // fill in values with the branch with C struct
   G4int trackID  = hit->GetTrackID();
@@ -262,7 +263,12 @@ void GateAnalysis::UpdateHitDataForAnalysis(
     nCrystalCompton = photon_scatterings[index].nCrystalCompton;
     nCrystalRayleigh = photon_scatterings[index].nCrystalRayleigh;
   }
-
+  
+  // if gammaType is PromptPhoton the photonID for output file is set to 0
+  if (gammaType==3) {
+    photonID = 0;
+  }
+  
   // search the primary that originated the track
   hit->SetSourceID(sourceID);
   hit->SetSourcePosition(sourceVertex);
@@ -292,8 +298,9 @@ void GateAnalysis::CollectCrystalScatterings(std::vector<PhotonScatterings>& pho
       G4cout << "GateAnalysis::RecordEndOfEvent : CrystalHitsCollection: processName : <" << hit->GetProcess() << G4endl;
       G4cout << ">    Particls PDG code : " << hit->GetPDGEncoding() << G4endl;
     }
+    G4int gammaType = hit->GetGammaType();
     if (hit->GoodForAnalysis()) {
-      UpdateHitDataForAnalysis(photon_scatterings,hit, septalNb, sourceID, eventID,runID,sourceVertex);
+      UpdateHitDataForAnalysis(photon_scatterings, hit, septalNb, sourceID, eventID, runID, sourceVertex, gammaType);
     }
   }
 }
