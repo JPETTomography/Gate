@@ -134,6 +134,7 @@ void GateTrajectoryNavigator::FillPhotonIDsForThreePhotons(std::vector<G4int>& p
   G4int i3;
   for (G4int j1=0; j1<nPh; j1++) {
     for (G4int j2=j1+1; j2<nPh; j2++) {
+      bool photonUsed = false;
       for(G4int j3=j2+1; j3<nPh; j3++){
         i1 = photonIndices[j1];
         i2 = photonIndices[j2];
@@ -166,19 +167,24 @@ void GateTrajectoryNavigator::FillPhotonIDsForThreePhotons(std::vector<G4int>& p
               G4cout << "[GateTrajectoryNavigator::FindAnnihilationGammasTrackID] : Found common vertex for the two annihilation gammas :";
               G4cout << " tracks " << trj1->GetTrackID() << " and " << trj2->GetTrackID() << G4endl;
             }
-            // we add both photons to the vertex
-            m_photonIDVec.push_back(trj1->GetTrackID());
-            m_photonIDVec.push_back(trj2->GetTrackID());
             
             if ((vert2-vert3).mag()/mm < 1E-7) {
+              // we add all three photons to the vertex
+              m_photonIDVec.push_back(trj1->GetTrackID());
+              m_photonIDVec.push_back(trj2->GetTrackID());
               m_photonIDVec.push_back(trj3->GetTrackID());
+              // we cancel the 3rd photon from the list to avoid double counting later
               photonIndices[j3] = -1;
               only2gamma = false;
             }
-            // we cancel the 2nd photon from the list to avoid double counting later
-            photonIndices[j2] = -1;
+            // we keep in mind that 2nd photon from the list was used to later cancel it to avoid double counting
+            photonUsed = true;
           }
         }
+      }
+      if(photonUsed) {
+        // we cancel the 2nd photon from the list to avoid double counting later
+        photonIndices[j2] = -1;
       }
     }
   }
