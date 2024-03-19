@@ -34,11 +34,11 @@ GateCylindricalPETSystem::GateCylindricalPETSystem(const G4String& itsName)
 {
   // Set up a messenger
   m_messenger = new GateClockDependentMessenger(this);
-  m_messenger->SetDirectoryGuidance(G4String("Controls the system '") + GetObjectName() + "'" );
+  m_messenger->SetDirectoryGuidance(G4String("Controls the system'") + GetObjectName() + "'" );
   
 	// Set up a messenger
   m_messenger2 = new GateCylindricalPETSystemMessenger(this);
-  m_messenger2->SetDirectoryGuidance(G4String("Controls the system '") + GetObjectName() + "'" );
+  m_messenger2->SetDirectoryGuidance(G4String("Controls the system'") + GetObjectName() + "'" );
 
   // Define the scanner components
   GateBoxComponent* rSectorComponent = new GateBoxComponent("rsector",GetBaseComponent(),this);
@@ -52,9 +52,9 @@ GateCylindricalPETSystem::GateCylindricalPETSystem(const G4String& itsName)
 
   // Integrate a coincidence sorter into the digitizer
   //OK GND 2022
-  GateDigitizerMgr* digitizerMgr = GateDigitizerMgr::GetInstance();
-  GateCoincidenceSorter* coincidenceSorter = new GateCoincidenceSorter(digitizerMgr,"Coincidences");
-  digitizerMgr->AddNewCoincidenceSorter(coincidenceSorter);
+  //GateDigitizerMgr* digitizerMgr = GateDigitizerMgr::GetInstance();
+  //GateCoincidenceSorter* coincidenceSorter = new GateCoincidenceSorter(digitizerMgr,"Coincidences");
+  //digitizerMgr->AddNewCoincidenceSorter(coincidenceSorter);
   
 #ifdef GATE_USE_LMF
 
