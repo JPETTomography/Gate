@@ -134,7 +134,7 @@ void GateAnalysis::CollectPhantomScatterings(std::vector<PhotonScatterings>& pho
       G4cout << "    PDG code : " << std::setw(5) << PDGcode << "  processName : <" << processName << G4endl;
     }
     
-    if ((phantomTrackID == photon_scatterings[0].photonID)||(phantomTrackID == photon_scatterings[1].photonID)) {
+    if ((phantomTrackID == photon_scatterings[0].photonID)||(phantomTrackID == photon_scatterings[1].photonID)||(phantomTrackID == photon_scatterings[2].photonID)) {
       //Modif by DS and LS on Oct 4, 2002: we need to be able to recognise both 'compt'
       //and 'LowEnCompt", hence the find on 'ompt' modif. by CJG to separate Compton and Rayleigh photons
       const bool isComptonInPhantom = processName.find("ompt") != G4String::npos;

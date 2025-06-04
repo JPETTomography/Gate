@@ -1454,7 +1454,7 @@ void GateToRoot::OpenTracksFile() {
 
 void GateToRoot::RecordPHData(ComptonRayleighData aCRData) {
     theCRData.photon1_phantom_Rayleigh = aCRData.photon1_phantom_Rayleigh;
-    theCRData.photon2_phantom_Rayleigh = aCRData.photon1_phantom_Rayleigh;
+    theCRData.photon2_phantom_Rayleigh = aCRData.photon2_phantom_Rayleigh;
     theCRData.photon3_phantom_Rayleigh = aCRData.photon3_phantom_Rayleigh;
     theCRData.photon1_phantom_compton = aCRData.photon1_phantom_compton;
     theCRData.photon2_phantom_compton = aCRData.photon2_phantom_compton;
@@ -1469,7 +1469,7 @@ void GateToRoot::RecordPHData(ComptonRayleighData aCRData) {
 
 void GateToRoot::GetPHData(ComptonRayleighData &aCRData) {
     aCRData.photon1_phantom_Rayleigh = theCRData.photon1_phantom_Rayleigh;
-    aCRData.photon2_phantom_Rayleigh = theCRData.photon1_phantom_Rayleigh;
+    aCRData.photon2_phantom_Rayleigh = theCRData.photon2_phantom_Rayleigh;
     aCRData.photon3_phantom_Rayleigh = theCRData.photon3_phantom_Rayleigh;
     aCRData.photon1_phantom_compton = theCRData.photon1_phantom_compton;
     aCRData.photon2_phantom_compton = theCRData.photon2_phantom_compton;
