@@ -14,6 +14,7 @@ See LICENSE.md for further details
 #define GateAnalysis_H
 
 #include "GateVOutputModule.hh"
+#include "GateCrystalHit.hh"
 
 
 class GateTrajectoryNavigator;
@@ -25,6 +26,16 @@ class GateVVolume;
 class GateAnalysis :  public GateVOutputModule
 {
 public:
+
+  struct PhotonScatterings {
+    G4int nPhantomCompton = 0;
+    G4int nPhantomRayleigh = 0;
+    G4int nCrystalCompton = 0;
+    G4int nCrystalRayleigh = 0;
+    G4int photonID = 0;
+    G4String theComptonVolumeName = G4String("NULL");
+    G4String theRayleighVolumeName = G4String("NULL");
+  };
 
   GateAnalysis(const G4String& name, GateOutputMgr* outputMgr,DigiMode digiMode);
   virtual ~GateAnalysis();
@@ -57,6 +68,23 @@ public:
   inline G4bool GetRecordSeptalFlag() const { return m_recordSeptalFlag; }
   inline void SetSeptalPhysVolumeName(const G4String& name) { m_septalPhysVolumeName = name; }
   inline void SetRecordSeptalFlag(G4bool flag) { m_recordSeptalFlag = flag; }
+  
+  void CollectPhantomScatterings(std::vector<PhotonScatterings>& photon_scatterings, G4int& septalNb);
+  void UpdateComptonRayleighDataFromScatterings(const std::vector<PhotonScatterings>& photon_scatterings);
+  void UpdateScatteringsFromComptonRayleighData(std::vector<PhotonScatterings>& photon_scatterings);
+  void MakeComptonRayleighDataUpdates(std::vector<PhotonScatterings>& photon_scatterings);
+  void SetCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit);
+  void UpdateHitDataForAnalysis(
+    std::vector<PhotonScatterings>& photon_scatterings, GateCrystalHit* hit, 
+    const G4int septalNb, 
+    const G4int sourceID, 
+    const G4int eventID,
+    const G4int runID, 
+    const G4ThreeVector& sourceVertex,
+    const G4int gammaType
+  );
+  void CollectCrystalScatterings(std::vector<PhotonScatterings>& photon_scatterings, const G4int septalNb, GateCrystalHitsCollection* CHC, const G4int eventID);
+  void SetPhotonIDs(std::vector<PhotonScatterings>& photon_scatterings);
 
 private:
 

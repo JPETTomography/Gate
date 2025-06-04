@@ -589,7 +589,7 @@ void GateSteppingAction::SetMode( TrackingMode aMode)
   m_trackingMode = aMode;
 }
 
-TrackingMode  GateSteppingAction::GetMode()
+TrackingMode  GateSteppingAction::GetMode() const
 { return m_trackingMode;}
 
 //-----------------------------------------------------------------------------
